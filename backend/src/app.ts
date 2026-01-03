@@ -1,0 +1,45 @@
+import "reflect-metadata";
+import express from "express";
+import { useContainer, useExpressServer } from "routing-controllers";
+import { Container } from "typedi";
+import { UserController } from "./controllers/UserController";
+import { connectMongoDB } from "./config/db";
+import dotenv from "dotenv";
+import { ErrorHandler } from "./middlewares/errorHandler";
+
+dotenv.config();
+
+useContainer(Container);
+
+export const startServer = async () => {
+  try {
+    const app = express();
+
+    // Connect DB
+    await connectMongoDB();
+
+    useExpressServer(app, {
+      controllers: [UserController],
+      middlewares: [ErrorHandler],
+      cors: {
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+      },
+      validation: {
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      },
+      routePrefix: "/api",
+      defaultErrorHandler: false,
+    });
+
+    const port = process.env.PORT || 4000;
+
+    app.listen(port, () => {
+      console.log(`Server running on http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error("Error starting server:", error);
+  }
+};

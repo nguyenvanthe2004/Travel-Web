@@ -7,6 +7,7 @@ import { connectMongoDB } from "./config/db";
 import dotenv from "dotenv";
 import { ErrorHandler } from "./middlewares/errorHandler";
 import { mongooseSerializer } from "./interceptors/serialize.interceptor";
+import { LocationController } from "./controllers/LocationController";
 
 dotenv.config();
 
@@ -22,7 +23,7 @@ export const startServer = async () => {
     app.use(mongooseSerializer);
 
     useExpressServer(app, {
-      controllers: [UserController],
+      controllers: [UserController, LocationController],
       middlewares: [ErrorHandler],
       cors: {
         origin: "*",

@@ -40,7 +40,7 @@ export class UserService {
         email: dto.email,
         password: hashedPassword,
         role: UserRole.USER,
-        isActive: false,
+        isActive: true,
       });
 
       return { success: true };

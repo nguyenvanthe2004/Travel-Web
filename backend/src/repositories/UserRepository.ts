@@ -5,7 +5,7 @@ import { CreateUserInput } from "../types/user";
 @Service()
 export class UserRepository {
   findAll(): Promise<IUser[]> {
-    return UserModel.find().lean()
+  return UserModel.find().lean()
   }
 
   findOne(id: string) {

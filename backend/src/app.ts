@@ -6,6 +6,7 @@ import { UserController } from "./controllers/UserController";
 import { connectMongoDB } from "./config/db";
 import dotenv from "dotenv";
 import { ErrorHandler } from "./middlewares/errorHandler";
+import { mongooseSerializer } from "./interceptors/serialize.interceptor";
 
 dotenv.config();
 
@@ -17,6 +18,8 @@ export const startServer = async () => {
 
     // Connect DB
     await connectMongoDB();
+
+    app.use(mongooseSerializer);
 
     useExpressServer(app, {
       controllers: [UserController],

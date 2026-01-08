@@ -12,3 +12,19 @@ export class CreateUserDto {
   @MinLength(6)
   password: string;
 }
+export class VerifyUserDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(6)
+  code: string;
+}
+export class LoginUserDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(6)
+  password: string;
+}

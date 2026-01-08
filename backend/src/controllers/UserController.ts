@@ -13,8 +13,6 @@ import { Service } from "typedi";
 import { UserService } from "../services/UserService";
 import { CreateUserDto, LoginUserDto, VerifyUserDto } from "../dtos/UserDto";
 import { Response } from "express";
-import { Public } from "../decorators/Public";
-import { Roles } from "../decorators/Roles";
 
 @Service()
 @JsonController("/users")

@@ -9,7 +9,9 @@ export interface IUser extends Document {
   fullName: string;
   email: string;
   password: string;
+  phone: string;
   role: UserRole;
+  verifyCode: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -34,10 +36,18 @@ const UserSchema = new Schema<IUser>(
       required: true,
       select: false,
     },
+    phone: {
+      type: String,
+      trim: true,
+    },
     role: {
       type: String,
       enum: Object.values(UserRole), // ["user", "admin"]
       default: UserRole.USER,
+    },
+    verifyCode: {
+      type: String,
+      default: null,
     },
     isActive: {
       type: Boolean,

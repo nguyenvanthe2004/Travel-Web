@@ -5,7 +5,7 @@ import { CreateUserInput } from "../types/user";
 @Service()
 export class UserRepository {
   findAll(): Promise<IUser[]> {
-  return UserModel.find().lean()
+    return UserModel.find().lean();
   }
 
   findOne(id: string) {
@@ -13,7 +13,11 @@ export class UserRepository {
   }
 
   findByEmail(email: string) {
-    return UserModel.findOne({ email });
+    return UserModel.findOne({ email }).select("+password");
+  }
+
+  findByCode(code: string) {
+    return UserModel.findOne({ verifyCode: code }).select("+password");
   }
 
   async create(data: CreateUserInput): Promise<IUser> {
@@ -21,10 +25,15 @@ export class UserRepository {
       fullName: data.fullName,
       email: data.email,
       password: data.password,
+      phone: data.phone,
       role: data.role,
+      verifyCode: data.verifyCode,
       isActive: data.isActive,
     });
 
     return user.save();
+  }
+  async update(id: string, data: Partial<IUser>) {
+    return UserModel.findByIdAndUpdate(id, data, { new: true });
   }
 }

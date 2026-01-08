@@ -8,10 +8,13 @@ export const callLogin = async (data: LoginData) => {
     return await instance.post('/users/login', data);
 }
 export const verifyEmail = async (email: string, code: string) => {
-    return await instance.post('/users/verifyEmail', { email, code });
+    return await instance.post('/users/verify-email', { email, code });
 }
-export const forgotPassword = async (email: string) => {
-    return await instance.post('/users/forgotPassword', { email });
+export const forgotPasswordCode = async (email: string) => {
+    return await instance.post('/users/forgot-code', { email });
+}
+export const forgotPassword = async (email: string, code: string) => {
+    return await instance.post('/users/forgot-password', { email, code });
 }
 export const getCurrentUser = async () => {
     return await instance.get('/users/current');

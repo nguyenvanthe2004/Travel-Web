@@ -12,42 +12,219 @@ const RightSide: React.FC = () => {
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errors, setErrors] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    code: "",
+  });
+  const [touched, setTouched] = useState({
+    fullName: false,
+    email: false,
+    password: false,
+    confirmPassword: false,
+    code: false,
+  });
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  // Validation functions
+  const validateFullName = (value: string): string => {
+    if (!value.trim()) {
+      return "Full name is required";
+    }
+    if (value.trim().length < 2) {
+      return "Full name must be at least 2 characters";
+    }
+    return "";
+  };
 
-  try {
-    if (!showCodeInput) {
-      if (!fullName || !email || !password || !confirmPassword) {
-        alert("Please fill all required fields");
-        return;
-      }
+  const validateEmail = (value: string): string => {
+    if (!value) {
+      return "Email is required";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      return "Please enter a valid email address";
+    }
+    return "";
+  };
 
-      if (password !== confirmPassword) {
-        alert("Passwords do not match");
-        return;
-      }
+  const validatePassword = (value: string): string => {
+    if (!value) {
+      return "Password is required";
+    }
+    if (value.length < 6) {
+      return "Password must be at least 6 characters";
+    }
+    if (!/[A-Z]/.test(value)) {
+      return "Password must contain at least one uppercase letter";
+    }
+    if (!/[a-z]/.test(value)) {
+      return "Password must contain at least one lowercase letter";
+    }
+    if (!/[0-9]/.test(value)) {
+      return "Password must contain at least one number";
+    }
+    return "";
+  };
 
+  const validateConfirmPassword = (value: string): string => {
+    if (!value) {
+      return "Please confirm your password";
+    }
+    if (value !== password) {
+      return "Passwords do not match";
+    }
+    return "";
+  };
+
+  const validateCode = (value: string): string => {
+    if (!value) {
+      return "Verification code is required";
+    }
+    if (value.length !== 6) {
+      return "Code must be 6 digits";
+    }
+    if (!/^\d+$/.test(value)) {
+      return "Code must contain only numbers";
+    }
+    return "";
+  };
+
+  // Handle changes
+  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFullName(value);
+    if (touched.fullName) {
+      setErrors((prev) => ({ ...prev, fullName: validateFullName(value) }));
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    if (touched.email) {
+      setErrors((prev) => ({ ...prev, email: validateEmail(value) }));
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    if (touched.password) {
+      setErrors((prev) => ({ ...prev, password: validatePassword(value) }));
+    }
+    // Also revalidate confirm password if it's been touched
+    if (touched.confirmPassword && confirmPassword) {
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: value !== confirmPassword ? "Passwords do not match" : "",
+      }));
+    }
+  };
+
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setConfirmPassword(value);
+    if (touched.confirmPassword) {
+      setErrors((prev) => ({ ...prev, confirmPassword: validateConfirmPassword(value) }));
+    }
+  };
+
+  const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCode(value);
+    if (touched.code) {
+      setErrors((prev) => ({ ...prev, code: validateCode(value) }));
+    }
+  };
+
+  // Handle blur
+  const handleBlur = (field: keyof typeof touched) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    
+    switch (field) {
+      case "fullName":
+        setErrors((prev) => ({ ...prev, fullName: validateFullName(fullName) }));
+        break;
+      case "email":
+        setErrors((prev) => ({ ...prev, email: validateEmail(email) }));
+        break;
+      case "password":
+        setErrors((prev) => ({ ...prev, password: validatePassword(password) }));
+        break;
+      case "confirmPassword":
+        setErrors((prev) => ({ ...prev, confirmPassword: validateConfirmPassword(confirmPassword) }));
+        break;
+      case "code":
+        setErrors((prev) => ({ ...prev, code: validateCode(code) }));
+        break;
+    }
+  };
+
+  const handleRegisterCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate all fields
+    const fullNameError = validateFullName(fullName);
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
+    const confirmPasswordError = validateConfirmPassword(confirmPassword);
+
+    setErrors({
+      fullName: fullNameError,
+      email: emailError,
+      password: passwordError,
+      confirmPassword: confirmPasswordError,
+      code: "",
+    });
+
+    setTouched({
+      fullName: true,
+      email: true,
+      password: true,
+      confirmPassword: true,
+      code: false,
+    });
+
+    // If there are errors, don't submit
+    if (fullNameError || emailError || passwordError || confirmPasswordError) {
+      return;
+    }
+
+    try {
       await callRegister({ fullName, email, password });
-
       setShowCodeInput(true);
+    } catch (err: any) {
+      setErrors((prev) => ({
+        ...prev,
+        email: err?.message || "An unexpected error occurred",
+      }));
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const codeError = validateCode(code);
+    setErrors((prev) => ({ ...prev, code: codeError }));
+    setTouched((prev) => ({ ...prev, code: true }));
+
+    if (codeError) {
       return;
     }
-    if (!code) {
-      alert("Please enter verification code");
-      return;
+
+    try {
+      await verifyEmail(email, code);
+      navigate("/login");
+    } catch (err: any) {
+      setErrors((prev) => ({
+        ...prev,
+        code: err?.message || "Invalid verification code",
+      }));
     }
-
-    await verifyEmail(email, code);
-
-    alert("Account verified successfully!");
-    navigate("/login");
-  } catch (err: any) {
-    alert(err?.message || "An unexpected error occurred");
-  }
-};
-
+  };
 
   return (
     <div className="flex-1 flex flex-col justify-center px-4 py-6 sm:px-6 sm:py-8 md:px-12 lg:px-16 xl:px-24 bg-white overflow-y-auto">
@@ -63,146 +240,179 @@ const RightSide: React.FC = () => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-        <div className="space-y-4 sm:space-y-5">
-          {/* Full Name */}
-          <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-              Full Name
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Jane Doe"
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
-              />
-              <User className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
-            </div>
-          </div>
-
-          {/* Email Address */}
-          <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-              Email Address
-            </label>
-            <div className="relative">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="jane@example.com"
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
-              />
-              <Mail className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-            </div>
-          </div>
-
-          {/* Password Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Password */}
+        <form className="space-y-4 sm:space-y-5">
+          <div className="space-y-4 sm:space-y-5">
+            {/* Full Name */}
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                Password
+                Full Name
               </label>
               <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+                  type="text"
+                  value={fullName}
+                  onChange={handleFullNameChange}
+                  onBlur={() => handleBlur("fullName")}
+                  placeholder="Jane Doe"
+                  className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border rounded-lg text-sm sm:text-base focus:outline-none transition-colors ${
+                    touched.fullName && errors.fullName
+                      ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                      : "border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                  }`}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                </button>
+                <User className={`absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 ${
+                  touched.fullName && errors.fullName ? "text-red-500" : "text-orange-500"
+                }`} />
               </div>
+              {touched.fullName && errors.fullName && (
+                <p className="text-red-500 text-xs sm:text-sm mt-1">
+                  {errors.fullName}
+                </p>
+              )}
             </div>
 
-            {/* Confirm Password */}
+            {/* Email Address */}
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                Confirm Password
+                Email Address
               </label>
               <div className="relative">
                 <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+                  type="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  onBlur={() => handleBlur("email")}
+                  placeholder="jane@example.com"
+                  className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border rounded-lg text-sm sm:text-base focus:outline-none transition-colors ${
+                    touched.email && errors.email
+                      ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                      : "border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                  }`}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                </button>
+                <Mail className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+              </div>
+              {touched.email && errors.email && (
+                <p className="text-red-500 text-xs sm:text-sm mt-1">
+                  {errors.email}
+                </p>
+              )}
+            </div>
+
+            {/* Password Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Password */}
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={handlePasswordChange}
+                    onBlur={() => handleBlur("password")}
+                    placeholder="••••••••"
+                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border rounded-lg text-sm sm:text-base focus:outline-none transition-colors ${
+                      touched.password && errors.password
+                        ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                        : "border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
+                    ) : (
+                      <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+                    )}
+                  </button>
+                </div>
+                {touched.password && errors.password && (
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">
+                    {errors.password}
+                  </p>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    onBlur={() => handleBlur("confirmPassword")}
+                    placeholder="••••••••"
+                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border rounded-lg text-sm sm:text-base focus:outline-none transition-colors ${
+                      touched.confirmPassword && errors.confirmPassword
+                        ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                        : "border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
+                    ) : (
+                      <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+                    )}
+                  </button>
+                </div>
+                {touched.confirmPassword && errors.confirmPassword && (
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">
+                    {errors.confirmPassword}
+                  </p>
+                )}
               </div>
             </div>
-          </div>
 
-          {/* Terms & Conditions */}
-          <div className="flex items-start gap-2 sm:gap-3">
-            <input
-              type="checkbox"
-              id="terms"
-              className="mt-0.5 sm:mt-1 w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500 cursor-pointer"
-            />
-            <label
-              htmlFor="terms"
-              className="text-xs sm:text-sm text-gray-600 cursor-pointer"
+            {showCodeInput && (
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
+                  Verification Code
+                </label>
+                <input
+                  type="text"
+                  value={code}
+                  onChange={handleCodeChange}
+                  onBlur={() => handleBlur("code")}
+                  placeholder="Enter 6-digit code"
+                  maxLength={6}
+                  className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg text-sm sm:text-base focus:outline-none transition-colors ${
+                    touched.code && errors.code
+                      ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                      : "border-orange-500 focus:ring-1 focus:ring-orange-500"
+                  }`}
+                />
+                {touched.code && errors.code ? (
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">
+                    {errors.code}
+                  </p>
+                ) : (
+                  <p className="text-xs text-gray-500 mt-1">
+                    We have sent a verification code to your email
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              onClick={showCodeInput ? handleVerifyCode : handleRegisterCode}
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 sm:py-4 rounded-lg transition-colors shadow-sm text-sm sm:text-base"
             >
-              I agree to the{" "}
-              <a href="#" className="text-gray-900 font-medium hover:underline">
-                Terms & Conditions
-              </a>{" "}
-              and{" "}
-              <a href="#" className="text-gray-900 font-medium hover:underline">
-                Privacy Policy
-              </a>
-            </label>
+              {showCodeInput ? "Verify & Create Account" : "Create Account"}
+            </button>
           </div>
-
-          {showCodeInput && (
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">
-                Verification Code
-              </label>
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="Enter 6-digit code"
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-orange-500 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-1 focus:ring-orange-500"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                We have sent a verification code to your email
-              </p>
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 sm:py-4 rounded-lg transition-colors shadow-sm text-sm sm:text-base"
-          >
-            {showCodeInput ? "Verify & Create Account" : "Create Account"}
-          </button>
-        </div>
         </form>
 
         {/* Divider */}
@@ -220,37 +430,10 @@ const RightSide: React.FC = () => {
         {/* Social Login Buttons */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <button className="flex items-center justify-center py-2.5 sm:py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
+            <img src="/icons/google.svg" alt="" />
           </button>
           <button className="flex items-center justify-center py-2.5 sm:py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="#1877F2"
-                d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07c0 6 4.39 10.97 10.12 11.86v-8.39H7.08v-3.47h3.04V9.41c0-3 1.79-4.66 4.53-4.66 1.31 0 2.68.23 2.68.23v2.95h-1.5c-1.48 0-1.94.92-1.94 1.86v2.24h3.31l-.53 3.47h-2.78v8.39C19.61 23.04 24 18.07 24 12.07z"
-              />
-            </svg>
+            <img src="/icons/facebook.svg" alt="" />
           </button>
         </div>
 

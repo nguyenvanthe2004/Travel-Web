@@ -6,7 +6,7 @@ interface Props {
 
 const AuthLayout: React.FC<Props> = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#fcfaf8] dark:bg-gray-900">
+    <div className="h-screen flex flex-col bg-[#fcfaf8] dark:bg-gray-900">
       {children}
     </div>
   );

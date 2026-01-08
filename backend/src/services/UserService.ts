@@ -61,7 +61,14 @@ export class UserService {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      return { userId: user._id, fullName: user.fullName, email: user.email, phone: user.phone, role: user.role, token};
+      return {
+        userId: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        token,
+      };
     } catch (error: any) {
       throw new BadRequestError(error.message);
     }
@@ -115,11 +122,34 @@ export class UserService {
       message: "Verification code sent to email",
     };
   }
-  async forgotPassword(email: string) {
+  async sendForgotPasswordCode(email: string) {
     const user = await this.userRepo.findByEmail(email);
     if (!user) {
       throw new BadRequestError("User not found");
     }
+
+    const verifyCode = await generateVerifyCode(6, this.userRepo);
+
+    await this.userRepo.update(user.id, {
+      verifyCode: verifyCode,
+    });
+
+    await this.mailService.sendVerifyCode(email, verifyCode);
+
+    return {
+      message: "Verification code sent to email",
+    };
+  }
+  async forgotPassword(email: string, code: string) {
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) {
+      throw new BadRequestError("User not found");
+    }
+
+    if (user.verifyCode !== code) {
+      throw new BadRequestError("Invalid verification code");
+    }
+
     const pass = await generateForgotPass(6, this.userRepo);
     const hashedPassword = await bcrypt.hash(pass, 10);
     await this.userRepo.update(user.id, {
@@ -131,11 +161,11 @@ export class UserService {
     };
   }
 
-  async currentUser(res: Response, req: Request, next: NextFunction) {
-    try {
-      res.json({ user: (req as any).user });
-    } catch (error) {
-      throw new BadRequestError(error.message);
+  async currentUser(user: any) {
+    if (!user) {
+      throw new BadRequestError("User not authenticated");
     }
+
+    return user;
   }
 }

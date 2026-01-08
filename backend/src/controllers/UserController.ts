@@ -8,6 +8,7 @@ import {
   UseBefore,
   Params,
   Authorized,
+  Req,
 } from "routing-controllers";
 import { Service } from "typedi";
 import { UserService } from "../services/UserService";
@@ -32,12 +33,8 @@ export class UserController {
     return this.userService.findOne(id);
   }
   @Get("/current")
-  async currentUser(
-    @Res() res: Response,
-    @Body() body: any,
-    @Params() param: any
-  ) {
-    return this.userService.currentUser(res, body, param);
+  async currentUser(@Req() req: Request) {
+    return this.userService.currentUser((req as any).user);
   }
 
   @Public()
@@ -54,12 +51,17 @@ export class UserController {
   async register(@Body({ validate: true }) data: CreateUserDto) {
     return this.userService.register(data);
   }
-  @Post("/verifyEmail")
+  @Post("/verify-email")
   async verifyEmail(@Body({ validate: true }) data: VerifyUserDto) {
     return this.userService.verifyEmail(data.email, data.code);
   }
-  @Post("/forgotPassword")
-  async forgotPassword(@Body() body: { email: string }) {
-    return this.userService.forgotPassword(body.email);
+  @Post("/forgot-code")
+  async sendForgotPasswordCode(@Body() body: { email: string }) {
+     return this.userService.sendForgotPasswordCode(body.email);
   }
+  @Post("/forgot-password")
+  async forgotPassword(@Body() body: { email: string, code: string }) {
+    return this.userService.forgotPassword(body.email, body.code);
+  }
+
 }

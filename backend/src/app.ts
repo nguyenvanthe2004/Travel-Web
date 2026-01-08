@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 import { ErrorHandler } from "./middlewares/errorHandler";
 import { mongooseSerializer } from "./interceptors/serialize.interceptor";
 import { LocationController } from "./controllers/LocationController";
-
+import { AuthMiddleware, authorizationChecker } from "./middlewares/AuthMiddleware";
 
 dotenv.config();
 
@@ -28,7 +28,8 @@ export const startServer = async () => {
 
     useExpressServer(app, {
       controllers: [UserController, LocationController],
-      middlewares: [ErrorHandler],
+      middlewares: [ErrorHandler, AuthMiddleware],
+      authorizationChecker: authorizationChecker,
       cors: {
         origin: "http://localhost:5173",
         credentials: true,

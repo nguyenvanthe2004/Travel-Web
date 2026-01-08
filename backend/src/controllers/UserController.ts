@@ -13,13 +13,15 @@ import { Service } from "typedi";
 import { UserService } from "../services/UserService";
 import { CreateUserDto, LoginUserDto, VerifyUserDto } from "../dtos/UserDto";
 import { Response } from "express";
+import { UserRole } from "../models/User";
+import { Public } from "../decorators/Public";
 
 @Service()
 @JsonController("/users")
 export class UserController {
   constructor(private userService: UserService) {}
 
-  // @Authorized(["admin", "user"])
+  @Authorized([UserRole.ADMIN])
   @Get("/")
   async findAll() {
     return await this.userService.findAll();
@@ -38,6 +40,7 @@ export class UserController {
     return this.userService.currentUser(res, body, param);
   }
 
+  @Public()
   @Post("/login")
   async login(
     @Body({ validate: true }) data: LoginUserDto,
@@ -46,6 +49,7 @@ export class UserController {
     return this.userService.login(data, res);
   }
 
+  @Public()
   @Post("/register")
   async register(@Body({ validate: true }) data: CreateUserDto) {
     return this.userService.register(data);

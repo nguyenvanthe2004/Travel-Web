@@ -5,10 +5,10 @@ import { UserRepository } from "../repositories/UserRepository";
 import { CreateUserDto, LoginUserDto } from "../dtos/UserDto";
 import bcrypt from "bcrypt";
 import { UserRole } from "../models/User";
-import { generateVerifyCode } from "../utils/generateVerifyCode";
+import { generateVerifyCode } from "../utils/generateCode";
 import { MailService } from "./MailService";
 import jwt from "jsonwebtoken";
-import { generateForgotPass } from "../utils/generateForgotPass";
+import { generateForgotPass } from "../utils/generateCode";
 
 @Service()
 export class UserService {
@@ -35,7 +35,7 @@ export class UserService {
     try {
       const user = await this.userRepo.findByEmail(dto.email);
       if (!user) {
-        throw new BadRequestError("Invalid email or password");
+        throw new BadRequestError("Email already exists");
       }
       const isMatch = await bcrypt.compare(dto.password, user.password);
       if (!isMatch) {
@@ -77,15 +77,7 @@ export class UserService {
   async verifyEmail(email: string, code: string) {
     const user = await this.userRepo.findByEmail(email);
 
-    if (!user) {
-      throw new BadRequestError("User not found");
-    }
-
-    if (user.isActive) {
-      throw new BadRequestError("Email already verified");
-    }
-
-    if (user.verifyCode !== code) {
+    if (!user || user.isActive || user.verifyCode !== code) {
       throw new BadRequestError("Invalid verification code");
     }
 

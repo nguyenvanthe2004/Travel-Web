@@ -2,6 +2,15 @@ import { Eye, EyeOff, Mail, Shield, User } from "lucide-react";
 import React, { useState } from "react";
 import { callRegister, verifyEmail } from "../../services/auth";
 import { useNavigate } from "react-router-dom";
+import {
+  validateRegisterField,
+  validateRegisterForm,
+  validateVerifyField,
+  verifyCodeSchema,
+  type RegisterFormData,
+  type VerifyCodeFormData,
+} from "../../validations/validation";
+import type { ZodError } from "zod";
 
 const RightSide: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,188 +21,95 @@ const RightSide: React.FC = () => {
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errors, setErrors] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    code: "",
-  });
-  const [touched, setTouched] = useState({
-    fullName: false,
-    email: false,
-    password: false,
-    confirmPassword: false,
-    code: false,
-  });
+  const [errors, setErrors] = useState<Partial<RegisterFormData>>({});
+  const [error, setError] = useState<Partial<VerifyCodeFormData>>({});
   const navigate = useNavigate();
 
-  // Validation functions
-  const validateFullName = (value: string): string => {
-    if (!value.trim()) {
-      return "Full name is required";
-    }
-    if (value.trim().length < 2) {
-      return "Full name must be at least 2 characters";
-    }
-    return "";
+  const getZodErrors = (result: { success: true } | { success: false, error: ZodError }): Partial<RegisterFormData> => {
+    if (result.success) return {};
+    return result.error.flatten().fieldErrors;
   };
-
-  const validateEmail = (value: string): string => {
-    if (!value) {
-      return "Email is required";
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
-      return "Please enter a valid email address";
-    }
-    return "";
+  const getZodErrorVerifyCode = (result: { success: true } | { success: false, error: ZodError }): Partial<VerifyCodeFormData> => {
+    if (result.success) return {};
+    return result.error.flatten().fieldErrors;
   };
-
-  const validatePassword = (value: string): string => {
-    if (!value) {
-      return "Password is required";
-    }
-    if (value.length < 6) {
-      return "Password must be at least 6 characters";
-    }
-    if (!/[A-Z]/.test(value)) {
-      return "Password must contain at least one uppercase letter";
-    }
-    if (!/[a-z]/.test(value)) {
-      return "Password must contain at least one lowercase letter";
-    }
-    if (!/[0-9]/.test(value)) {
-      return "Password must contain at least one number";
-    }
-    return "";
-  };
-
-  const validateConfirmPassword = (value: string): string => {
-    if (!value) {
-      return "Please confirm your password";
-    }
-    if (value !== password) {
-      return "Passwords do not match";
-    }
-    return "";
-  };
-
-  const validateCode = (value: string): string => {
-    if (!value) {
-      return "Verification code is required";
-    }
-    if (value.length !== 6) {
-      return "Code must be 6 digits";
-    }
-    if (!/^\d+$/.test(value)) {
-      return "Code must contain only numbers";
-    }
-    return "";
-  };
-
-  // Handle changes
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFullName(value);
-    if (touched.fullName) {
-      setErrors((prev) => ({ ...prev, fullName: validateFullName(value) }));
-    }
+
+    const result = validateRegisterField("fullName", value);
+    setErrors((prev) => ({
+      ...prev,
+      fullName: getZodErrors(result).fullName?.[0],
+    }));
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
-    if (touched.email) {
-      setErrors((prev) => ({ ...prev, email: validateEmail(value) }));
-    }
-  };
 
+    const result = validateRegisterField("email", value);
+    setErrors((prev) => ({
+      ...prev,
+      email: getZodErrors(result).email?.[0],
+    }));
+  };
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
-    if (touched.password) {
-      setErrors((prev) => ({ ...prev, password: validatePassword(value) }));
-    }
-    // Also revalidate confirm password if it's been touched
-    if (touched.confirmPassword && confirmPassword) {
-      setErrors((prev) => ({
-        ...prev,
-        confirmPassword: value !== confirmPassword ? "Passwords do not match" : "",
-      }));
-    }
-  };
 
-  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const result = validateRegisterField("password", value);
+    setErrors((prev) => ({
+      ...prev,
+      password: getZodErrors(result).password?.[0],
+    }));
+  };
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = e.target.value;
     setConfirmPassword(value);
-    if (touched.confirmPassword) {
-      setErrors((prev) => ({ ...prev, confirmPassword: validateConfirmPassword(value) }));
-    }
-  };
 
+    const result = validateRegisterField("confirmPassword", value);
+    setErrors((prev) => ({
+      ...prev,
+      confirmPassword: getZodErrors(result).confirmPassword?.[0],
+    }));
+  };
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCode(value);
-    if (touched.code) {
-      setErrors((prev) => ({ ...prev, code: validateCode(value) }));
-    }
-  };
 
-  // Handle blur
-  const handleBlur = (field: keyof typeof touched) => {
-    setTouched((prev) => ({ ...prev, [field]: true }));
-    
-    switch (field) {
-      case "fullName":
-        setErrors((prev) => ({ ...prev, fullName: validateFullName(fullName) }));
-        break;
-      case "email":
-        setErrors((prev) => ({ ...prev, email: validateEmail(email) }));
-        break;
-      case "password":
-        setErrors((prev) => ({ ...prev, password: validatePassword(password) }));
-        break;
-      case "confirmPassword":
-        setErrors((prev) => ({ ...prev, confirmPassword: validateConfirmPassword(confirmPassword) }));
-        break;
-      case "code":
-        setErrors((prev) => ({ ...prev, code: validateCode(code) }));
-        break;
-    }
+    const result = validateVerifyField("code", value);
+    setError((prev) => ({
+      ...prev,
+      code: getZodErrorVerifyCode(result).code?.[0],
+    }));
   };
 
   const handleRegisterCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate all fields
-    const fullNameError = validateFullName(fullName);
-    const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
-    const confirmPasswordError = validateConfirmPassword(confirmPassword);
-
-    setErrors({
-      fullName: fullNameError,
-      email: emailError,
-      password: passwordError,
-      confirmPassword: confirmPasswordError,
-      code: "",
-    });
-
-    setTouched({
-      fullName: true,
-      email: true,
-      password: true,
-      confirmPassword: true,
-      code: false,
-    });
-
-    // If there are errors, don't submit
-    if (fullNameError || emailError || passwordError || confirmPasswordError) {
-      return;
-    }
-
     try {
+      e.preventDefault();
+
+      const formData = {
+        fullName,
+        email,
+        password,
+        confirmPassword,
+      };
+
+      const result = validateRegisterForm(formData);
+      const zodErrors = getZodErrors(result);
+
+      setErrors({
+        fullName: zodErrors.email?.[0],
+        email: zodErrors.email?.[0],
+        password: zodErrors.password?.[0],
+        confirmPassword: zodErrors.confirmPassword?.[0],
+      });
+
+      if (!result.success) return;
+
       await callRegister({ fullName, email, password });
       setShowCodeInput(true);
     } catch (err: any) {
@@ -205,17 +121,17 @@ const RightSide: React.FC = () => {
   };
 
   const handleVerifyCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const codeError = validateCode(code);
-    setErrors((prev) => ({ ...prev, code: codeError }));
-    setTouched((prev) => ({ ...prev, code: true }));
-
-    if (codeError) {
-      return;
-    }
-
     try {
+      e.preventDefault();
+
+      const result = verifyCodeSchema.safeParse({ code });
+      const zodError = getZodErrorVerifyCode(result);
+
+      setError({
+        code: zodError.code?.[0],
+      });
+      if (!result.success) return;
+
       await verifyEmail(email, code);
       navigate("/login");
     } catch (err: any) {
@@ -252,19 +168,20 @@ const RightSide: React.FC = () => {
                   type="text"
                   value={fullName}
                   onChange={handleFullNameChange}
-                  onBlur={() => handleBlur("fullName")}
                   placeholder="Jane Doe"
                   className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border rounded-lg text-sm sm:text-base focus:outline-none transition-colors ${
-                    touched.fullName && errors.fullName
+                    errors.fullName
                       ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                       : "border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                   }`}
                 />
-                <User className={`absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 ${
-                  touched.fullName && errors.fullName ? "text-red-500" : "text-orange-500"
-                }`} />
+                <User
+                  className={`absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 ${
+                    errors.fullName ? "text-red-500" : "text-orange-500"
+                  }`}
+                />
               </div>
-              {touched.fullName && errors.fullName && (
+              {errors.fullName && (
                 <p className="text-red-500 text-xs sm:text-sm mt-1">
                   {errors.fullName}
                 </p>
@@ -281,17 +198,16 @@ const RightSide: React.FC = () => {
                   type="email"
                   value={email}
                   onChange={handleEmailChange}
-                  onBlur={() => handleBlur("email")}
                   placeholder="jane@example.com"
                   className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border rounded-lg text-sm sm:text-base focus:outline-none transition-colors ${
-                    touched.email && errors.email
+                    errors.email
                       ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                       : "border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                   }`}
                 />
                 <Mail className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
               </div>
-              {touched.email && errors.email && (
+              {errors.email && (
                 <p className="text-red-500 text-xs sm:text-sm mt-1">
                   {errors.email}
                 </p>
@@ -310,10 +226,9 @@ const RightSide: React.FC = () => {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={handlePasswordChange}
-                    onBlur={() => handleBlur("password")}
                     placeholder="••••••••"
                     className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border rounded-lg text-sm sm:text-base focus:outline-none transition-colors ${
-                      touched.password && errors.password
+                      errors.password
                         ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                         : "border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                     }`}
@@ -330,7 +245,7 @@ const RightSide: React.FC = () => {
                     )}
                   </button>
                 </div>
-                {touched.password && errors.password && (
+                {errors.password && (
                   <p className="text-red-500 text-xs sm:text-sm mt-1">
                     {errors.password}
                   </p>
@@ -347,10 +262,9 @@ const RightSide: React.FC = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={handleConfirmPasswordChange}
-                    onBlur={() => handleBlur("confirmPassword")}
                     placeholder="••••••••"
                     className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border rounded-lg text-sm sm:text-base focus:outline-none transition-colors ${
-                      touched.confirmPassword && errors.confirmPassword
+                      errors.confirmPassword
                         ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                         : "border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                     }`}
@@ -367,7 +281,7 @@ const RightSide: React.FC = () => {
                     )}
                   </button>
                 </div>
-                {touched.confirmPassword && errors.confirmPassword && (
+                {errors.confirmPassword && (
                   <p className="text-red-500 text-xs sm:text-sm mt-1">
                     {errors.confirmPassword}
                   </p>
@@ -384,18 +298,17 @@ const RightSide: React.FC = () => {
                   type="text"
                   value={code}
                   onChange={handleCodeChange}
-                  onBlur={() => handleBlur("code")}
                   placeholder="Enter 6-digit code"
                   maxLength={6}
                   className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg text-sm sm:text-base focus:outline-none transition-colors ${
-                    touched.code && errors.code
+                    error.code
                       ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                       : "border-orange-500 focus:ring-1 focus:ring-orange-500"
                   }`}
                 />
-                {touched.code && errors.code ? (
+                {error.code ? (
                   <p className="text-red-500 text-xs sm:text-sm mt-1">
-                    {errors.code}
+                    {error.code}
                   </p>
                 ) : (
                   <p className="text-xs text-gray-500 mt-1">

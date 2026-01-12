@@ -11,7 +11,7 @@ const LoginPage: React.FC = () => {
         {/* Background */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF78ORBvxCtTdkXzK1fiX-5nXOi6J2XeArwdzt62cHaeY6iewi3IOV-dDvtI803JcjhBCHsT-LMmdEcW6BFKyBwke3pU9V2nSpTvy5LRxnY2gYju8-hVwI1eNQO0ATLmVlGLREWG9TSlJVaTb7G_-c4bi50YAr62VtXCwblEoJOvNzd54wCPnSrS_BTaHXTkTCVEEh3rjUt9fZUabOYMHqreHtHNc4WFwJwYdHpgKfAvcgNATa1rxniL0Dn8SUTx14ZQQpwdso1gw"
+            src="/images/bg-login.png"
             className="w-full h-full object-cover block"
             alt="Background"
           />

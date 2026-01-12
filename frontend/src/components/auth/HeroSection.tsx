@@ -42,7 +42,7 @@ const HeroSection: React.FC = () => {
               <img 
                 className="h-full w-full object-cover" 
                 alt="Sarah Jenkins"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg9iLK13PPJixM3NsGl2Gg4X5AhCndGEhnRhEMfp3przUqNxRzjCW-4QtH8J_F-FZ64NTN06_IUmw1kaFenQuzpCV1hGWGNTEWncOJBVwoMhenUX0IUFxWbp-R_0MfezsLY8MJiyriswxOjsK-iZ5g0SUEVQdNvK3db2Uwr26JjrnmHa7e0K12N6mUG7F1yAlhF8TAcZaXDgZZpbS5o0FEKxW4Pnt2oW7RwZZocZWejbdnAx8j5FnVHdLB3lE4rSssfmcgp2EeR4o"
+                src="/images/avatar-forgot.png"
               />
             </div>
             <div>

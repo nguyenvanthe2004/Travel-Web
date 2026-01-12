@@ -3,78 +3,63 @@ import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { forgotPassword, forgotPasswordCode } from "../../services/auth";
+import {
+  forgotPasswordSchema,
+  validateForgotPasswordField,
+  validateVerifyField,
+  verifyCodeSchema,
+  type ForgotPasswordFormData,
+  type VerifyCodeFormData,
+} from "../../validations/validation";
+import type { ZodError } from "zod";
 
 const FormSection: React.FC = () => {
   const [email, setEmail] = useState("");
   const [showCodeInput, setShowCodeInput] = useState(false);
   const [code, setCode] = useState("");
-  const [errors, setErrors] = useState({ email: "", code: "" });
-  const [touched, setTouched] = useState({ email: false, code: false });
+  const [errors, setErrors] = useState<Partial<ForgotPasswordFormData>>({});
+  const [error, setError] = useState<Partial<VerifyCodeFormData>>({});
   const navigate = useNavigate();
 
-  // Validation functions
-  const validateEmail = (value: string): string => {
-    if (!value) {
-      return "Email is required";
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
-      return "Please enter a valid email address";
-    }
-    return "";
+  const getZodErrors = (result: { success: true } | { success: false, error: ZodError }): Partial<ForgotPasswordFormData> => {
+    if (result.success) return {};
+    return result.error.flatten().fieldErrors;
+  };
+  const getZodErrorVerifyCode = (result: { success: true } | { success: false, error: ZodError }): Partial<VerifyCodeFormData> => {
+    if (result.success) return {};
+    return result.error.flatten().fieldErrors;
   };
 
-  const validateCode = (value: string): string => {
-    if (!value) {
-      return "Verification code is required";
-    }
-    if (value.length !== 6) {
-      return "Code must be 6 digits";
-    }
-    if (!/^\d+$/.test(value)) {
-      return "Code must contain only numbers";
-    }
-    return "";
-  };
-
-  // Handle changes
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
-    if (touched.email) {
-      setErrors((prev) => ({ ...prev, email: validateEmail(value) }));
-    }
+
+    const result = validateForgotPasswordField("email", value);
+    setErrors((prev) => ({ ...prev, email: getZodErrors(result).email?.[0] }));
   };
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCode(value);
-    if (touched.code) {
-      setErrors((prev) => ({ ...prev, code: validateCode(value) }));
-    }
-  };
 
-  // Handle blur
-  const handleBlur = (field: "email" | "code") => {
-    setTouched((prev) => ({ ...prev, [field]: true }));
-    if (field === "email") {
-      setErrors((prev) => ({ ...prev, email: validateEmail(email) }));
-    } else {
-      setErrors((prev) => ({ ...prev, code: validateCode(code) }));
-    }
+    const result = validateVerifyField("code", value);
+    setError((prev) => ({
+      ...prev,
+      code: getZodErrorVerifyCode(result).code?.[0],
+    }));
   };
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate email
-    const emailError = validateEmail(email);
-    setErrors({ email: emailError, code: "" });
-    setTouched({ email: true, code: false });
+    const result = forgotPasswordSchema.safeParse({ email });
+    const zodError = getZodErrors(result);
 
-    if (emailError) {
-      return;
-    }
+    setError({
+      code: zodError.email?.[0],
+    });
+
+    if (!result.success) return;
 
     try {
       await forgotPasswordCode(email);
@@ -90,18 +75,17 @@ const FormSection: React.FC = () => {
   const handleSendPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate code
-    const codeError = validateCode(code);
-    setErrors((prev) => ({ ...prev, code: codeError }));
-    setTouched((prev) => ({ ...prev, code: true }));
+    const result = verifyCodeSchema.safeParse({ code });
+    const zodError = getZodErrorVerifyCode(result);
 
-    if (codeError) {
-      return;
-    }
+    setError({
+      code: zodError.code?.[0],
+    });
+    if (!result.success) return;
 
     try {
       await forgotPassword(email, code);
-      alert("Password sent successfully!")
+      alert("Password sent successfully!");
       navigate("/login");
     } catch (err: any) {
       setErrors((prev) => ({
@@ -156,7 +140,7 @@ const FormSection: React.FC = () => {
             <div className="relative">
               <input
                 className={`w-full h-14 pl-12 pr-4 rounded-xl border bg-white text-base placeholder-[#9c7349]/70 focus:outline-none focus:ring-4 transition-all shadow-sm ${
-                  touched.email && errors.email
+                   errors.email
                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/10"
                     : "border-gray-300 focus:border-[#f8941f] focus:ring-[#f8941f]/10"
                 }`}
@@ -165,15 +149,18 @@ const FormSection: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={handleEmailChange}
-                onBlur={() => handleBlur("email")}
               />
-              <div className={`absolute left-4 top-1/2 -translate-y-1/2 ${
-                touched.email && errors.email ? "text-red-500" : "text-[#9c7349]"
-              }`}>
+              <div
+                className={`absolute left-4 top-1/2 -translate-y-1/2 ${
+                  errors.email
+                    ? "text-red-500"
+                    : "text-[#9c7349]"
+                }`}
+              >
                 <Mail className="w-5 h-5" />
               </div>
             </div>
-            {touched.email && errors.email && (
+            {errors.email && (
               <p className="text-red-500 text-xs sm:text-sm mt-1">
                 {errors.email}
               </p>
@@ -189,18 +176,17 @@ const FormSection: React.FC = () => {
                 type="text"
                 value={code}
                 onChange={handleCodeChange}
-                onBlur={() => handleBlur("code")}
                 placeholder="Enter 6-digit code"
                 maxLength={6}
                 className={`w-full h-14 px-4 rounded-xl border bg-white text-base focus:outline-none focus:ring-4 transition-all shadow-sm ${
-                  touched.code && errors.code
+                  error.code
                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/10"
                     : "border-[#f8941f] focus:border-[#f8941f] focus:ring-[#f8941f]/10"
                 }`}
               />
-              {touched.code && errors.code ? (
+              {error.code ? (
                 <p className="text-red-500 text-xs sm:text-sm mt-1">
-                  {errors.code}
+                  {error.code}
                 </p>
               ) : (
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">

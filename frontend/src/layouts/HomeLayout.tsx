@@ -6,9 +6,9 @@ interface Props {
 
 const HomeLayout: React.FC<Props> = ({ children }) => {
   return (
-    <div className=" flex flex-col bg-background-light dark:bg-background-dark font-display">
+    <div className="bg-background-light dark:bg-background-dark text-text-main font-display antialiased flex flex-col min-h-screen">
       {children}
     </div>
   );
-}
+};
 export default HomeLayout;

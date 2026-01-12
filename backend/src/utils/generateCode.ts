@@ -15,3 +15,15 @@ export async function generateVerifyCode(length = 6, userRepo: UserRepository) {
 
   return code;
 }
+
+export async function generateForgotPass(length = 6, userRepo: UserRepository) {
+const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+  let code = "";
+
+  for (let i = 0; i < length; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+
+
+  return code;
+}

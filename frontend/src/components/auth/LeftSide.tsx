@@ -7,7 +7,7 @@ const LeftSide: React.FC = () => {
       <div className="absolute inset-0 z-0">
         <div 
           className="w-full h-full bg-cover bg-center transition-transform duration-[20s] ease-in-out hover:scale-105"
-          style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBhTuo_iwlpMfcyCUTH7vPjr2Qz0_v6N71rXnTHfoqSmRgV8rEEmoZeQASlCuPxTz_WR4Uc5zyKq9Vi9g0JzDpP6NILmErL9ktrue-O3wy-z7nXLS6zgh7DW7jHE3FYw76GoN7lDVJlLU61uUaUkmWhFMPFZHrxreUfeKlbDYLCeNjeEaZ6wF9wjW7a2marcDaxkGb8W8e64l3QSnuCu2GbxMJ0jeuhLGNUBiOO6uWrAVjg54HU1nyjY9jlfENT8Fms7L9Xql8h_nU')" }}
+          style={{ backgroundImage: "url('/images/bg-register.png')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
       </div>

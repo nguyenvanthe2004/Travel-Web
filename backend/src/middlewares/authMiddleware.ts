@@ -8,7 +8,7 @@ import {
 import { Service } from "typedi";
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { IS_PUBLIC_KEY } from "../decorators/Public";
+import { IS_PUBLIC_KEY } from "../decorators/public";
 import { UserRole } from "../models/User";
 
 @Service()
@@ -29,7 +29,6 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
           (a) => a.target === controller.target
         )) {
           const fullRoute = `${baseRoute}${action.route}`;
-          // Lưu ý: req.path có thể không có dấu "/" ở cuối, nên normalize
           const normalizedReqPath = route.replace(/\/+$/, "");
           const normalizedFullRoute = fullRoute.replace(/\/+$/, "");
 
@@ -37,7 +36,6 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
             normalizedReqPath === normalizedFullRoute &&
             method === action.type.toLowerCase()
           ) {
-            // ✅ Nếu khớp route + method, kiểm tra metadata @Public()
             isPublic =
               Reflect.getMetadata(
                 IS_PUBLIC_KEY,

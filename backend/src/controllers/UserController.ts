@@ -5,8 +5,6 @@ import {
   Body,
   Param,
   Res,
-  UseBefore,
-  Params,
   Authorized,
   Req,
 } from "routing-controllers";
@@ -15,7 +13,7 @@ import { UserService } from "../services/UserService";
 import { CreateUserDto, LoginUserDto, VerifyUserDto } from "../dtos/UserDto";
 import { Response } from "express";
 import { UserRole } from "../models/User";
-import { Public } from "../decorators/Public";
+import { Public } from "../decorators/public";
 
 @Service()
 @JsonController("/users")

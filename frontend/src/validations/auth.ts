@@ -14,16 +14,8 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
-export const validateLoginForm = (data: LoginFormData) => {
-  return loginSchema.safeParse(data);
-};
 
-export const validateLoginField = (
-  field: keyof LoginFormData,
-  value: string
-) => {
-  return loginSchema.partial().safeParse({ [field]: value });
-};
+// Dưới sửa lại
 
 export const registerSchema = z
   .object({

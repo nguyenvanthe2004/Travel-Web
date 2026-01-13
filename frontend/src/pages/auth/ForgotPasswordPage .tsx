@@ -1,14 +1,16 @@
 import type React from "react";
 import FormSection from "../../components/auth/FormSection";
 import HeroSection from "../../components/auth/HeroSection";
-import AuthLayoutForgot from "../../layouts/AuthLayoutForgot";
+import AuthLayout from "../../layouts/AuthLayout";
 
 const ForgotPasswordPage: React.FC = () => {
   return (
-    <AuthLayoutForgot>
-      <FormSection />
-      <HeroSection />
-    </AuthLayoutForgot>
+    <AuthLayout>
+      <div className="flex min-h-screen w-full overflow-hidden bg-[#fcfaf8]">
+        <FormSection />
+        <HeroSection />
+      </div>
+    </AuthLayout>
   );
 };
 

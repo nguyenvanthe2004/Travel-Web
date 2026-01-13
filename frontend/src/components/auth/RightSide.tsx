@@ -9,7 +9,7 @@ import {
   verifyCodeSchema,
   type RegisterFormData,
   type VerifyCodeFormData,
-} from "../../validations/validation";
+} from "../../validations/auth";
 import type { ZodError } from "zod";
 
 const RightSide: React.FC = () => {

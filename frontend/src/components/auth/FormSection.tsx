@@ -10,7 +10,7 @@ import {
   verifyCodeSchema,
   type ForgotPasswordFormData,
   type VerifyCodeFormData,
-} from "../../validations/validation";
+} from "../../validations/auth";
 import type { ZodError } from "zod";
 
 const FormSection: React.FC = () => {

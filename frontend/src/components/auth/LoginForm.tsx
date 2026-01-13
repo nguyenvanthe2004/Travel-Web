@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { callLogin } from "../../services/auth";
 import { setCurrentUser } from "../../redux/slices/currentUser";
 import { loginSchema, type LoginFormData } from "../../validations/auth";
+import { toastError, toastSuccess } from "../../lib/toast";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -19,7 +20,6 @@ const LoginForm = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setError,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: "onChange",
@@ -29,11 +29,10 @@ const LoginForm = () => {
     try {
       const response = await callLogin(data);
       dispatch(setCurrentUser(response.data));
+      toastSuccess("Login successfully");
       navigate("/home");
-    } catch (err: any) {
-      setError("password", {
-        message: err.message || "Invalid email or password",
-      });
+    } catch (error: any) {
+      toastError(error.message);
     }
   };
 

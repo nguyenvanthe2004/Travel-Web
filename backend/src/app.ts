@@ -1,13 +1,19 @@
 import "reflect-metadata";
+import "dotenv/config";
 import express from "express";
-import { useContainer, useExpressServer } from "routing-controllers";
+import { Action, useContainer, useExpressServer } from "routing-controllers";
 import { Container } from "typedi";
 import { UserController } from "./controllers/UserController";
 import { connectMongoDB } from "./config/db";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { ErrorHandler } from "./middlewares/errorHandler";
 import { mongooseSerializer } from "./interceptors/serialize.interceptor";
 import { LocationController } from "./controllers/LocationController";
+import { AuthMiddleware, authorizationChecker } from "./middlewares/authMiddleware";
+import { HotelController } from "./controllers/HotelController";
+import { BookingController } from "./controllers/BookingController";
+import { RoomController } from "./controllers/RoomController";
 
 dotenv.config();
 
@@ -17,16 +23,20 @@ export const startServer = async () => {
   try {
     const app = express();
 
+    app.use(cookieParser());
+
     // Connect DB
     await connectMongoDB();
 
     app.use(mongooseSerializer);
 
     useExpressServer(app, {
-      controllers: [UserController, LocationController],
-      middlewares: [ErrorHandler],
+      controllers: [UserController],
+      middlewares: [ErrorHandler, AuthMiddleware],
+      authorizationChecker: authorizationChecker,
       cors: {
-        origin: "*",
+        origin: process.env.FRONTEND_URL,
+        credentials: true,
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
       },

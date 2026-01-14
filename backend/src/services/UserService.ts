@@ -1,14 +1,22 @@
+import { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "routing-controllers";
 import { Service } from "typedi";
 import { UserRepository } from "../repositories/UserRepository";
-import { CreateUserDto } from "../dtos/UserDto";
+import { CreateUserDto, LoginUserDto } from "../dtos/UserDto";
 import bcrypt from "bcrypt";
 import { UserRole } from "../models/User";
+import { generateVerifyCode } from "../utils/helper";
+import { MailService } from "./MailService";
+import jwt from "jsonwebtoken";
+import { generateForgotPass } from "../utils/helper";
+import mongoose from "mongoose";
 
 @Service()
 export class UserService {
-  constructor(private readonly userRepo: UserRepository) {}
-
+  constructor(
+    private readonly userRepo: UserRepository,
+    private readonly mailService: MailService
+  ) {}
   findAll() {
     try {
       return this.userRepo.findAll();
@@ -24,28 +32,181 @@ export class UserService {
       throw new BadRequestError(error.message);
     }
   }
-
-  async register(dto: CreateUserDto) {
+  async login(dto: LoginUserDto, res: Response) {
     try {
-      const existed = await this.userRepo.findByEmail(dto.email);
-      if (existed) {
+      const user = await this.userRepo.findByEmail(dto.email);
+      if (!user) {
         throw new BadRequestError("Email already exists");
       }
-
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(dto.password, saltRounds);
-
-      await this.userRepo.create({
-        fullName: dto.fullName,
-        email: dto.email,
-        password: hashedPassword,
-        role: UserRole.USER,
-        isActive: true,
+      const isMatch = await bcrypt.compare(dto.password, user.password);
+      if (!isMatch) {
+        throw new BadRequestError("Invalid email or password");
+      }
+      const token = jwt.sign(
+        {
+          userId: user._id,
+          fullname: user.fullName,
+          phone: user.phone,
+          email: user.email,
+          role: user.role,
+        },
+        process.env.JWT_SECRET!,
+        {
+          expiresIn: "7d",
+        }
+      );
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      return { success: true };
+      return {
+        user: {
+          userId: user._id,
+          fullname: user.fullName,
+          phone: user.phone,
+          email: user.email,
+          role: user.role,
+        },
+        token,
+        message: "Login successfully!",
+      };
     } catch (error: any) {
       throw new BadRequestError(error.message);
     }
+  }
+
+  async verifyEmail(email: string, code: string) {
+    const user = await this.userRepo.findByEmail(email);
+
+    if (!user || user.isActive || user.verifyCode !== code) {
+      throw new BadRequestError("Invalid verification code");
+    }
+
+    await this.userRepo.update(user.id, {
+      isActive: true,
+      verifyCode: code,
+    });
+
+    return { message: "Email verified successfully" };
+  }
+
+  async register(dto: CreateUserDto) {
+    const existed = await this.userRepo.findByEmail(dto.email);
+    if (existed) {
+      throw new BadRequestError("Email already exists");
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
+      const verifyCode = await generateVerifyCode(6, this.userRepo);
+
+      await this.userRepo.create(
+        {
+          fullName: dto.fullName,
+          email: dto.email,
+          phone: "",
+          password: hashedPassword,
+          role: UserRole.USER,
+          verifyCode,
+          isActive: false,
+        },
+        session
+      );
+
+      await this.mailService.sendVerifyCode(dto.email, verifyCode);
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return {
+        message: "Verification code sent to email",
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw new BadRequestError(error.message);
+    }
+  }
+  async sendForgotPasswordCode(email: string) {
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) {
+      throw new BadRequestError("User not found");
+    }
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const verifyCode = await generateVerifyCode(6, this.userRepo);
+
+      await this.userRepo.update(
+        user.id,
+        {
+          verifyCode: verifyCode,
+        },
+        session
+      );
+
+      await this.mailService.sendVerifyCode(email, verifyCode);
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return {
+        message: "Verification code sent to email",
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw new BadRequestError(error.message);
+    }
+  }
+  async forgotPassword(email: string, code: string) {
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) {
+      throw new BadRequestError("User not found");
+    }
+
+    if (user.verifyCode !== code) {
+      throw new BadRequestError("Invalid verification code");
+    }
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const pass = generateForgotPass(6);
+      const hashedPassword = await bcrypt.hash(pass, 10);
+      await this.userRepo.update(
+        user.id,
+        {
+          password: hashedPassword,
+        },
+        session
+      );
+      await this.mailService.sendForgotPassword(email, pass);
+
+      await session.commitTransaction();
+      session.endSession();
+      return {
+        message: "New password sent to email",
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw new BadRequestError(error.message);
+    }
+  }
+
+  async currentUser(user: any) {
+    if (!user) {
+      throw new BadRequestError("User not authenticated");
+    }
+
+    return user;
   }
 }

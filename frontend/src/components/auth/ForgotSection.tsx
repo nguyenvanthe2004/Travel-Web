@@ -8,7 +8,7 @@ const HeroSection: React.FC = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] hover:scale-105" 
         style={{ 
-          backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDCQybI1PaXKdkzL-SGnighNpp5puxOXGtC4Rny6ZBMVkxxmUCimM0PjdqJk0rxYeqoyIo4_AIOhhYbmiPfPRmhqQrFi6I1pVz0-jx5XL6aK0ErM9PzO-LoXn2PRS0kKQ9ZTOGV-kFtB2AqbnGpTBR26p_1DL5WLC_IH14KDozY6jmbpdXeZoBl2q-0ApfQ_X5xt6P9ENrfUlAZ4-00Uh-SVJy8Jyi-tWl4TK2Gi70zFx3QcijOiSKP9O71JBporamnMWuDj9xvfAY')" 
+          backgroundImage: "url('/images/bg-forgot.png')" 
         }}
       />
       

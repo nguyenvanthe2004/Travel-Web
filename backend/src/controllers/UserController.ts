@@ -49,14 +49,17 @@ export class UserController {
   async register(@Body({ validate: true }) data: CreateUserDto) {
     return this.userService.register(data);
   }
+  @Public()
   @Post("/verify-email")
   async verifyEmail(@Body({ validate: true }) data: VerifyUserDto) {
     return this.userService.verifyEmail(data.email, data.code);
   }
+  @Public()
   @Post("/forgot-code")
   async sendForgotPasswordCode(@Body() body: { email: string }) {
      return this.userService.sendForgotPasswordCode(body.email);
   }
+  @Public()
   @Post("/forgot-password")
   async forgotPassword(@Body() body: { email: string, code: string }) {
     return this.userService.forgotPassword(body.email, body.code);

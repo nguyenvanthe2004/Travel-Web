@@ -15,8 +15,6 @@ export const loginSchema = z.object({
 export type LoginFormData = z.infer<typeof loginSchema>;
 
 
-// Dưới sửa lại
-
 export const registerSchema = z
   .object({
     fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -42,17 +40,6 @@ export const registerSchema = z
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
 
-export const validateRegisterForm = (data: RegisterFormData) =>
-  registerSchema.safeParse(data);
-
-export const validateRegisterField = (
-  field: keyof RegisterFormData,
-  value: string
-) => {
-  return registerSchema.partial().safeParse({
-    [field]: value,
-  });
-};
 
 export const verifyCodeSchema = z.object({
   code: z
@@ -63,17 +50,6 @@ export const verifyCodeSchema = z.object({
 
 export type VerifyCodeFormData = z.infer<typeof verifyCodeSchema>;
 
-export const validateVerifyForm = (data: VerifyCodeFormData) =>
-  registerSchema.safeParse(data);
-
-export const validateVerifyField = (
-  field: keyof VerifyCodeFormData,
-  value: string
-) => {
-  return verifyCodeSchema.partial().safeParse({
-    [field]: value,
-  });
-};
 
 export const forgotPasswordSchema = z.object({
   email: z
@@ -84,14 +60,3 @@ export const forgotPasswordSchema = z.object({
 
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
-export const validateForgotPasswordForm = (data: ForgotPasswordFormData) =>
-  registerSchema.safeParse(data);
-
-export const validateForgotPasswordField = (
-  field: keyof ForgotPasswordFormData,
-  value: string
-) => {
-  return forgotPasswordSchema.partial().safeParse({
-    [field]: value,
-  });
-};

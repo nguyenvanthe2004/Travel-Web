@@ -9,6 +9,7 @@ import { generateVerifyCode } from "../utils/generateCode";
 import { MailService } from "./MailService";
 import jwt from "jsonwebtoken";
 import { generateForgotPass } from "../utils/generateCode";
+import mongoose from "mongoose";
 
 @Service()
 export class UserService {
@@ -62,12 +63,15 @@ export class UserService {
       });
 
       return {
-        userId: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
+        user: {
+          userId: user._id,
+          fullname: user.fullName,
+          phone: user.phone,
+          email: user.email,
+          role: user.role,
+        },
         token,
+        message: "Login successfully!",
       };
     } catch (error: any) {
       throw new BadRequestError(error.message);
@@ -95,42 +99,72 @@ export class UserService {
       throw new BadRequestError("Email already exists");
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const verifyCode = await generateVerifyCode(6, this.userRepo);
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    await this.userRepo.create({
-      fullName: dto.fullName,
-      email: dto.email,
-      phone: "",
-      password: hashedPassword,
-      role: UserRole.USER,
-      verifyCode,
-      isActive: false,
-    });
+    try {
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
+      const verifyCode = await generateVerifyCode(6, this.userRepo);
 
-    await this.mailService.sendVerifyCode(dto.email, verifyCode);
+      await this.userRepo.create(
+        {
+          fullName: dto.fullName,
+          email: dto.email,
+          phone: "",
+          password: hashedPassword,
+          role: UserRole.USER,
+          verifyCode,
+          isActive: false,
+        },
+        session
+      );
 
-    return {
-      message: "Verification code sent to email",
-    };
+      await this.mailService.sendVerifyCode(dto.email, verifyCode);
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return {
+        message: "Verification code sent to email",
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   }
   async sendForgotPasswordCode(email: string) {
     const user = await this.userRepo.findByEmail(email);
     if (!user) {
       throw new BadRequestError("User not found");
     }
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const verifyCode = await generateVerifyCode(6, this.userRepo);
+    try {
+      const verifyCode = await generateVerifyCode(6, this.userRepo);
 
-    await this.userRepo.update(user.id, {
-      verifyCode: verifyCode,
-    });
+      await this.userRepo.update(
+        user.id,
+        {
+          verifyCode: verifyCode,
+        },
+        session
+      );
 
-    await this.mailService.sendVerifyCode(email, verifyCode);
+      await this.mailService.sendVerifyCode(email, verifyCode);
 
-    return {
-      message: "Verification code sent to email",
-    };
+      await session.commitTransaction();
+      session.endSession();
+
+      return {
+        message: "Verification code sent to email",
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   }
   async forgotPassword(email: string, code: string) {
     const user = await this.userRepo.findByEmail(email);
@@ -141,16 +175,31 @@ export class UserService {
     if (user.verifyCode !== code) {
       throw new BadRequestError("Invalid verification code");
     }
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const pass = await generateForgotPass(6, this.userRepo);
-    const hashedPassword = await bcrypt.hash(pass, 10);
-    await this.userRepo.update(user.id, {
-      password: hashedPassword,
-    });
-    await this.mailService.sendForgotPassword(email, pass);
-    return {
-      message: "New password sent to email",
-    };
+    try {
+      const pass = generateForgotPass(6);
+      const hashedPassword = await bcrypt.hash(pass, 10);
+      await this.userRepo.update(
+        user.id,
+        {
+          password: hashedPassword,
+        },
+        session
+      );
+      await this.mailService.sendForgotPassword(email, pass);
+
+      await session.commitTransaction();
+      session.endSession();
+      return {
+        message: "New password sent to email",
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   }
 
   async currentUser(user: any) {

@@ -1,6 +1,7 @@
 import { Service } from "typedi";
 import { IUser, UserModel } from "../models/User";
 import { CreateUserInput } from "../types/user";
+import { ClientSession } from "mongoose";
 
 @Service()
 export class UserRepository {
@@ -13,27 +14,19 @@ export class UserRepository {
   }
 
   findByEmail(email: string) {
-    return UserModel.findOne({ email }).select("+password");
+    return UserModel.findOne({ email });
   }
 
   findByCode(code: string) {
-    return UserModel.findOne({ verifyCode: code }).select("+password");
+    return UserModel.findOne({ verifyCode: code });
   }
 
-  async create(data: CreateUserInput): Promise<IUser> {
-    const user = new UserModel({
-      fullName: data.fullName,
-      email: data.email,
-      password: data.password,
-      phone: data.phone,
-      role: data.role,
-      verifyCode: data.verifyCode,
-      isActive: data.isActive,
-    });
-
-    return user.save();
+  async create(data: CreateUserInput, session?: ClientSession): Promise<IUser> {
+    const user = new UserModel(data);
+    return await user.save({ session });
   }
-  async update(id: string, data: Partial<IUser>) {
-    return UserModel.findByIdAndUpdate(id, data, { new: true });
+
+  async update(id: string, data: Partial<IUser>, session?: ClientSession) {
+    return UserModel.findByIdAndUpdate(id, data, { session });
   }
 }

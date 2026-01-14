@@ -3,9 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const handleLoginClick = () => {
-    navigate("/login");
-  };
 
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between :border-[#3a2d25] px-4 sm:px-6 md:px-10 py-4 sm:py-5 bg-white/95 :bg-gray-900/95 backdrop-blur-md">
@@ -22,7 +19,7 @@ const Navbar: React.FC = () => {
           Already a member?
         </p>
         <button
-          onClick={handleLoginClick}
+          onClick={() => navigate("/login")}
           className="text-xs sm:text-sm font-bold text-[#f8941f] hover:text-[#d67618] transition-colors px-3 py-1.5 sm:px-0 sm:py-0 rounded-lg sm:rounded-none bg-[#f8941f]/10 sm:bg-transparent"
         >
           Log In

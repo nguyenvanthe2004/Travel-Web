@@ -25,8 +25,9 @@ instance.interceptors.response.use(
     return response;
   },
   (error) => {
-    return Promise.reject(error);
+    const normalizeError = error.response.data
+    return Promise.reject(normalizeError);
   }
 );
 
-export default instance;
+export default instance; 

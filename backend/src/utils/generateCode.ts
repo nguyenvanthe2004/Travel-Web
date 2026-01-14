@@ -16,7 +16,7 @@ export async function generateVerifyCode(length = 6, userRepo: UserRepository) {
   return code;
 }
 
-export async function generateForgotPass(length = 6, userRepo: UserRepository) {
+export function generateForgotPass(length = 6) {
 const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
   let code = "";
 

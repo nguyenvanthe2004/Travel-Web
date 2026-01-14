@@ -1,4 +1,3 @@
-"use client";
 
 import { Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
@@ -30,7 +29,7 @@ const LoginForm = () => {
       const response = await callLogin(data);
       dispatch(setCurrentUser(response.data));
       toastSuccess("Login successfully");
-      navigate("/home");
+      navigate("/");
     } catch (error: any) {
       toastError(error.message);
     }
@@ -48,12 +47,12 @@ const LoginForm = () => {
 
       {/* Social */}
       <div className="grid grid-cols-2 gap-4 px-5">
-        <button className="h-11 rounded-xl border flex items-center justify-center gap-2 hover:bg-gray-50">
+        <button className="h-11 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50">
           <img src="/icons/google.svg" />
           <span className="font-bold text-sm">Google</span>
         </button>
 
-        <button className="h-11 rounded-xl border flex items-center justify-center gap-2 hover:bg-gray-50">
+        <button className="h-11 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50">
           <img src="/icons/facebook.svg" />
           <span className="font-bold text-sm">Facebook</span>
         </button>
@@ -97,7 +96,7 @@ const LoginForm = () => {
             Password
             <button
               type="button"
-              onClick={() => navigate("/forgotPassword")}
+              onClick={() => navigate("/forgot-password")}
               className="text-orange-500 hover:underline"
             >
               Forgot password?

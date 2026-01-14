@@ -4,9 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 const AuthHeader: React.FC = () => {
   const navigate = useNavigate();
-  const handleRegisterClick = () => {
-    navigate("/register");
-  };
 
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[#e8dbce] bg-white/95 backdrop-blur-md px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
@@ -26,7 +23,7 @@ const AuthHeader: React.FC = () => {
           Don't have an account?
         </span>
         <button
-          onClick={handleRegisterClick}
+          onClick={() => navigate("/register")}
           className="flex items-center gap-1.5 sm:gap-2 h-9 sm:h-10 px-3 sm:px-6 rounded-lg sm:rounded-xl bg-[#f8941f]/10 hover:bg-[#f8941f]/20 text-[#f8941f] text-xs sm:text-sm font-bold transition"
         >
           <UserPlus className="w-4 h-4" />

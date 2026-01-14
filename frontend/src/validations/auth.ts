@@ -14,7 +14,6 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
-
 export const registerSchema = z
   .object({
     fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -40,7 +39,6 @@ export const registerSchema = z
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
 
-
 export const verifyCodeSchema = z.object({
   code: z
     .string()
@@ -50,7 +48,6 @@ export const verifyCodeSchema = z.object({
 
 export type VerifyCodeFormData = z.infer<typeof verifyCodeSchema>;
 
-
 export const forgotPasswordSchema = z.object({
   email: z
     .string()
@@ -59,4 +56,3 @@ export const forgotPasswordSchema = z.object({
 });
 
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
-

@@ -5,10 +5,10 @@ import { UserRepository } from "../repositories/UserRepository";
 import { CreateUserDto, LoginUserDto } from "../dtos/UserDto";
 import bcrypt from "bcrypt";
 import { UserRole } from "../models/User";
-import { generateVerifyCode } from "../utils/generateCode";
+import { generateVerifyCode } from "../utils/helper";
 import { MailService } from "./MailService";
 import jwt from "jsonwebtoken";
-import { generateForgotPass } from "../utils/generateCode";
+import { generateForgotPass } from "../utils/helper";
 import mongoose from "mongoose";
 
 @Service()
@@ -130,7 +130,7 @@ export class UserService {
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
-      throw error;
+      throw new BadRequestError(error.message);
     }
   }
   async sendForgotPasswordCode(email: string) {
@@ -163,7 +163,7 @@ export class UserService {
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
-      throw error;
+      throw new BadRequestError(error.message);
     }
   }
   async forgotPassword(email: string, code: string) {
@@ -198,7 +198,7 @@ export class UserService {
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
-      throw error;
+      throw new BadRequestError(error.message);
     }
   }
 

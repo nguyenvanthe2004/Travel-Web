@@ -1,4 +1,3 @@
-
 import { Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -26,8 +25,8 @@ const LoginForm = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await callLogin(data);
-      dispatch(setCurrentUser(response.data));
+      const res = await callLogin(data);
+      dispatch(setCurrentUser(res.data.user));
       toastSuccess("Login successfully");
       navigate("/");
     } catch (error: any) {

@@ -9,11 +9,13 @@ export interface LoginData {
 }
 export interface User {
   userId: string;
-  fullName: string;
+  fullName: string;  
   email: string;
   phone: string;
   role: string;
+  avatar: string;
 }
+
 export interface CurrentUserState {
-  currentUser: User ;
-}    
+  currentUser: User;
+}

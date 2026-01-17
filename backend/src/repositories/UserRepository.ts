@@ -27,6 +27,13 @@ export class UserRepository {
   }
 
   async update(id: string, data: Partial<IUser>, session?: ClientSession) {
-    return UserModel.findByIdAndUpdate(id, data, { session });
+    return UserModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      {
+        new: true,
+        session,
+      },
+    );
   }
 }

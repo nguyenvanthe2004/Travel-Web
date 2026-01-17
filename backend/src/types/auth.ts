@@ -1,9 +1,10 @@
 import { UserRole } from "../models/User";
 
 export interface JwtPayload {
-  userId: number;
-  fullname: string;
+  userId: string;
+  fullName: string;
+  email: string;
   phone: string;
-  email: UserRole;
-  role: string;
+  role: UserRole;
+  avatar: string;
 }

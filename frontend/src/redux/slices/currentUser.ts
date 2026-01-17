@@ -9,6 +9,7 @@ const initialState: CurrentUserState = {
     email: "",
     phone: "",
     role: "",
+    avatar: "",
   },
 };
 
@@ -26,6 +27,7 @@ export const currentUserSlice = createSlice({
         email: "",
         phone: "",
         role: "",
+        avatar: "",
       };
     },
   },

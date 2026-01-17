@@ -5,17 +5,19 @@ import { UserRepository } from "../repositories/UserRepository";
 import { CreateUserDto, LoginUserDto } from "../dtos/UserDto";
 import bcrypt from "bcrypt";
 import { UserRole } from "../models/User";
-import { generateVerifyCode } from "../utils/helper";
+import { generateVerifyCode, refreshToken } from "../utils/helper";
 import { MailService } from "./MailService";
 import jwt from "jsonwebtoken";
 import { generateForgotPass } from "../utils/helper";
 import mongoose from "mongoose";
+import { JwtPayload } from "../types/auth";
+import { UpdatePasswordInput, UpdateProfileInput } from "../types/user";
 
 @Service()
 export class UserService {
   constructor(
     private readonly userRepo: UserRepository,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
   ) {}
   findAll() {
     try {
@@ -45,15 +47,16 @@ export class UserService {
       const token = jwt.sign(
         {
           userId: user._id,
-          fullname: user.fullName,
+          fullName: user.fullName,
           phone: user.phone,
           email: user.email,
           role: user.role,
+          avatar: user.avatar,
         },
         process.env.JWT_SECRET!,
         {
           expiresIn: "7d",
-        }
+        },
       );
       res.cookie("token", token, {
         httpOnly: true,
@@ -65,10 +68,11 @@ export class UserService {
       return {
         user: {
           userId: user._id,
-          fullname: user.fullName,
+          fullName: user.fullName,
           phone: user.phone,
           email: user.email,
           role: user.role,
+          avatar: user.avatar,
         },
         token,
         message: "Login successfully!",
@@ -113,10 +117,11 @@ export class UserService {
           phone: "",
           password: hashedPassword,
           role: UserRole.USER,
+          avatar: "",
           verifyCode,
           isActive: false,
         },
-        session
+        session,
       );
 
       await this.mailService.sendVerifyCode(dto.email, verifyCode);
@@ -149,7 +154,7 @@ export class UserService {
         {
           verifyCode: verifyCode,
         },
-        session
+        session,
       );
 
       await this.mailService.sendVerifyCode(email, verifyCode);
@@ -186,7 +191,7 @@ export class UserService {
         {
           password: hashedPassword,
         },
-        session
+        session,
       );
       await this.mailService.sendForgotPassword(email, pass);
 
@@ -202,11 +207,77 @@ export class UserService {
     }
   }
 
-  async currentUser(user: any) {
+  async currentUser(user: JwtPayload) {
     if (!user) {
       throw new BadRequestError("User not authenticated");
     }
-
     return user;
+  }
+
+  async updateProfile(data: UpdateProfileInput, userId: string, res: Response) {
+    try {
+      const user = await this.userRepo.findOne(userId);
+      if (!user) {
+        throw new BadRequestError("User not found");
+      }
+
+      const updatedUser = await this.userRepo.update(userId, {
+        fullName: data.fullName,
+        phone: data.phone,
+      });
+      refreshToken(res, updatedUser);
+
+      return {
+         user: {
+          userId: updatedUser._id,
+          fullName: updatedUser.fullName,
+          phone: updatedUser.phone,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          avatar: updatedUser.avatar,
+        },
+      };
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
+  }
+  async updateAvatar(userId: string, avatar: string, res: Response) {
+    try {
+      const user = await this.userRepo.findOne(userId);
+      if (!user) {
+        throw new BadRequestError("User not found");
+      }
+
+      const updateAvatar = await this.userRepo.update(userId, { avatar });
+      refreshToken(res, updateAvatar);
+      return { updateAvatar };
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
+  }
+  async updatePassword(userId: string, data: UpdatePasswordInput) {
+    try {
+      const user = await this.userRepo.findOne(userId);
+      if (!user) {
+        throw new BadRequestError("User not found");
+      }
+
+      const isMatch = await bcrypt.compare(data.oldPassword, user.password);
+      if (!isMatch) {
+        throw new BadRequestError("Old password is incorrect");
+      }
+
+      const hashedPassword = await bcrypt.hash(data.newPassword, 10);
+
+      const updatePass = await this.userRepo.update(userId, {
+        password: hashedPassword,
+      });
+
+      return {
+        updatePass,
+      };
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
   }
 }

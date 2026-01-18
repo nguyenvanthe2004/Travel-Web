@@ -1,13 +1,11 @@
 import type React from "react";
 import ProfileLayout from "../../layouts/ProfileLayout";
-import MainContent from "../../components/profile/MainContent";
-import SideBar from "../../components/profile/SideBar";
+import ProfileContent from "../../components/profile/ProfileContent";
 
 const Profile: React.FC = () => {
   return (
     <ProfileLayout>
-      <SideBar />
-      <MainContent />
+      <ProfileContent />
     </ProfileLayout>
   );
 };

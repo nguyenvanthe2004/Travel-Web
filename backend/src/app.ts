@@ -35,6 +35,10 @@ export const startServer = async () => {
       controllers: [UserController, LocationController, FileController],
       middlewares: [ErrorHandler, AuthMiddleware],
       authorizationChecker: authorizationChecker,
+      currentUserChecker: async (action: Action) => {
+        const req = action.request;
+        return (req as any).user;
+      },
       cors: {
         origin: process.env.FRONTEND_URL,
         credentials: true,

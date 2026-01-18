@@ -23,10 +23,10 @@ const LoginForm = () => {
     mode: "onChange",
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (dto: LoginFormData) => {
     try {
-      const res = await callLogin(data);
-      dispatch(setCurrentUser(res.data.user));
+      const { data } = await callLogin(dto);
+      dispatch(setCurrentUser(data  .user));
       toastSuccess("Login successfully");
       navigate("/");
     } catch (error: any) {

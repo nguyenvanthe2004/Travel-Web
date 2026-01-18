@@ -2,7 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "routing-controllers";
 import { Service } from "typedi";
 import { UserRepository } from "../repositories/UserRepository";
-import { CreateUserDto, LoginUserDto } from "../dtos/UserDto";
+import {
+  CreateUserDto,
+  LoginUserDto,
+  UpdatePasswordDto,
+  UpdateProfileDto,
+} from "../dtos/UserDto";
 import bcrypt from "bcrypt";
 import { UserRole } from "../models/User";
 import { generateVerifyCode, refreshToken } from "../utils/helper";
@@ -11,7 +16,6 @@ import jwt from "jsonwebtoken";
 import { generateForgotPass } from "../utils/helper";
 import mongoose from "mongoose";
 import { JwtPayload, UserProps } from "../types/auth";
-import { UpdatePasswordInput, UpdateProfileInput } from "../types/user";
 
 @Service()
 export class UserService {
@@ -215,7 +219,7 @@ export class UserService {
   }
 
   async updateProfile(
-    data: UpdateProfileInput,
+    data: UpdateProfileDto,
     user: UserProps,
     res: Response,
   ) {
@@ -233,33 +237,40 @@ export class UserService {
 
       refreshToken(res, updatedUser);
 
-      return { success: true };
+      return {
+        success: true,
+      };
     } catch (error: any) {
       throw new BadRequestError(error.message);
     }
   }
-  async updateAvatar(userId: string, avatar: string, res: Response) {
+  async updateAvatar(user: UserProps, avatar: string, res: Response) {
     try {
-      const user = await this.userRepo.findOne(userId);
-      if (!user) {
+      const userId = String(user._id);
+      const existedUser = await this.userRepo.findOne(userId);
+      if (!existedUser) {
         throw new BadRequestError("User not found");
       }
 
       const updateAvatar = await this.userRepo.update(userId, { avatar });
       refreshToken(res, updateAvatar);
-      return { updateAvatar };
+      return { success: true };
     } catch (error: any) {
       throw new BadRequestError(error.message);
     }
   }
-  async updatePassword(userId: string, data: UpdatePasswordInput) {
+  async updatePassword(user: UserProps, data: UpdatePasswordDto) {
     try {
-      const user = await this.userRepo.findOne(userId);
-      if (!user) {
+      const userId = String(user._id);
+      const existedUser = await this.userRepo.findOne(userId);
+      if (!existedUser) {
         throw new BadRequestError("User not found");
       }
 
-      const isMatch = await bcrypt.compare(data.oldPassword, user.password);
+      const isMatch = await bcrypt.compare(
+        data.oldPassword,
+        existedUser.password,
+      );
       if (!isMatch) {
         throw new BadRequestError("Old password is incorrect");
       }
@@ -271,8 +282,20 @@ export class UserService {
       });
 
       return {
-        updatePass,
+        success: true,
       };
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
+  }
+  async logout(res: Response) {
+    try {
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+      });
+      return { message: "Logout successfully" };
     } catch (error: any) {
       throw new BadRequestError(error.message);
     }

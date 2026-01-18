@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { callRegister, verifyEmail } from "../../services/auth";
+import { callRegister, callVerifyEmail } from "../../services/auth";
 import {
   registerSchema,
   verifyCodeSchema,
@@ -59,7 +59,7 @@ const RegisterForm = () => {
 
   const onSubmitVerify = async (data: VerifyCodeFormData) => {
     try {
-      await verifyEmail(emailForVerify, data.code);
+      await callVerifyEmail(emailForVerify, data.code);
       toastSuccess("Account created successfully");
       navigate("/login");
     } catch (err: any) {

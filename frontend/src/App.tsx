@@ -4,18 +4,18 @@ import LoginPage from "./pages/auth/LoginPage";
 import Home from "./pages/home/Home";
 import Register from "./pages/auth/RegisterPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage ";
-import Profile from "./pages/home/Profile";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { getCurrentUser } from "./services/auth";
+import { callGetCurrentUser } from "./services/auth";
 import { logout, setCurrentUser } from "./redux/slices/currentUser";
+import Profile from "./pages/home/ProfilePage";
 
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const res = await getCurrentUser();
+        const res = await callGetCurrentUser();
         dispatch(setCurrentUser(res.data));
       } catch (error) {
         console.log("Error: ", error);

@@ -1,9 +1,10 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import {
-  updateAvatar,
-  updatePassword,
-  updateProfile,
+  callGetCurrentUser,
+  callUpdateAvatar,
+  callUpdatePassword,
+  callUpdateProfile,
 } from "../../services/auth";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../redux/store";
@@ -13,37 +14,56 @@ import { uploadFile } from "../../services/file";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   updatePasswordSchema,
+  UpdateProfileFormData,
+  updateProfileSchema,
   type UpdatePasswordFormData,
 } from "../../validations/auth";
 import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
+import { CLOUDINARY_URL } from "../../constants";
 
-const MainContent: React.FC = () => {
+const ProfileContent: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.currentUser);
 
-  const [avatar, setAvatar] = useState(user.avatar);
-
-  useEffect(() => {
-    if (user) {
-      setAvatar(user.avatar);
-    }
-  }, [user]);
+  const [avatar, setAvatar] = useState(user?.avatar);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<UpdatePasswordFormData>({
     resolver: zodResolver(updatePasswordSchema),
     mode: "onChange",
   });
+
+  const {
+    register: registerProfile,
+    handleSubmit: handleProfileSubmit,
+    formState: { errors: profileErrors, isSubmitting: isProfileSubmitting },
+    reset,
+  } = useForm<UpdateProfileFormData>({
+    resolver: zodResolver(updateProfileSchema),
+    mode: "onChange",
+    defaultValues: {
+      fullName: "",
+      phone: "",
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        fullName: user.fullName || "",
+        phone: user.phone || "",
+      });
+
+      setAvatar(user.avatar);
+    }
+  }, [user, reset]);
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -55,49 +75,41 @@ const MainContent: React.FC = () => {
     const file = e.target.files[0];
 
     try {
-      setLoading(true);
       const { data } = await uploadFile(file);
       setAvatar(data.name);
-      await updateAvatar(data.name);
+      await callUpdateAvatar(data.name);
       dispatch(setCurrentUser({ ...user, avatar: data.name }));
     } catch (error) {
       toastError("Failed to update avatar");
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleUpdateProfile = async () => {
+  const handleUpdateProfile = async (dto: UpdateProfileFormData) => {
     try {
-      setLoading(true);
-      const res = await updateProfile(fullName, phone);
-      dispatch(setCurrentUser(res.data.user));
+      await callUpdateProfile(dto.fullName, dto.phone);
+      const res = await callGetCurrentUser();
+      dispatch(setCurrentUser(res.data));
       toastSuccess("Profile updated successfully");
-      setFullName("");
-      setPhone("");
     } catch (error) {
       toastError("Failed to update profile");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleUpdatePassword = async (data: UpdatePasswordFormData) => {
     try {
-      setLoading(true);
-      await updatePassword(data.oldPassword, data.newPassword);
+      await callUpdatePassword(data.oldPassword, data.newPassword);
       toastSuccess("Password updated successfully");
     } catch (error) {
       toastError("Failed to update password");
-    } finally {
-      setLoading(false);
     }
   };
+
   return (
-    <main className="flex-1 overflow-y-auto bg-[#fafafa]">
-      <div className="max-w-5xl mx-auto px-8 py-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-[#1c140d] leading-tight tracking-tight">
+    <main className="flex-1 overflow-y-auto bg-[#fafafa] lg:ml-0">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+        {/* Header - với padding top cho mobile để tránh menu button */}
+        <div className="mb-6 sm:mb-8 pt-12 lg:pt-0">
+          <h1 className="text-2xl sm:text-3xl font-black text-[#1c140d] leading-tight tracking-tight">
             User Profile Settings
           </h1>
           <p className="text-[#9c7349] text-sm mt-1">
@@ -105,22 +117,21 @@ const MainContent: React.FC = () => {
             booking experience.
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-6">
+
+        <div className="grid grid-cols-1 gap-4 sm:gap-6">
           {/* Profile Photo Section */}
-          <div className="bg-white rounded-2xl border border-[#e8dbce] p-8 shadow-sm">
-            <div className="flex flex-col md:flex-row items-center gap-6">
+          <div className="bg-white rounded-xl sm:rounded-2xl border border-[#e8dbce] p-4 sm:p-6 lg:p-8 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
               <div className="relative group">
-                <div
-                  className="size-28 rounded-full border-4 border-[#f4ede7] overflow-hidden bg-cover bg-center"
-                  style={{
-                    backgroundImage: avatar
-                      ? `url('https://res.cloudinary.com/dfisjw5pt/image/upload/v1768513434/${avatar}')`
-                      : "none",
-                  }}
-                ></div>
+                <div className="size-24 sm:size-28 rounded-full border-4 border-[#f4ede7] overflow-hidden bg-cover bg-center">
+                  <img
+                    src={`${CLOUDINARY_URL}${avatar}`}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                </div>
                 <button
                   onClick={handleAvatarClick}
-                  disabled={loading}
                   className="absolute bottom-0 right-0 bg-orange-400 text-white p-2 rounded-full border-2 border-white shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
                 >
                   <span className="material-symbols-outlined text-base">
@@ -135,8 +146,8 @@ const MainContent: React.FC = () => {
                   />
                 </button>
               </div>
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="text-xl font-bold text-[#1c140d]">
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-lg sm:text-xl font-bold text-[#1c140d]">
                   {user?.fullName || ""}
                 </h3>
                 <p className="text-[#9c7349] text-xs mb-4">
@@ -147,39 +158,59 @@ const MainContent: React.FC = () => {
           </div>
 
           {/* Personal Information Section */}
-          <div className="bg-white rounded-2xl border border-[#e8dbce] overflow-hidden shadow-sm">
-            <div className="p-5 border-b border-[#e8dbce]">
+          <div className="bg-white rounded-xl sm:rounded-2xl border border-[#e8dbce] overflow-hidden shadow-sm">
+            <div className="p-4 sm:p-5 border-b border-[#e8dbce]">
               <h2 className="text-base font-bold text-[#1c140d]">
                 Personal Information
               </h2>
             </div>
-            <div className="p-8 space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-5">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-[#1c140d]">
                     Full Name
                   </label>
                   <input
-                    className="w-full text-black rounded-lg border border-[#e8dbce] bg-white focus:ring-1 focus:ring-primary px-3 py-2 text-sm"
+                    {...registerProfile("fullName")}
+                    maxLength={100}
                     placeholder="Enter your full name"
-                    type="text"
-                    value={user.fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    className={`w-full text-black px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none text-sm sm:text-base ${
+                      profileErrors.fullName
+                        ? "border-red-500 focus:ring-red-500"
+                        : ""
+                    }`}
                   />
+                  {profileErrors.fullName && (
+                    <p className="text-red-500 text-xs sm:text-sm mt-1">
+                      {profileErrors.fullName.message}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-[#1c140d]">
+                  <label
+                    className="text-xs font-semibold text-[#1c140d]"
+                    htmlFor="phone_profile"
+                  >
                     Phone
                   </label>
                   <input
-                    className="w-full text-black rounded-lg border border-[#e8dbce] bg-white focus:ring-1 focus:ring-primary focus:border-primary px-3 py-2 text-sm"
-                    placeholder="Enter your phone"
-                    type="text"
-                    value={user.phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    id="phone_profile"
+                    {...registerProfile("phone")}
+                    maxLength={100}
+                    placeholder="Enter your phone number"
+                    className={`w-full text-black px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none text-sm sm:text-base ${
+                      profileErrors.phone
+                        ? "border-red-500 focus:ring-red-500"
+                        : ""
+                    }`}
                   />
+                  {profileErrors.phone && (
+                    <p className="text-red-500 text-xs sm:text-sm mt-1">
+                      {profileErrors.phone.message}
+                    </p>
+                  )}
                 </div>
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-1.5 lg:col-span-2">
                   <label className="text-xs font-semibold text-[#1c140d]">
                     Email Address{" "}
                     <span className="text-xs font-normal text-[#9c7349]">
@@ -199,19 +230,20 @@ const MainContent: React.FC = () => {
               </div>
               <div className="pt-2 flex justify-end">
                 <button
-                  onClick={handleUpdateProfile}
-                  disabled={loading}
-                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm px-6 py-2 rounded-lg shadow-md transition-all"
+                  onClick={handleProfileSubmit(handleUpdateProfile)}
+                  className={`w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm px-6 py-2.5 rounded-lg transition-all hover:opacity-90 ${
+                    isProfileSubmitting ? "opacity-60 cursor-not-allowed" : ""
+                  }`}
                 >
-                  Save Changes
+                  {isProfileSubmitting ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </div>
           </div>
 
           {/* Password & Security Section */}
-          <div className="bg-white rounded-2xl border border-[#e8dbce] overflow-hidden shadow-sm">
-            <div className="p-5 border-b border-[#e8dbce] flex justify-between items-center">
+          <div className="bg-white rounded-xl sm:rounded-2xl border border-[#e8dbce] overflow-hidden shadow-sm">
+            <div className="p-4 sm:p-5 border-b border-[#e8dbce] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <div>
                 <h2 className="text-base font-bold text-[#1c140d]">
                   Password &amp; Security
@@ -224,8 +256,8 @@ const MainContent: React.FC = () => {
                 security
               </span>
             </div>
-            <div className="p-8 space-y-5 bg-[#fffbf7]">
-              <div className="grid grid-cols-1 gap-5 max-w-2xl">
+            <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-5 bg-[#fffbf7]">
+              <div className="grid grid-cols-1 gap-4 sm:gap-5 max-w-2xl">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-[#1c140d]">
                     Current Password
@@ -235,7 +267,7 @@ const MainContent: React.FC = () => {
                       {...register("oldPassword")}
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter current password"
-                      className={`w-full text-black px-4 py-3 pr-12 border rounded-lg focus:outline-none ${
+                      className={`w-full text-black px-3 sm:px-4 py-2.5 sm:py-3 pr-12 border rounded-lg focus:outline-none text-sm sm:text-base ${
                         errors.oldPassword
                           ? "border-red-500 focus:ring-red-500"
                           : "border-gray-300 focus:ring-orange-500"
@@ -244,18 +276,18 @@ const MainContent: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                      className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400"
                     >
-                      {showPassword ? <EyeOff /> : <Eye />}
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
                   {errors.oldPassword && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-red-500 text-xs sm:text-sm mt-1">
                       {errors.oldPassword.message}
                     </p>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-[#1c140d]">
                       New Password
@@ -264,14 +296,14 @@ const MainContent: React.FC = () => {
                       {...register("newPassword")}
                       placeholder="Enter new password"
                       type="password"
-                      className={`w-full text-black px-4 py-3 pr-12 border rounded-lg focus:outline-none ${
+                      className={`w-full text-black px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none text-sm sm:text-base ${
                         errors.newPassword
                           ? "border-red-500 focus:ring-red-500"
                           : "border-gray-300 focus:ring-orange-500"
                       }`}
                     />
                     {errors.newPassword && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">
                         {errors.newPassword.message}
                       </p>
                     )}
@@ -285,14 +317,14 @@ const MainContent: React.FC = () => {
                       {...register("confirmPassword")}
                       placeholder="Confirm new password"
                       type="password"
-                      className={`w-full text-black px-4 py-3 pr-12 border rounded-lg focus:outline-none ${
+                      className={`w-full text-black px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg focus:outline-none text-sm sm:text-base ${
                         errors.confirmPassword
                           ? "border-red-500 focus:ring-red-500"
                           : "border-gray-300 focus:ring-orange-500"
                       }`}
                     />
                     {errors.confirmPassword && (
-                      <p className="text-red-500 text-sm mt-1">
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">
                         {errors.confirmPassword.message}
                       </p>
                     )}
@@ -302,8 +334,7 @@ const MainContent: React.FC = () => {
               <div className="pt-2">
                 <button
                   onClick={handleSubmit(handleUpdatePassword)}
-                  disabled={loading}
-                  className="bg-[#1c140d] text-white font-semibold text-sm px-6 py-2 rounded-lg transition-all hover:opacity-90"
+                  className="w-full sm:w-auto bg-[#1c140d] text-white font-semibold text-sm px-6 py-2.5 rounded-lg transition-all hover:opacity-90"
                 >
                   Update Password
                 </button>
@@ -312,7 +343,7 @@ const MainContent: React.FC = () => {
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-2 text-[#9c7349]">
+          <div className="flex flex-col sm:flex-row items-center justify-between px-2 text-[#9c7349] gap-3">
             <p className="text-[10px]">Member since March 2023</p>
             <div className="flex gap-4">
               <a
@@ -334,4 +365,5 @@ const MainContent: React.FC = () => {
     </main>
   );
 };
-export default MainContent;
+
+export default ProfileContent;

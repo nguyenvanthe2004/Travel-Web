@@ -40,8 +40,7 @@ export class UserController {
   }
 
   @Get("/current")
-  @Authorized([UserRole.ADMIN, UserRole.USER])
-  async currentUser(@Req() req: Request) {
+  async getCurrent(@Req() req: Request) {
     const user = (req as any).user;
     return this.userService.currentUser(user);
   }
@@ -93,21 +92,22 @@ export class UserController {
 
   @Put("/avatar")
   async updateAvatar(
-    @Req() req: Request,
+    @CurrentUser() user: UserProps,
     @Body() body: { avatar: string },
     @Res() res: Response,
   ) {
-    const userId = (req as any).user.userId;
-    return await this.userService.updateAvatar(userId, body.avatar, res);
+    return await this.userService.updateAvatar(user, body.avatar, res);
   }
 
   @Put("/password")
   async updatePassword(
-    @Req() req: Request,
+    @CurrentUser() user: UserProps,
     @Body({ validate: true }) dto: UpdatePasswordDto,
   ) {
-    const userId = (req as any).user.userId;
-
-    return await this.userService.updatePassword(userId, dto);
+    return await this.userService.updatePassword(user, dto);
+  }
+  @Post("/logout")
+  async logout(@Res() res: Response) {
+    return await this.userService.logout(res);
   }
 }

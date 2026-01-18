@@ -1,14 +1,18 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, User, LogOut } from "lucide-react";
-import { useSelector } from "react-redux";
+import { Menu, X, User, LogOut, Hotel } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { RootState } from "../redux/store";
+import { CLOUDINARY_URL, UserRole } from "../constants";
+import { logout } from "../redux/slices/currentUser";
+import { callLogout } from "../services/auth";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const user = useSelector((state: RootState) => state.auth.currentUser);
 
@@ -25,11 +29,18 @@ const Header = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleLogout = async () => {
+    dispatch(logout());
+    await callLogout();
+    navigate("/login");
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200">
       <div className="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+          <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-white cursor-pointer">
             <img src="/icons/logo.svg" alt="" />
           </div>
           <h1 className="text-xl font-bold text-gray-900">Vista Stays</h1>
@@ -54,10 +65,10 @@ const Header = () => {
           <div className="h-6 w-px bg-gray-200"></div>
 
           <div className="flex gap-4">
-            <button className="text-sm font-medium hover:text-orange-400">
+            <button className="text-sm font-medium hover:text-orange-400 cursor-pointer">
               USD
             </button>
-            <button className="text-sm font-medium hover:text-orange-400">
+            <button className="text-sm font-medium hover:text-orange-400 cursor-pointer">
               EN
             </button>
           </div>
@@ -66,13 +77,10 @@ const Header = () => {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="size-10 rounded-full border-4 border-[#f4ede7] overflow-hidden bg-cover bg-center"
+                className="size-10 rounded-full border-4 border-[#f4ede7] overflow-hidden bg-cover bg-center cursor-pointer"
                 aria-label="User menu"
               >
-                <img
-                  src={`https://res.cloudinary.com/dfisjw5pt/image/upload/v1768513434/${user.avatar}`}
-                  alt=""
-                />
+                <img src={`${CLOUDINARY_URL}${user.avatar}`} alt="" />
               </button>
 
               {isDropdownOpen && (
@@ -82,7 +90,7 @@ const Header = () => {
                       {user.fullName}
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5">{user.email}</p>
-                    {user.role === "admin" && (
+                    {user.role === UserRole.ADMIN && (
                       <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-600 rounded">
                         Admin
                       </span>
@@ -92,36 +100,24 @@ const Header = () => {
                   <div className="py-1">
                     <a
                       onClick={() => navigate("/profile")}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
                     >
                       <User size={16} />
                       <span>Profile</span>
                     </a>
                     <a
                       href="/hotel-manager"
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
                     >
-                      <svg
-                        className="size-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                        />
-                      </svg>
+                      <Hotel size={16} />
                       <span>My Hotels</span>
                     </a>
                   </div>
 
                   <div className="border-t border-gray-100 py-1">
                     <button
-                      onClick={() => navigate("/login")}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors w-full cursor-pointer"
                     >
                       <LogOut size={16} />
                       <span>Logout</span>
@@ -194,17 +190,14 @@ const Header = () => {
               <div className="space-y-3 pt-3 border-t border-gray-200">
                 <div className="flex items-center gap-3 pb-3">
                   <div className="size-10 rounded-full border-4 border-[#f4ede7] overflow-hidden bg-cover bg-center">
-                    <img
-                      src={`https://res.cloudinary.com/dfisjw5pt/image/upload/v1768513434/${user.avatar}`}
-                      alt=""
-                    />
+                    <img src={`${CLOUDINARY_URL}${user.avatar}`} alt="" />
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-sm text-gray-900">
                       {user.fullName}
                     </p>
                     <p className="text-xs text-gray-500">{user.email}</p>
-                    {user.role === "admin" && (
+                    {user.role === UserRole.ADMIN && (
                       <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-600 rounded">
                         Admin
                       </span>
@@ -240,7 +233,7 @@ const Header = () => {
                 </a>
 
                 <button
-                  onClick={() => navigate("/login")}
+                  onClick={handleLogout}
                   className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 w-full"
                 >
                   <LogOut size={16} />
@@ -256,7 +249,7 @@ const Header = () => {
                   Sign In
                 </button>
                 <button
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate("/register")}
                   className="w-full px-5 py-2.5 rounded-3xl bg-orange-400 text-sm font-bold text-white hover:bg-orange-500"
                 >
                   Register

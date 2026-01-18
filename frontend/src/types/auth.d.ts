@@ -9,7 +9,7 @@ export interface LoginData {
 }
 export interface User {
   userId: string;
-  fullName: string;  
+  fullName: string;
   email: string;
   phone: string;
   role: string;

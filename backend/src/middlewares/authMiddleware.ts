@@ -26,7 +26,7 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
         const baseRoute = controller.route || "";
 
         for (const action of metadata.actions.filter(
-          (a) => a.target === controller.target
+          (a) => a.target === controller.target,
         )) {
           const fullRoute = `${baseRoute}${action.route}`;
           const normalizedReqPath = route.replace(/\/+$/, "");
@@ -40,7 +40,7 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
               Reflect.getMetadata(
                 IS_PUBLIC_KEY,
                 action.target.prototype,
-                action.method
+                action.method,
               ) ||
               Reflect.getMetadata(IS_PUBLIC_KEY, action.target) ||
               Reflect.getMetadata(IS_PUBLIC_KEY, controller.target) ||
@@ -60,7 +60,15 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
 
-      (req as any).user = decoded;
+      // @ts-ignore
+      req.user = {
+        _id: decoded.userId,
+        fullName: decoded.fullName,
+        email: decoded.email,
+        phone: decoded.phone,
+        role: decoded.role,
+        avatar: decoded.avatar,
+      };
       next();
     } catch (error) {
       console.error("AuthMiddleware error:", error);
@@ -71,7 +79,7 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
 
 export async function authorizationChecker(
   action: Action,
-  roles: UserRole[]
+  roles: UserRole[],
 ): Promise<boolean> {
   const user = action.request.user;
 

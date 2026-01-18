@@ -7,18 +7,31 @@ import {
   Res,
   Authorized,
   Req,
+  Put,
+  CurrentUser,
 } from "routing-controllers";
 import { Service } from "typedi";
 import { UserService } from "../services/UserService";
-import { CreateUserDto, LoginUserDto, VerifyUserDto } from "../dtos/UserDto";
-import { Response } from "express";
+import {
+  CreateUserDto,
+  LoginUserDto,
+  UpdatePasswordDto,
+  UpdateProfileDto,
+  VerifyUserDto,
+} from "../dtos/UserDto";
+import { Request, Response } from "express";
 import { UserRole } from "../models/User";
 import { Public } from "../decorators/public";
+import { UploadService } from "../services/UploadService";
+import { UserProps } from "../types/auth";
 
 @Service()
 @JsonController("/users")
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   @Authorized([UserRole.ADMIN])
   @Get("/")
@@ -26,20 +39,23 @@ export class UserController {
     return await this.userService.findAll();
   }
 
+  @Get("/current")
+  async getCurrent(@Req() req: Request) {
+    const user = (req as any).user;
+    return this.userService.currentUser(user);
+  }
+
+  @Authorized([UserRole.ADMIN])
   @Get("/:id")
   async findOne(@Param("id") id: string) {
     return this.userService.findOne(id);
-  }
-  @Get("/current")
-  async currentUser(@Req() req: Request) {
-    return this.userService.currentUser((req as any).user);
   }
 
   @Public()
   @Post("/login")
   async login(
     @Body({ validate: true }) data: LoginUserDto,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     return this.userService.login(data, res);
   }
@@ -57,12 +73,41 @@ export class UserController {
   @Public()
   @Post("/forgot-code")
   async sendForgotPasswordCode(@Body() body: { email: string }) {
-     return this.userService.sendForgotPasswordCode(body.email);
+    return this.userService.sendForgotPasswordCode(body.email);
   }
   @Public()
   @Post("/forgot-password")
-  async forgotPassword(@Body() body: { email: string, code: string }) {
+  async forgotPassword(@Body() body: { email: string; code: string }) {
     return this.userService.forgotPassword(body.email, body.code);
   }
 
+  @Put("/profile")
+  async updateProfile(
+    @CurrentUser() user: UserProps,
+    @Body() dto: UpdateProfileDto,
+    @Res() res: Response,
+  ) {
+    return this.userService.updateProfile(dto, user, res);
+  }
+
+  @Put("/avatar")
+  async updateAvatar(
+    @CurrentUser() user: UserProps,
+    @Body() body: { avatar: string },
+    @Res() res: Response,
+  ) {
+    return await this.userService.updateAvatar(user, body.avatar, res);
+  }
+
+  @Put("/password")
+  async updatePassword(
+    @CurrentUser() user: UserProps,
+    @Body({ validate: true }) dto: UpdatePasswordDto,
+  ) {
+    return await this.userService.updatePassword(user, dto);
+  }
+  @Post("/logout")
+  async logout(@Res() res: Response) {
+    return await this.userService.logout(res);
+  }
 }

@@ -12,7 +12,7 @@ import {
   type ForgotPasswordFormData,
   type VerifyCodeFormData,
 } from "../../validations/auth";
-import { forgotPassword, forgotPasswordCode } from "../../services/auth";
+import { callSendNewPassword, callSendCode } from "../../services/auth";
 import { toastError, toastSuccess } from "../../lib/toast";
 
 const ForgotPasswordForm = () => {
@@ -30,7 +30,7 @@ const ForgotPasswordForm = () => {
 
   const onSubmitSendCode = async (data: ForgotPasswordFormData) => {
     try {
-      await forgotPasswordCode(data.email);
+      await callSendCode(data.email);
       toastSuccess("Verification code sent to your email");
       setEmailForVerify(data.email);
       setShowCodeInput(true);
@@ -49,7 +49,7 @@ const ForgotPasswordForm = () => {
 
   const onSubmitVerify = async (data: VerifyCodeFormData) => {
     try {
-      await forgotPassword(emailForVerify, data.code);
+      await callSendNewPassword(emailForVerify, data.code);
       toastSuccess("New password has been sent to your email");
       navigate("/login");
     } catch (err: any) {

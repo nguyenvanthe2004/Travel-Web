@@ -6,6 +6,15 @@ export interface CreateUserInput {
   password: string;
   phone: string;
   role: UserRole;
+  avatar: string;
   verifyCode: string;
   isActive: boolean;
+}
+export interface UpdateProfileInput {
+  fullName: string;
+  phone: string;
+}
+export interface UpdatePasswordInput {
+  oldPassword: string;
+  newPassword: string;
 }

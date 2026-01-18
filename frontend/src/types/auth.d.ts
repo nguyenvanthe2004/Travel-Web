@@ -13,7 +13,9 @@ export interface User {
   email: string;
   phone: string;
   role: string;
+  avatar: string;
 }
+
 export interface CurrentUserState {
-  currentUser: User ;
-}    
+  currentUser: User;
+}

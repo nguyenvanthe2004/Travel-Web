@@ -26,7 +26,7 @@ const LoginForm = () => {
   const onSubmit = async (dto: LoginFormData) => {
     try {
       const { data } = await callLogin(dto);
-      dispatch(setCurrentUser(data  .user));
+      dispatch(setCurrentUser(data.user));
       toastSuccess("Login successfully");
       navigate("/");
     } catch (error: any) {

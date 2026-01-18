@@ -17,10 +17,7 @@ function App() {
       try {
         const res = await callGetCurrentUser();
         dispatch(setCurrentUser(res.data));
-      } catch (error) {
-        console.log("Error: ", error);
-        dispatch(logout());
-      }
+      } catch {}
     };
     fetchCurrentUser();
   }, [dispatch]);

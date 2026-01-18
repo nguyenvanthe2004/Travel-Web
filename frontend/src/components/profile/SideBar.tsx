@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { callLogout } from "../../services/auth";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { toastError } from "../../lib/toast";
 
 const SideBar: React.FC = () => {
   const navigate = useNavigate();
@@ -12,9 +13,13 @@ const SideBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
-    dispatch(logout());
-    await callLogout();
-    navigate("/login");
+    try {
+      dispatch(logout());
+      await callLogout();
+      navigate("/login");
+    } catch (error: any) {
+      toastError(error.message);
+    }
   };
 
   const toggleSidebar = () => {
@@ -28,7 +33,11 @@ const SideBar: React.FC = () => {
         onClick={toggleSidebar}
         className="lg:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow-lg border border-[#e8dbce]"
       >
-        {isOpen ? <X size={24} className="text-[#1c140d]" /> : <Menu size={24} className="text-[#1c140d]" />}
+        {isOpen ? (
+          <X size={24} className="text-[#1c140d]" />
+        ) : (
+          <Menu size={24} className="text-[#1c140d]" />
+        )}
       </button>
 
       {/* Overlay */}
@@ -76,14 +85,18 @@ const SideBar: React.FC = () => {
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#9c7349] hover:bg-[#f4ede7] cursor-pointer transition-all"
             >
-              <span className="material-symbols-outlined text-xl">apartment</span>
+              <span className="material-symbols-outlined text-xl">
+                apartment
+              </span>
               <span className="font-medium text-sm">My Hotels</span>
             </div>
             <div
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#9c7349] hover:bg-[#f4ede7] cursor-pointer transition-all"
             >
-              <span className="material-symbols-outlined text-xl">settings</span>
+              <span className="material-symbols-outlined text-xl">
+                settings
+              </span>
               <span className="font-medium text-sm">Settings</span>
             </div>
           </div>

@@ -334,9 +334,11 @@ const ProfileContent: React.FC = () => {
               <div className="pt-2">
                 <button
                   onClick={handleSubmit(handleUpdatePassword)}
-                  className="w-full sm:w-auto bg-[#1c140d] text-white font-semibold text-sm px-6 py-2.5 rounded-lg transition-all hover:opacity-90"
+                  className={`w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm px-6 py-2.5 rounded-lg transition-all hover:opacity-90 ${
+                    isSubmitting ? "opacity-60 cursor-not-allowed" : ""
+                  }`}
                 >
-                  Update Password
+                  {isSubmitting ? "Updating..." : "Update Password"}
                 </button>
               </div>
             </div>

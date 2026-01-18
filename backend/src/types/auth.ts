@@ -8,3 +8,7 @@ export interface JwtPayload {
   role: UserRole;
   avatar: string;
 }
+
+export type UserProps = Omit<JwtPayload, "userId"> & {
+  _id: string;
+};

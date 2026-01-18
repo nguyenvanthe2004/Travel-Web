@@ -8,7 +8,7 @@ import {
   Authorized,
   Req,
   Put,
-  UseBefore,
+  CurrentUser,
 } from "routing-controllers";
 import { Service } from "typedi";
 import { UserService } from "../services/UserService";
@@ -23,15 +23,14 @@ import { Request, Response } from "express";
 import { UserRole } from "../models/User";
 import { Public } from "../decorators/public";
 import { UploadService } from "../services/UploadService";
-import { UploadMiddleware } from "../middlewares/uploadMiddleware";
-import { refreshToken } from "../utils/helper";
+import { UserProps } from "../types/auth";
 
 @Service()
 @JsonController("/users")
 export class UserController {
   constructor(
     private userService: UserService,
-    private readonly uploadService: UploadService
+    private readonly uploadService: UploadService,
   ) {}
 
   @Authorized([UserRole.ADMIN])
@@ -57,7 +56,7 @@ export class UserController {
   @Post("/login")
   async login(
     @Body({ validate: true }) data: LoginUserDto,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     return this.userService.login(data, res);
   }
@@ -82,19 +81,22 @@ export class UserController {
   async forgotPassword(@Body() body: { email: string; code: string }) {
     return this.userService.forgotPassword(body.email, body.code);
   }
-  @Put("/profile")
-  @Authorized([UserRole.ADMIN, UserRole.USER])
-  async updateProfile(
-    @Req() req: Request,
-    @Body({ validate: true }) dto: UpdateProfileDto,
-    @Res() res: Response
-  ) {
-    const userId = (req as any).user.userId;
 
-    return await this.userService.updateProfile(dto, userId, res);
+  @Put("/profile")
+  async updateProfile(
+    @CurrentUser() user: UserProps,
+    @Body() dto: UpdateProfileDto,
+    @Res() res: Response,
+  ) {
+    return this.userService.updateProfile(dto, user, res);
   }
+
   @Put("/avatar")
-  async updateAvatar(@Req() req: Request, @Body() body: { avatar: string }, @Res() res: Response) {
+  async updateAvatar(
+    @Req() req: Request,
+    @Body() body: { avatar: string },
+    @Res() res: Response,
+  ) {
     const userId = (req as any).user.userId;
     return await this.userService.updateAvatar(userId, body.avatar, res);
   }
@@ -102,7 +104,7 @@ export class UserController {
   @Put("/password")
   async updatePassword(
     @Req() req: Request,
-    @Body({ validate: true }) dto: UpdatePasswordDto
+    @Body({ validate: true }) dto: UpdatePasswordDto,
   ) {
     const userId = (req as any).user.userId;
 

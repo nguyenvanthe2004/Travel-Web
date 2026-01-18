@@ -10,7 +10,7 @@ import { MailService } from "./MailService";
 import jwt from "jsonwebtoken";
 import { generateForgotPass } from "../utils/helper";
 import mongoose from "mongoose";
-import { JwtPayload } from "../types/auth";
+import { JwtPayload, UserProps } from "../types/auth";
 import { UpdatePasswordInput, UpdateProfileInput } from "../types/user";
 
 @Service()
@@ -214,10 +214,15 @@ export class UserService {
     return user;
   }
 
-  async updateProfile(data: UpdateProfileInput, userId: string, res: Response) {
+  async updateProfile(
+    data: UpdateProfileInput,
+    user: UserProps,
+    res: Response,
+  ) {
     try {
-      const user = await this.userRepo.findOne(userId);
-      if (!user) {
+      const userId = String(user._id);
+      const existedUser = await this.userRepo.findOne(userId);
+      if (!existedUser) {
         throw new BadRequestError("User not found");
       }
 
@@ -225,18 +230,10 @@ export class UserService {
         fullName: data.fullName,
         phone: data.phone,
       });
+
       refreshToken(res, updatedUser);
 
-      return {
-         user: {
-          userId: updatedUser._id,
-          fullName: updatedUser.fullName,
-          phone: updatedUser.phone,
-          email: updatedUser.email,
-          role: updatedUser.role,
-          avatar: updatedUser.avatar,
-        },
-      };
+      return { success: true };
     } catch (error: any) {
       throw new BadRequestError(error.message);
     }

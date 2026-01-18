@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { UserRepository } from "../repositories/UserRepository";
 import { Response } from "express";
+import { IUser } from "../models/User";
 
 export async function generateVerifyCode(length = 6, userRepo: UserRepository) {
   const chars = "0123456789";
@@ -29,7 +30,7 @@ export function generateForgotPass(length = 6) {
   return code;
 }
 
-export const refreshToken = (res: Response, user: any) => {
+export const refreshToken = (res: Response, user: IUser) => {
   const token = jwt.sign(
     {
       userId: user._id,
@@ -42,7 +43,7 @@ export const refreshToken = (res: Response, user: any) => {
     process.env.JWT_SECRET!,
     {
       expiresIn: "7d",
-    }
+    },
   );
   res.cookie("token", token, {
     httpOnly: true,

@@ -8,7 +8,7 @@ import { logout } from "../redux/slices/currentUser";
 import { callLogout } from "../services/auth";
 import { toastError } from "../lib/toast";
 
-const Header = () => {
+const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

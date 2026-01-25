@@ -9,6 +9,11 @@ import { useEffect } from "react";
 import { callGetCurrentUser } from "./services/auth";
 import { logout, setCurrentUser } from "./redux/slices/currentUser";
 import Profile from "./pages/home/ProfilePage";
+import DashboardPage from "./pages/admin/DashboardPage";
+import LocationManager from "./pages/admin/LocationManager";
+import HotelManager from "./pages/admin/HotelManager";
+import BookingManager from "./pages/admin/BookingManager";
+import UserManager from "./pages/admin/UserManager";
 
 function App() {
   const dispatch = useDispatch();
@@ -29,6 +34,11 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/locations" element={<LocationManager />} />
+        <Route path="/hotels" element={<HotelManager />} />
+        <Route path="/bookings" element={<BookingManager />} />
+        <Route path="/users" element={<UserManager />} />
       </Routes>
     </BrowserRouter>
   );

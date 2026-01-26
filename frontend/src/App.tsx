@@ -14,6 +14,8 @@ import LocationManager from "./pages/admin/LocationManager";
 import HotelManager from "./pages/admin/HotelManager";
 import BookingManager from "./pages/admin/BookingManager";
 import UserManager from "./pages/admin/UserManager";
+import CreateLocation from "./pages/admin/CreateLocation";
+import UpdateLocation from "./pages/admin/UpdateLocation";
 
 function App() {
   const dispatch = useDispatch();
@@ -35,7 +37,11 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/locations" element={<LocationManager />} />
+        <Route path="/locations">
+          <Route index element={<LocationManager />} />
+          <Route path="create" element={<CreateLocation />} />
+          <Route path="update/:id" element={<UpdateLocation />} />
+        </Route>
         <Route path="/hotels" element={<HotelManager />} />
         <Route path="/bookings" element={<BookingManager />} />
         <Route path="/users" element={<UserManager />} />

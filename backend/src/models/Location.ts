@@ -2,6 +2,7 @@ import { Schema, model, Document } from "mongoose";
 
 export interface ILocation extends Document {
   name: string;
+  image: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -12,6 +13,10 @@ const LocationSchema = new Schema<ILocation>(
       type: String,
       required: true,
       trim: true,
+    },
+    image: {
+      type: String,
+      required: true,
     },
   },
   {

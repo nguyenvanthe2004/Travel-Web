@@ -5,21 +5,27 @@ import {
   callGetAllLocation,
 } from "../../services/location";
 import { Location } from "../../types/location";
-import { CLOUDINARY_URL } from "../../constants";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import CustomTable from "../CustomTable";
+import { set } from "zod";
+import { fa } from "zod/v4/locales";
 
 const LocationMain: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const fetchLocations = async () => {
       try {
+        setLoading(true);
         const res = await callGetAllLocation();
         setLocations(res.data);
       } catch (error) {
         console.error("Error fetching locations:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchLocations();
@@ -34,6 +40,9 @@ const LocationMain: React.FC = () => {
       toast.error(error.message);
     }
   };
+  const handleEditLocation = (id: string) => {
+    navigate(`/locations/update/${id}`);
+  };
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
@@ -45,7 +54,8 @@ const LocationMain: React.FC = () => {
               Locations
             </h2>
             <p className="text-slate-500 text-sm">
-              Manage your property locations and their operational status across the globe.
+              Manage your property locations and their operational status across
+              the globe.
             </p>
           </div>
           <button
@@ -73,190 +83,44 @@ const LocationMain: React.FC = () => {
           </div>
         </div>
 
-        {/* Table Container */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-          {/* Desktop Table */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Preview
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Location Details
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {locations.map((location) => (
-                  <tr
-                    key={location._id}
-                    className="hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <div
-                        className="size-14 rounded-lg bg-cover bg-center border border-slate-200"
-                        style={{
-                          backgroundImage: `url(${CLOUDINARY_URL}${location.image})`,
-                        }}
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-slate-900 text-base">
-                        {location.name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center text-xs font-bold bg-green-50 text-green-600 px-3 py-1.5 rounded-full uppercase">
-                        Active
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-1">
-                        <button 
-                          className="p-2.5 text-slate-400 hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/10 rounded-lg transition-colors"
-                          title="View"
-                        >
-                          <span className="material-symbols-outlined text-[22px]">
-                            visibility
-                          </span>
-                        </button>
-                        <button
-                          onClick={() =>
-                            navigate(`/locations/update/${location._id}`)
-                          }
-                          className="p-2.5 text-slate-400 hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/10 rounded-lg transition-colors"
-                          title="Edit"
-                        >
-                          <span className="material-symbols-outlined text-[22px]">
-                            edit
-                          </span>
-                        </button>
-                        <button
-                          onClick={() => handleDeleteLocation(location._id)}
-                          className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete"
-                        >
-                          <span className="material-symbols-outlined text-[22px]">
-                            delete
-                          </span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+        {/* Table */}
+        <CustomTable
+          data={locations}
+          onEdit={handleEditLocation}
+          onDelete={handleDeleteLocation}
+          loading={loading}
+        />
 
-                {locations.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="text-center py-12 text-slate-400">
-                      No locations found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Card View */}
-          <div className="md:hidden divide-y divide-slate-100">
-            {locations.map((location) => (
-              <div key={location._id} className="p-4">
-                <div className="flex items-start gap-4">
-                  {/* Image */}
-                  <div
-                    className="size-20 flex-shrink-0 rounded-lg bg-cover bg-center border border-slate-200"
-                    style={{
-                      backgroundImage: `url(${CLOUDINARY_URL}${location.image})`,
-                    }}
-                  />
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-slate-900 text-base mb-2">
-                      {location.name}
-                    </h3>
-                    <span className="inline-flex items-center text-[10px] font-bold bg-green-50 text-green-600 px-2.5 py-1 rounded-full uppercase">
-                      Active
-                    </span>
-                    
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 mt-3">
-                      <button className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg text-xs font-medium transition-colors">
-                        <span className="material-symbols-outlined text-[18px]">
-                          visibility
-                        </span>
-                        View
-                      </button>
-                      <button
-                        onClick={() =>
-                          navigate(`/locations/update/${location._id}`)
-                        }
-                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-[#0F8FA0] bg-[#0F8FA0]/10 hover:bg-[#0F8FA0]/20 rounded-lg text-xs font-medium transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">
-                          edit
-                        </span>
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteLocation(location._id)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-[20px]">
-                          delete
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {locations.length === 0 && (
-              <div className="p-12 text-center text-slate-400">
-                No locations found
-              </div>
-            )}
-          </div>
-
-          {/* Pagination Footer */}
-          {locations.length > 0 && (
-            <div className="px-4 sm:px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-xs text-slate-500 order-2 sm:order-1">
-                Showing <span className="font-bold text-slate-900">1-4</span> of{" "}
-                <span className="font-bold text-slate-900">24</span> locations
-              </p>
-              <div className="flex items-center gap-1 order-1 sm:order-2">
-                <button className="size-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-white hover:border-slate-300 transition-colors">
-                  <span className="material-symbols-outlined text-[18px]">
-                    chevron_left
-                  </span>
-                </button>
-                <button className="size-9 flex items-center justify-center rounded-lg bg-[#0F8FA0] text-white text-sm font-bold shadow-sm">
-                  1
-                </button>
-                <button className="size-9 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">
-                  2
-                </button>
-                <button className="size-9 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">
-                  3
-                </button>
-                <button className="size-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-white hover:border-slate-300 transition-colors">
-                  <span className="material-symbols-outlined text-[18px]">
-                    chevron_right
-                  </span>
-                </button>
-              </div>
+        {/* Pagination Footer */}
+        {locations.length > 0 && (
+          <div className="mt-4 px-4 sm:px-6 py-4 bg-white border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-slate-500 order-2 sm:order-1">
+              Showing <span className="font-bold text-slate-900">1-4</span> of{" "}
+              <span className="font-bold text-slate-900">24</span> locations
+            </p>
+            <div className="flex items-center gap-1 order-1 sm:order-2">
+              <button className="size-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-white hover:border-slate-300 transition-colors">
+                <span className="material-symbols-outlined text-[18px]">
+                  chevron_left
+                </span>
+              </button>
+              <button className="size-9 flex items-center justify-center rounded-lg bg-[#0F8FA0] text-white text-sm font-bold shadow-sm">
+                1
+              </button>
+              <button className="size-9 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">
+                2
+              </button>
+              <button className="size-9 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">
+                3
+              </button>
+              <button className="size-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-white hover:border-slate-300 transition-colors">
+                <span className="material-symbols-outlined text-[18px]">
+                  chevron_right
+                </span>
+              </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-slate-200">

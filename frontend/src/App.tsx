@@ -14,8 +14,8 @@ import LocationManager from "./pages/admin/LocationManager";
 import HotelManager from "./pages/admin/HotelManager";
 import BookingManager from "./pages/admin/BookingManager";
 import UserManager from "./pages/admin/UserManager";
-import CreateLocation from "./pages/admin/CreateLocation";
-import UpdateLocation from "./pages/admin/UpdateLocation";
+import CreateLocation from "./pages/admin/CreateLocationPage";
+import UpdateLocation from "./pages/admin/DetailLocationAdmin";
 
 function App() {
   const dispatch = useDispatch();

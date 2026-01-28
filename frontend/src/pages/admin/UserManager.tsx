@@ -1,12 +1,12 @@
 import type React from "react";
 import AdminLayout from "../../layouts/AdminLayout";
-import UserMain from "../../components/admin/UserMain";
+import UserList from "../../components/admin/UserList";
 
-const LocationManager: React.FC = () => {
+const UserManager: React.FC = () => {
   return (
     <AdminLayout>
-      <UserMain />
+      <UserList />
     </AdminLayout>
   );
 };
-export default LocationManager;
+export default UserManager;

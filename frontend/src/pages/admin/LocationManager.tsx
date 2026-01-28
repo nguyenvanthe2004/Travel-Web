@@ -1,12 +1,11 @@
 import type React from "react";
-
 import AdminLayout from "../../layouts/AdminLayout";
-import LocationMain from "../../components/admin/LocationMain";
+import LocationList from "../../components/admin/LocationList";
 
 const LocationManager: React.FC = () => {
   return (
     <AdminLayout>
-      <LocationMain />
+      <LocationList />
     </AdminLayout>
   );
 };

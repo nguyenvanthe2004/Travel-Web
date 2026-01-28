@@ -43,8 +43,7 @@ const SideBar: React.FC = () => {
     }
   }, []);
 
-  const handleNavClick = (page: string, href: string) => {
-    setActivePage(page);
+  const handleNavClick = (href: string) => {
     setIsOpen(false);
     navigate(href);
   };
@@ -63,7 +62,7 @@ const SideBar: React.FC = () => {
             </h1>
           </div>
         </div>
-        
+
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
@@ -114,7 +113,7 @@ const SideBar: React.FC = () => {
                 ? "bg-[#0F8FA0] text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
-            onClick={() => handleNavClick("dashboard", "/dashboard")}
+            onClick={() => handleNavClick("/dashboard")}
           >
             <span className="material-symbols-outlined text-xl">dashboard</span>
             <span
@@ -130,9 +129,11 @@ const SideBar: React.FC = () => {
                 ? "bg-[#0F8FA0] text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
-            onClick={() => handleNavClick("locations", "/locations")}
+            onClick={() => handleNavClick("/locations")}
           >
-            <span className="material-symbols-outlined text-xl">location_on</span>
+            <span className="material-symbols-outlined text-xl">
+              location_on
+            </span>
             <span
               className={`text-sm ${activePage === "locations" ? "font-semibold" : "font-medium"}`}
             >
@@ -146,7 +147,7 @@ const SideBar: React.FC = () => {
                 ? "bg-[#0F8FA0] text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
-            onClick={() => handleNavClick("hotels", "/hotels")}
+            onClick={() => handleNavClick("/hotels")}
           >
             <span className="material-symbols-outlined text-xl">bed</span>
             <span
@@ -162,7 +163,7 @@ const SideBar: React.FC = () => {
                 ? "bg-[#0F8FA0] text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
-            onClick={() => handleNavClick("bookings", "/bookings")}
+            onClick={() => handleNavClick("/bookings")}
           >
             <span className="material-symbols-outlined text-xl">
               calendar_month
@@ -180,7 +181,7 @@ const SideBar: React.FC = () => {
                 ? "bg-[#0F8FA0] text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
-            onClick={() => handleNavClick("users", "/users")}
+            onClick={() => handleNavClick("/users")}
           >
             <span className="material-symbols-outlined text-xl">group</span>
             <span
@@ -202,7 +203,7 @@ const SideBar: React.FC = () => {
                 ? "bg-[#0F8FA0] text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
-            onClick={() => handleNavClick("settings", "/settings")}
+            onClick={() => handleNavClick("/settings")}
           >
             <span className="material-symbols-outlined text-xl">settings</span>
             <span
@@ -218,7 +219,7 @@ const SideBar: React.FC = () => {
                 ? "bg-[#0F8FA0] text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
-            onClick={() => handleNavClick("support", "/support")}
+            onClick={() => handleNavClick("/support")}
           >
             <span className="material-symbols-outlined text-xl">help</span>
             <span

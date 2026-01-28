@@ -1,12 +1,12 @@
 import type React from "react";
 import AdminLayout from "../../layouts/AdminLayout";
-import BookingMain from "../../components/admin/BookingMain";
+import BookingList from "../../components/admin/BookingList";
 
-const LocationManager: React.FC = () => {
+const BookingManager: React.FC = () => {
   return (
     <AdminLayout>
-      <BookingMain />
+      <BookingList />
     </AdminLayout>
   );
 };
-export default LocationManager;
+export default BookingManager;

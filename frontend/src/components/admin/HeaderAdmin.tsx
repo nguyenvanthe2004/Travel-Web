@@ -23,11 +23,6 @@ const HeaderAdmin: React.FC = () => {
         <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-grey-800 rounded-lg transition-colors">
           <span className="material-symbols-outlined">chat_bubble</span>
         </button>
-        <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
-        <button className="flex items-center gap-2 bg-[#0F8FA0] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all">
-          <span className="material-symbols-outlined text-lg">add</span>
-          New Booking
-        </button>
       </div>
     </header>
   );

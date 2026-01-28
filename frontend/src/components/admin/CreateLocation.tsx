@@ -3,31 +3,37 @@ import { useState } from "react";
 import { callCreateLocation } from "../../services/location";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import CustomDropZone from "../../components/CustomDropZone";
+import CustomDropZone from "../CustomDropZone";
+import { LocationFormData, locationSchema } from "../../validations/location";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-const AddLocationMain: React.FC = () => {
-  const [name, setName] = useState("");
-  const [imageUrl, setImageUrl] = useState<string>("");
+const CreateLocation: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<LocationFormData>({
+    resolver: zodResolver(locationSchema),
+    mode: "onChange",
+  });
 
-    if (!imageUrl) {
-      toast.error("Please upload a location image");
-      return;
-    }
-
+  const imageUrl = watch("image");
+  const onSubmit = async (data: LocationFormData) => {
     try {
-      await callCreateLocation(name, imageUrl);
+      await callCreateLocation(data.name, data.image);
       toast.success("Location created successfully!");
       navigate("/locations");
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
-  return (
+   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
       <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
         <div className="mb-10">
@@ -39,7 +45,7 @@ const AddLocationMain: React.FC = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 space-y-8">
             {/* Location Name */}
             <div>
@@ -48,20 +54,38 @@ const AddLocationMain: React.FC = () => {
               </label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                {...register("name")}
                 className="block w-full px-4 py-3 bg-white border rounded-xl text-sm placeholder:text-slate-400 focus:border-[#0F8FA0] focus:ring-2 focus:ring-[#0F8FA0]/20 focus:outline-none transition-all"
                 placeholder="Enter location name..."
-                required
               />
+              {errors.name && (
+                <p className="mt-2 text-sm text-red-500">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
 
             {/* Location Image */}
             <CustomDropZone
-              onImageUploaded={setImageUrl}
               label="Location Image"
-              required={true}
+              description="Upload Location Image (PNG, JPG, WEBP - Max 5MB)"
+              value={imageUrl}
+              previewUrl={imageUrl}
+              onChange={(url) =>
+                setValue("image", url, { shouldValidate: true })
+              }
+              onRemove={() =>
+                setValue("image", "", { shouldValidate: true })
+              }
+              maxSize={5}
+              accept="image/png, image/jpeg, image/webp"
             />
+
+            {errors.image && (
+              <p className="text-sm text-red-500">
+                {errors.image.message}
+              </p>
+            )}
           </div>
 
           {/* Action Buttons */}
@@ -75,7 +99,8 @@ const AddLocationMain: React.FC = () => {
             </button>
             <button
               type="submit"
-              className="flex items-center gap-2 px-8 py-3 bg-[#0F8FA0] text-white text-sm font-semibold rounded-xl hover:bg-[#0E7A88] transition-all shadow-md hover:shadow-lg"
+              disabled={isSubmitting}
+              className="flex items-center gap-2 px-8 py-3 bg-[#0F8FA0] text-white text-sm font-semibold rounded-xl hover:bg-[#0E7A88] transition-all shadow-md hover:shadow-lg disabled:opacity-60"
             >
               <span className="material-symbols-outlined text-[20px]">
                 check
@@ -89,4 +114,4 @@ const AddLocationMain: React.FC = () => {
   );
 };
 
-export default AddLocationMain;
+export default CreateLocation;

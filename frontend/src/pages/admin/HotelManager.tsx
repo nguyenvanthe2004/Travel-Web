@@ -1,11 +1,11 @@
 import type React from "react";
 import AdminLayout from "../../layouts/AdminLayout";
-import HotelMain from "../../components/admin/HotelsMain";
+import HotelList from "../../components/admin/HotelList";
 
 const HotelManager: React.FC = () => {
   return (
     <AdminLayout>
-      <HotelMain />
+      <HotelList />
     </AdminLayout>
   );
 };

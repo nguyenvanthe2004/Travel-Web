@@ -25,24 +25,10 @@ export interface CustomTableProps<T> {
   loading?: boolean;
   emptyText?: string;
   className?: string;
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
 }
 
 export interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange?: (page: number) => void;
-}
-
-export interface NavItemData {
-  key: string;
-  label: string;
-  icon: string;
-  path: string;
-}
-
-export interface NavItemProps {
-  item: NavItemData;
-  onClick: (path: string) => void;
 }

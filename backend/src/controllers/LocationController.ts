@@ -14,19 +14,25 @@ import { Service } from "typedi";
 import { CreateLocationDto, UpdateLocationDto } from "../dtos/LocationDto";
 import { LocationService } from "../services/LocationService";
 import { UserRole } from "../models/User";
+import { Public } from "../decorators/public";
 
 @Service()
 @JsonController("/locations")
 export class LocationController {
   constructor(private locationService: LocationService) {}
 
+  @Public()
   @Get("/")
   async findAll(
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
   ) {
+    if (!limit) {
+      return await this.locationService.findAllWithoutPagination();
+    }
     return await this.locationService.findAll(page, limit);
   }
+  @Public()
   @Get("/:id")
   async findOne(@Param("id") id: string) {
     return this.locationService.findOne(id);

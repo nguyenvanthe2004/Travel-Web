@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { IHotel } from "../../types/hotel";
-import { Hotel } from "lucide-react";
 import { HotelStatus } from "../../constants";
 import CustomTable from "../CustomTable";
 import Pagination from "../Pagination";

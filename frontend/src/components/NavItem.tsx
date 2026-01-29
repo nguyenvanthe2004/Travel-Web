@@ -1,5 +1,16 @@
 import { NavLink } from "react-router-dom";
-import { NavItemProps } from "../types";
+
+interface NavItemData {
+  key: string;
+  label: string;
+  icon: string;
+  path: string;
+}
+
+interface NavItemProps {
+  item: NavItemData;
+  onClick: (path: string) => void;
+}
 
 const NavItem = ({ item, onClick }: NavItemProps) => {
   return (

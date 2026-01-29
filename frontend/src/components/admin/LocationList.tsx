@@ -123,8 +123,6 @@ const LocationList: React.FC = () => {
         <CustomTable
           data={locations}
           loading={loading}
-          onEdit={(id) => navigate(`/locations/update/${id}`)}
-          onDelete={handleDeleteLocation}
           columns={columns}
         />
         <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />

@@ -1,9 +1,9 @@
 import { Hotel } from "lucide-react";
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { CLOUDINARY_URL, NAV_ITEMS, SYSTEM_ITEMS } from "../../constants";
 import NavItem from "../NavItem";
 
@@ -12,10 +12,6 @@ const SideBar: React.FC = () => {
   const navigate = useNavigate();
 
   const user = useSelector((state: RootState) => state.auth.currentUser);
-
-  const handleNavClick = () => {
-    setIsOpen(false);
-  };
 
   return (
     <>
@@ -77,7 +73,11 @@ const SideBar: React.FC = () => {
 
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => (
-            <NavItem key={item.key} item={item} onClick={handleNavClick} />
+            <NavItem
+              key={item.key}
+              item={item}
+              onClick={() => setIsOpen(false)}
+            />
           ))}
 
           <div className="pt-4 pb-2 px-4">
@@ -87,7 +87,11 @@ const SideBar: React.FC = () => {
           </div>
 
           {SYSTEM_ITEMS.map((item) => (
-            <NavItem key={item.key} item={item} onClick={handleNavClick} />
+            <NavItem
+              key={item.key}
+              item={item}
+              onClick={() => setIsOpen(false)}
+            />
           ))}
         </nav>
 

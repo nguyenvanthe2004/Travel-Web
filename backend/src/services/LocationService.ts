@@ -2,11 +2,19 @@ import { BadRequestError } from "routing-controllers";
 import { Service } from "typedi";
 import { LocationRepository } from "../repositories/LocationRepository";
 import { CreateLocationDto, UpdateLocationDto } from "../dtos/LocationDto";
-import { UserProps } from "../types/auth";
+import { ILocation } from "../models/Location";
 
 @Service()
 export class LocationService {
   constructor(private readonly locationRepo: LocationRepository) {}
+
+  async findAllWithoutPagination() {
+    try {
+      return this.locationRepo.findAllWithoutPagination();
+    } catch (error) {
+      throw new BadRequestError(error.message);
+    }
+  }
 
   async findAll(page = 1, limit = 10) {
     try {

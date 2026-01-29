@@ -78,7 +78,7 @@ const CreateLocation: React.FC = () => {
                 setValue("image", "", { shouldValidate: true })
               }
               maxSize={5}
-              accept="image/png, image/jpeg, image/webp"
+              accept="image/*"
             />
 
             {errors.image && (

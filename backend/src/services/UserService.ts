@@ -23,9 +23,22 @@ export class UserService {
     private readonly userRepo: UserRepository,
     private readonly mailService: MailService,
   ) {}
-  findAll() {
+  async findAll(page = 1, limit = 10) {
     try {
-      return this.userRepo.findAll();
+      page = Math.max(1, Number(page));
+      limit = Math.max(1, Number(limit));
+
+      const skip = (page - 1) * limit;
+
+      const [users, total] = await Promise.all([
+        this.userRepo.findAll(skip, limit),
+        this.userRepo.countAll(),
+      ]);
+
+      return {
+        totalPages: Math.ceil(total / limit),
+        data: users,
+      };
     } catch (error) {
       throw new BadRequestError(error.message);
     }
@@ -218,11 +231,7 @@ export class UserService {
     return user;
   }
 
-  async updateProfile(
-    data: UpdateProfileDto,
-    user: UserProps,
-    res: Response,
-  ) {
+  async updateProfile(data: UpdateProfileDto, user: UserProps, res: Response) {
     try {
       const userId = String(user._id);
       const existedUser = await this.userRepo.findOne(userId);

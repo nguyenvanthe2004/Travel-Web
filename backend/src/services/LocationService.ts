@@ -8,9 +8,22 @@ import { UserProps } from "../types/auth";
 export class LocationService {
   constructor(private readonly locationRepo: LocationRepository) {}
 
-  findAll() {
+  async findAll(page = 1, limit = 10) {
     try {
-      return this.locationRepo.findAll();
+      page = Math.max(1, Number(page));
+      limit = Math.max(1, Number(limit));
+
+      const skip = (page - 1) * limit;
+
+      const [locations, total] = await Promise.all([
+        this.locationRepo.findAll(skip, limit),
+        this.locationRepo.countAll(),
+      ]);
+
+      return {
+        totalPages: Math.ceil(total / limit),
+        data: locations,
+      };
     } catch (error) {
       throw new BadRequestError(error.message);
     }

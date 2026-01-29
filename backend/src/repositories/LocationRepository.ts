@@ -4,8 +4,11 @@ import { CreateLocationInput } from "../types/location";
 
 @Service()
 export class LocationRepository {
-  findAll(): Promise<ILocation[]> {
-    return LocationModel.find().lean();
+  countAll() {
+    return LocationModel.countDocuments();
+  }
+  findAll(skip: number, limit: number): Promise<ILocation[]> {
+    return LocationModel.find().skip(skip).limit(limit).lean<ILocation[]>();
   }
 
   findOne(id: string) {
@@ -19,8 +22,11 @@ export class LocationRepository {
     });
     return location.save();
   }
-  async update(id: string, data: Partial<ILocation>): Promise<ILocation | null> {
-    return LocationModel.findByIdAndUpdate(id, {$set: data}, { new: true });
+  async update(
+    id: string,
+    data: Partial<ILocation>,
+  ): Promise<ILocation | null> {
+    return LocationModel.findByIdAndUpdate(id, { $set: data }, { new: true });
   }
   async delete(id: string): Promise<ILocation | null> {
     return LocationModel.findByIdAndDelete(id);

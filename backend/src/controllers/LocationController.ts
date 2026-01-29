@@ -8,6 +8,7 @@ import {
   CurrentUser,
   Delete,
   Authorized,
+  QueryParam,
 } from "routing-controllers";
 import { Service } from "typedi";
 import { CreateLocationDto, UpdateLocationDto } from "../dtos/LocationDto";
@@ -20,8 +21,11 @@ export class LocationController {
   constructor(private locationService: LocationService) {}
 
   @Get("/")
-  async findAll() {
-    return await this.locationService.findAll();
+  async findAll(
+    @QueryParam("page") page: number,
+    @QueryParam("limit") limit: number,
+  ) {
+    return await this.locationService.findAll(page, limit);
   }
   @Get("/:id")
   async findOne(@Param("id") id: string) {

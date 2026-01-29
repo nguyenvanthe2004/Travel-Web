@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { uploadFile } from "../services/file";
 import { CLOUDINARY_URL } from "../constants";
 import { toast } from "react-toastify";
-import { CustomDropZoneProps } from "../types/items";
+import { CustomDropZoneProps } from "../types";
 
 const CustomDropZone: React.FC<CustomDropZoneProps> = ({
   value,

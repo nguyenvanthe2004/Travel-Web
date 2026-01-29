@@ -14,15 +14,17 @@ import Pagination from "../Pagination";
 const LocationList: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        setLoading(true);
-        const res = await callGetAllLocation();
-        setLocations(res.data);
+        const res = await callGetAllLocation(page, 10);
+        setLocations(res.data.data);
+        setTotalPages(res.data.totalPages)
       } catch (error: any) {
         toast.error(error.message);
       } finally {
@@ -33,14 +35,70 @@ const LocationList: React.FC = () => {
   }, []);
 
   const handleDeleteLocation = async (id: string) => {
+    if (deleting) return;
     try {
+      setDeleting(id);
       await callDeleteLocation(id);
       setLocations((prev) => prev.filter((l) => l._id !== id));
       toast.success("Location deleted successfully!");
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setDeleting(null);
     }
   };
+
+  const columns = [
+    {
+      key: "image",
+      title: "Preview",
+      render: (row: Location) => (
+        <div
+          className="size-14 rounded-lg bg-cover bg-center border border-slate-200"
+          style={{
+            backgroundImage: `url(${CLOUDINARY_URL}${row.image})`,
+          }}
+        />
+      ),
+    },
+    {
+      key: "name",
+      title: "Location",
+      render: (row: Location) => (
+        <span className="font-bold text-slate-900">{row.name}</span>
+      ),
+    },
+    {
+      key: "actions",
+      title: "Actions",
+      headerClassName: "text-right",
+      cellClassName: "text-right",
+      render: (row: Location) => (
+        <div className="flex justify-end gap-1">
+          <button
+            onClick={() => navigate(`/locations/update/${row._id}`)}
+            className="p-2.5 text-slate-400 hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/10 rounded-lg"
+          >
+            <span className="material-symbols-outlined text-[22px]">edit</span>
+          </button>
+
+          <button
+            disabled={deleting === row._id}
+            onClick={() => handleDeleteLocation(row._id)}
+            className={`p-2.5 rounded-lg transition ${
+              deleting === row._id
+                ? "text-slate-300 cursor-not-allowed"
+                : "text-slate-400 hover:text-red-500 hover:bg-red-50"
+            }`}
+          >
+            <span className="material-symbols-outlined text-[22px]">
+              {deleting === row._id ? "hourglass_top" : "delete"}
+            </span>
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
@@ -67,59 +125,9 @@ const LocationList: React.FC = () => {
           loading={loading}
           onEdit={(id) => navigate(`/locations/update/${id}`)}
           onDelete={handleDeleteLocation}
-          columns={[
-            {
-              key: "image",
-              title: "Preview",
-              render: (row) => (
-                <div
-                  className="size-14 rounded-lg bg-cover bg-center border border-slate-200"
-                  style={{
-                    backgroundImage: `url(${CLOUDINARY_URL}${row.image})`,
-                  }}
-                />
-              ),
-            },
-            {
-              key: "name",
-              title: "Location",
-              render: (row) => (
-                <span className="font-bold text-slate-900">{row.name}</span>
-              ),
-            },
-            {
-              key: "actions",
-              title: "Actions",
-              headerClassName: "text-right",
-              cellClassName: "text-right",
-              render: (row) => (
-                <div className="flex justify-end gap-1">
-                  <button
-                    onClick={() => navigate(`/locations/update/${row._id}`)}
-                    className="p-2.5 text-slate-400 hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/10 rounded-lg"
-                  >
-                    <span className="material-symbols-outlined text-[22px]">
-                      edit
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => handleDeleteLocation(row._id)}
-                    className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                  >
-                    <span className="material-symbols-outlined text-[22px]">
-                      delete
-                    </span>
-                  </button>
-                </div>
-              ),
-            },
-          ]}
+          columns={columns}
         />
-        <Pagination
-          currentPage={page}
-          totalPages={128}
-          onPageChange={setPage}
-        />
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
     </main>
   );

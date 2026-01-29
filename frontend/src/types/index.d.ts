@@ -29,8 +29,20 @@ export interface CustomTableProps<T> {
   onDelete?: (id: string) => void;
 }
 
-interface PaginationProps {
+export interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange?: (page: number) => void;
+}
+
+export interface NavItemData {
+  key: string;
+  label: string;
+  icon: string;
+  path: string;
+}
+
+export interface NavItemProps {
+  item: NavItemData;
+  onClick: (path: string) => void;
 }

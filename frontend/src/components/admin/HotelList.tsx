@@ -37,6 +37,114 @@ const HotelList: React.FC = () => {
       status: HotelStatus.MAINTENANCE,
     },
   ];
+
+  const hotelColumns = [
+    {
+      key: "hotel",
+      title: "Hotel Details",
+      render: (row: IHotel) => (
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-12 h-10 sm:w-16 sm:h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+            <img
+              src={row.image}
+              alt={row.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+              {row.name}
+            </p>
+            <p className="text-xs text-gray-500">
+              {row.city}, {row.country}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+
+    {
+      key: "location",
+      title: "Location",
+      render: (row: IHotel) => (
+        <div className="flex items-center gap-1.5 text-sm text-gray-700">
+          <svg
+            className="w-4 h-4 text-teal-600 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+          <span className="whitespace-nowrap text-xs sm:text-sm">
+            {row.city}, {row.country}
+          </span>
+        </div>
+      ),
+    },
+
+    {
+      key: "price",
+      title: "Price / Night",
+      headerClassName: "text-center",
+      cellClassName: "text-center",
+      render: (row: IHotel) => (
+        <p className="text-sm font-semibold text-gray-900">
+          ${row.price.toFixed(2)}
+        </p>
+      ),
+    },
+
+    {
+      key: "status",
+      title: "Status",
+      render: (row: IHotel) => (
+        <span
+          className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase border ${
+            {
+              [HotelStatus.ACTIVE]:
+                "bg-green-50 text-green-700 border-green-200",
+              [HotelStatus.PENDING]:
+                "bg-amber-50 text-amber-700 border-amber-200",
+              [HotelStatus.MAINTENANCE]:
+                "bg-red-50 text-red-700 border-red-200",
+            }[row.status]
+          }`}
+        >
+          {row.status}
+        </span>
+      ),
+    },
+
+    {
+      key: "actions",
+      title: "Actions",
+      headerClassName: "text-right",
+      cellClassName: "text-right",
+      render: () => (
+        <div className="flex items-center justify-end gap-1">
+          <button className="p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-100 rounded-lg">
+            <span className="material-symbols-outlined text-[22px]">edit</span>
+          </button>
+          <button className="p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-100 rounded-lg">
+            ⋮
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <main className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
       {/* Header Section */}
@@ -235,116 +343,7 @@ const HotelList: React.FC = () => {
       {/* Table */}
       <CustomTable<IHotel>
         data={fakeHotels}
-        columns={[
-          {
-            key: "hotel",
-            title: "Hotel Details",
-            render: (row) => (
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-12 h-10 sm:w-16 sm:h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                  <img
-                    src={row.image}
-                    alt={row.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">
-                    {row.name}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {row.city}, {row.country}
-                  </p>
-                </div>
-              </div>
-            ),
-          },
-
-          {
-            key: "location",
-            title: "Location",
-            render: (row) => (
-              <div className="flex items-center gap-1.5 text-sm text-gray-700">
-                <svg
-                  className="w-4 h-4 text-teal-600 flex-shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                <span className="whitespace-nowrap text-xs sm:text-sm">
-                  {row.city}, {row.country}
-                </span>
-              </div>
-            ),
-          },
-
-          {
-            key: "price",
-            title: "Price / Night",
-            headerClassName: "text-center",
-            cellClassName: "text-center",
-            render: (row) => (
-              <p className="text-sm font-semibold text-gray-900">
-                ${row.price.toFixed(2)}
-              </p>
-            ),
-          },
-
-          {
-            key: "status",
-            title: "Status",
-            render: (row) => {
-              const map: Record<HotelStatus, string> = {
-                [HotelStatus.ACTIVE]:
-                  "bg-green-50 text-green-700 border-green-200",
-                [HotelStatus.PENDING]:
-                  "bg-amber-50 text-amber-700 border-amber-200",
-                [HotelStatus.MAINTENANCE]:
-                  "bg-red-50 text-red-700 border-red-200",
-              };
-
-              return (
-                <span
-                  className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase border ${map[row.status]}`}
-                >
-                  {row.status}
-                </span>
-              );
-            },
-          },
-
-          {
-            key: "actions",
-            title: "Actions",
-            headerClassName: "text-right",
-            cellClassName: "text-right",
-            render: () => (
-              <div className="flex items-center justify-end gap-1">
-                <button className="p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-100 rounded-lg">
-                  <span className="material-symbols-outlined text-[22px]">
-                    edit
-                  </span>
-                </button>
-                <button className="p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-100 rounded-lg">
-                  ⋮
-                </button>
-              </div>
-            ),
-          },
-        ]}
+        columns={hotelColumns}
         loading={false}
         className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm"
       />

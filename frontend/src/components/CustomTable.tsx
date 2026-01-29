@@ -1,5 +1,5 @@
 import type React from "react";
-import { CustomTableProps } from "../types/items";
+import { CustomTableProps } from "../types";
 
 const CustomTable = <T extends { _id: string }>({
   data,

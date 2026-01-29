@@ -12,7 +12,7 @@ import {
 import CustomDropZone from "../CustomDropZone";
 import { LocationFormData, locationSchema } from "../../validations/location";
 
-const UpdateLocationMain: React.FC = () => {
+const DetailLocation: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -136,4 +136,4 @@ const UpdateLocationMain: React.FC = () => {
   );
 };
 
-export default UpdateLocationMain;
+export default DetailLocation;

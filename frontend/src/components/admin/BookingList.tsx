@@ -4,7 +4,7 @@ import { BookingStatus } from "../../constants";
 import CustomTable from "../CustomTable";
 import Pagination from "../Pagination";
 
-const BookingMain: React.FC = () => {
+const BookingList: React.FC = () => {
   const [page, setPage] = React.useState(1);
 
   const fakeBookings: Booking[] = [
@@ -39,6 +39,110 @@ const BookingMain: React.FC = () => {
       nights: 2,
       status: BookingStatus.PENDING,
       total: 1250,
+    },
+  ];
+
+  const bookingColumns = [
+    {
+      key: "code",
+      title: "Booking ID",
+      render: (row: Booking) => (
+        <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+          {row.bookingCode}
+        </span>
+      ),
+    },
+
+    {
+      key: "guest",
+      title: "Guest",
+      render: (row: Booking) => (
+        <div className="flex items-center gap-3 min-w-[220px]">
+          <div
+            className="w-9 h-9 rounded-full bg-cover bg-center flex-shrink-0"
+            style={{ backgroundImage: `url(${row.guest.avatar})` }}
+          />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-900 truncate">
+              {row.guest.name}
+            </p>
+            <p className="text-xs text-gray-400 truncate">{row.guest.email}</p>
+          </div>
+        </div>
+      ),
+    },
+
+    {
+      key: "hotel",
+      title: "Hotel / Room",
+      render: (row: Booking) => (
+        <>
+          <p className="text-sm font-medium text-gray-700 whitespace-nowrap">
+            {row.hotel}
+          </p>
+          <p className="text-xs text-gray-400 whitespace-nowrap">{row.room}</p>
+        </>
+      ),
+    },
+
+    {
+      key: "period",
+      title: "Stay Period",
+      render: (row: Booking) => (
+        <>
+          <p className="text-sm font-medium text-gray-700 whitespace-nowrap">
+            {row.period}
+          </p>
+          <p className="text-xs text-gray-400">{row.nights} Nights</p>
+        </>
+      ),
+    },
+
+    {
+      key: "status",
+      title: "Status",
+      render: (row: Booking) => (
+        <span
+          className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold whitespace-nowrap ${
+            {
+              confirmed: "bg-green-50 text-green-700",
+              pending: "bg-amber-50 text-amber-700",
+              cancelled: "bg-red-50 text-red-700",
+            }[row.status]
+          }`}
+        >
+          {row.status}
+        </span>
+      ),
+    },
+
+    {
+      key: "total",
+      title: "Total",
+      render: (row: Booking) => (
+        <span className="font-semibold text-gray-900 whitespace-nowrap">
+          ${row.total.toLocaleString()}
+        </span>
+      ),
+    },
+
+    {
+      key: "actions",
+      title: "Actions",
+      headerClassName: "text-right",
+      cellClassName: "text-right",
+      render: () => (
+        <div className="flex items-center justify-end gap-2">
+          <button className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+            <span className="material-symbols-outlined text-xl">
+              visibility
+            </span>
+          </button>
+          <button className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+            <span className="material-symbols-outlined text-xl">more_vert</span>
+          </button>
+        </div>
+      ),
     },
   ];
   return (
@@ -152,117 +256,7 @@ const BookingMain: React.FC = () => {
           data={fakeBookings}
           loading={false}
           className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
-          columns={[
-            {
-              key: "code",
-              title: "Booking ID",
-              render: (row) => (
-                <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
-                  {row.bookingCode}
-                </span>
-              ),
-            },
-
-            {
-              key: "guest",
-              title: "Guest",
-              render: (row) => (
-                <div className="flex items-center gap-3 min-w-[220px]">
-                  <div
-                    className="w-9 h-9 rounded-full bg-cover bg-center flex-shrink-0"
-                    style={{ backgroundImage: `url(${row.guest.avatar})` }}
-                  />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {row.guest.name}
-                    </p>
-                    <p className="text-xs text-gray-400 truncate">
-                      {row.guest.email}
-                    </p>
-                  </div>
-                </div>
-              ),
-            },
-
-            {
-              key: "hotel",
-              title: "Hotel / Room",
-              render: (row) => (
-                <>
-                  <p className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                    {row.hotel}
-                  </p>
-                  <p className="text-xs text-gray-400 whitespace-nowrap">
-                    {row.room}
-                  </p>
-                </>
-              ),
-            },
-
-            {
-              key: "period",
-              title: "Stay Period",
-              render: (row) => (
-                <>
-                  <p className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                    {row.period}
-                  </p>
-                  <p className="text-xs text-gray-400">{row.nights} Nights</p>
-                </>
-              ),
-            },
-
-            {
-              key: "status",
-              title: "Status",
-              render: (row) => {
-                const map = {
-                  confirmed: "bg-green-50 text-green-700",
-                  pending: "bg-amber-50 text-amber-700",
-                  cancelled: "bg-red-50 text-red-700",
-                };
-
-                return (
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold whitespace-nowrap ${map[row.status]}`}
-                  >
-                    {row.status}
-                  </span>
-                );
-              },
-            },
-
-            {
-              key: "total",
-              title: "Total",
-              render: (row) => (
-                <span className="font-semibold text-gray-900 whitespace-nowrap">
-                  ${row.total.toLocaleString()}
-                </span>
-              ),
-            },
-
-            {
-              key: "actions",
-              title: "Actions",
-              headerClassName: "text-right",
-              cellClassName: "text-right",
-              render: () => (
-                <div className="flex items-center justify-end gap-2">
-                  <button className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                    <span className="material-symbols-outlined text-xl">
-                      visibility
-                    </span>
-                  </button>
-                  <button className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                    <span className="material-symbols-outlined text-xl">
-                      more_vert
-                    </span>
-                  </button>
-                </div>
-              ),
-            },
-          ]}
+          columns={bookingColumns}
         />
 
         <Pagination
@@ -275,4 +269,4 @@ const BookingMain: React.FC = () => {
   );
 };
 
-export default BookingMain;
+export default BookingList;

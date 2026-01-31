@@ -5,3 +5,15 @@ export enum UserRole {
   USER = "user",
   ADMIN = "admin",
 }
+
+export enum HotelStatus {
+  PENDING = "pending",
+  ACTIVE = "active",
+  MAINTENANCE = "maintenance",
+}
+export enum BookingStatus {
+  PENDING = "pending",
+  CONFIRMED = "confirmed",
+  CANCELLED = "cancelled",
+}
+

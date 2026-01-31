@@ -9,6 +9,7 @@ import {
   Req,
   Put,
   CurrentUser,
+  QueryParam,
 } from "routing-controllers";
 import { Service } from "typedi";
 import { UserService } from "../services/UserService";
@@ -35,8 +36,11 @@ export class UserController {
 
   @Authorized([UserRole.ADMIN])
   @Get("/")
-  async findAll() {
-    return await this.userService.findAll();
+  findAll(
+    @QueryParam("page") page: number,
+    @QueryParam("limit") limit: number,
+  ) {
+    return this.userService.findAll(page, limit);
   }
 
   @Get("/current")

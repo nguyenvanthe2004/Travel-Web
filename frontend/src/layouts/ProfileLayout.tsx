@@ -1,3 +1,4 @@
+import { Outlet } from "react-router-dom";
 import SideBar from "../components/profile/SideBar";
 import type React from "react";
 
@@ -11,6 +12,7 @@ const ProfileLayout: React.FC<Props> = ({ children }) => {
       <div className="flex h-screen overflow-hidden">
         <SideBar />
         {children}
+        <Outlet />
       </div>
     </div>
   );

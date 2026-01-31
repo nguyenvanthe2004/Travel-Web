@@ -1,3 +1,4 @@
+import { Heart, MoveLeft, MoveRight } from "lucide-react";
 import React, { useState } from "react";
 
 const HotelCard: React.FC = () => {
@@ -15,10 +16,10 @@ const HotelCard: React.FC = () => {
           </div>
           <div className="flex gap-2">
             <button className="size-10 rounded-full flex items-center justify-center hover:bg-background-light hover:border-primary/50 transition-colors">
-              <span className="material-symbols-outlined">arrow_back</span>
+              <span className="material-symbols-outlined"><MoveLeft /></span>
             </button>
             <button className="size-10 rounded-full bg-orange-400 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined">arrow_forward</span>
+              <span className="material-symbols-outlined"><MoveRight /></span>
             </button>
           </div>
         </div>
@@ -33,7 +34,7 @@ const HotelCard: React.FC = () => {
               />
               <button className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white backdrop-blur-sm transition-colors text-red-500">
                 <span className="material-symbols-outlined fill text-[20px]">
-                  favorite
+                  <Heart />
                 </span>
               </button>
               <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1 shadow-sm">
@@ -64,7 +65,7 @@ const HotelCard: React.FC = () => {
               />
               <button className="absolute top-3 right-3 p-2 rounded-full bg-black/20 hover:bg-white backdrop-blur-sm transition-colors text-white hover:text-red-500">
                 <span className="material-symbols-outlined text-[20px]">
-                  favorite
+                  <Heart />
                 </span>
               </button>
               <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1 shadow-sm">
@@ -96,7 +97,7 @@ const HotelCard: React.FC = () => {
               />
               <button className="absolute top-3 right-3 p-2 rounded-full bg-black/20 hover:bg-white backdrop-blur-sm transition-colors text-white hover:text-red-500">
                 <span className="material-symbols-outlined text-[20px]">
-                  favorite
+                  <Heart />
                 </span>
               </button>
               <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1 shadow-sm">
@@ -128,7 +129,7 @@ const HotelCard: React.FC = () => {
               />
               <button className="absolute top-3 right-3 p-2 rounded-full bg-black/20 hover:bg-white backdrop-blur-sm transition-colors text-white hover:text-red-500">
                 <span className="material-symbols-outlined text-[20px]">
-                  favorite
+                  <Heart />
                 </span>
               </button>
               <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1 shadow-sm">

@@ -9,6 +9,13 @@ import { useEffect } from "react";
 import { callGetCurrentUser } from "./services/auth";
 import { logout, setCurrentUser } from "./redux/slices/currentUser";
 import Profile from "./pages/home/ProfilePage";
+import DashboardPage from "./pages/admin/DashboardPage";
+import LocationPage from "./pages/admin/LocationPage";
+import HotelPage from "./pages/admin/HotelPage";
+import BookingPage from "./pages/admin/BookingPage";
+import UserPage from "./pages/admin/UserPage";
+import CreateLocation from "./pages/admin/CreateLocationPage";
+import DetailLocationPage from "./pages/admin/DetailLocationPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -29,6 +36,15 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/locations">
+          <Route index element={<LocationPage />} />
+          <Route path="create" element={<CreateLocation />} />
+          <Route path="update/:id" element={<DetailLocationPage />} />
+        </Route>
+        <Route path="/hotels" element={<HotelPage />} />
+        <Route path="/bookings" element={<BookingPage />} />
+        <Route path="/users" element={<UserPage />} />
       </Routes>
     </BrowserRouter>
   );

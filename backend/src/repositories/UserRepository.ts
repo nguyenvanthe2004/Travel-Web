@@ -5,8 +5,12 @@ import { ClientSession } from "mongoose";
 
 @Service()
 export class UserRepository {
-  findAll(): Promise<IUser[]> {
-    return UserModel.find().lean();
+  countAll() {
+    return UserModel.countDocuments();
+  }
+
+  findAll(skip: number, limit: number): Promise<IUser[]> {
+    return UserModel.find().skip(skip).limit(limit).lean<IUser[]>();
   }
 
   findOne(id: string) {

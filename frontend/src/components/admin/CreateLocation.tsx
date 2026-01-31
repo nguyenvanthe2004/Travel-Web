@@ -3,10 +3,10 @@ import { useState } from "react";
 import { callCreateLocation } from "../../services/location";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import CustomDropZone from "../CustomDropZone";
 import { LocationFormData, locationSchema } from "../../validations/location";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import CustomDropZone from "../ui/CustomDropZone";
 
 const CreateLocation: React.FC = () => {
   const navigate = useNavigate();
@@ -68,16 +68,14 @@ const CreateLocation: React.FC = () => {
             {/* Location Image */}
             <CustomDropZone
               label="Location Image"
-              description="Upload Location Image (PNG, JPG, WEBP - Max 5MB)"
+              description="Upload Location Image"
               value={imageUrl}
-              previewUrl={imageUrl}
               onChange={(url) =>
                 setValue("image", url, { shouldValidate: true })
               }
               onRemove={() =>
                 setValue("image", "", { shouldValidate: true })
               }
-              maxSize={5}
               accept="image/*"
             />
 

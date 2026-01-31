@@ -1,11 +1,12 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { CLOUDINARY_URL, UserRole } from "../../constants";
-import CustomTable from "../CustomTable";
-import Pagination from "../Pagination";
+
 import { callGetAllUser } from "../../services/user";
 import { IUser } from "../../types/user";
 import { toastError } from "../../lib/toast";
 import { Pencil, Trash, User, UserStar } from "lucide-react";
+import Pagination from "../ui/Pagination";
+import CustomTable from "../ui/CustomTable";
 
 const roleStyle: Record<IUser["role"], string> = {
   admin: "bg-purple-100 text-purple-700 border-purple-200",
@@ -127,7 +128,7 @@ const UserList: React.FC = () => {
         </div>
 
         <div className="w-full overflow-x-auto">
-          <CustomTable<IUser>
+          <CustomTable
             data={users}
             loading={loading}
             columns={userColumns}

@@ -7,18 +7,23 @@ import {
 import { Location } from "../../types/location";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import CustomTable from "../CustomTable";
 import { CLOUDINARY_URL } from "../../constants";
-import Pagination from "../Pagination";
 import { Pencil, Plus, Trash } from "lucide-react";
+import CustomTable from "../ui/CustomTable";
+import Pagination from "../ui/Pagination";
+import { useModal } from "../../hooks/useModal";
+import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
 
 const LocationList: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [deleteId, setDeleteId] = useState("");
   const navigate = useNavigate();
+
+  const { isOpen, open, close } = useModal();
 
   const fetchLocations = async () => {
     try {
@@ -36,17 +41,19 @@ const LocationList: React.FC = () => {
     fetchLocations();
   }, []);
 
-  const handleDeleteLocation = async (id: string) => {
-    if (deleting) return;
+  const handleDeleteLocation = async () => {
+    if (!deleteId) return;
     try {
-      setDeleting(id);
-      await callDeleteLocation(id);
-      fetchLocations();
+      setDeleting(true);
+      await callDeleteLocation(deleteId);
+      setDeleteId("");
+      close();
       toast.success("Location deleted successfully!");
+      fetchLocations();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
-      setDeleting(null);
+      setDeleting(false);
     }
   };
 
@@ -81,20 +88,20 @@ const LocationList: React.FC = () => {
             onClick={() => navigate(`/locations/update/${row._id}`)}
             className="p-2.5 text-slate-400 hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/10 rounded-lg"
           >
-            <span className="material-symbols-outlined text-[22px]"><Pencil /></span>
+            <span className="material-symbols-outlined text-[22px]">
+              <Pencil />
+            </span>
           </button>
 
           <button
-            disabled={deleting === row._id}
-            onClick={() => handleDeleteLocation(row._id)}
-            className={`p-2.5 rounded-lg transition ${
-              deleting === row._id
-                ? "text-slate-300 cursor-not-allowed"
-                : "text-slate-400 hover:text-red-500 hover:bg-red-50"
-            }`}
+            onClick={() => {
+              setDeleteId(row._id);
+              open();
+            }}
+            className={`p-2.5 rounded-lg transition text-slate-400 hover:text-red-500 hover:bg-red-50`}
           >
             <span className="material-symbols-outlined text-[22px]">
-              {deleting === row._id ? "hourglass_top" : <Trash />}
+              <Trash />
             </span>
           </button>
         </div>
@@ -103,7 +110,7 @@ const LocationList: React.FC = () => {
   ];
 
   return (
-    <main className="flex-1 overflow-y-auto bg-slate-50">
+    <div className="flex-1 overflow-y-auto bg-slate-50">
       <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
           <div className="space-y-1">
@@ -118,7 +125,9 @@ const LocationList: React.FC = () => {
             onClick={() => navigate("/locations/create")}
             className="flex items-center gap-2 px-5 py-2.5 bg-[#0F8FA0] text-white text-sm font-bold rounded-lg hover:bg-[#0E7A88]"
           >
-            <span className="material-symbols-outlined text-[20px]"><Plus /></span>
+            <span className="material-symbols-outlined text-[20px]">
+              <Plus />
+            </span>
             Add Location
           </button>
         </div>
@@ -129,7 +138,13 @@ const LocationList: React.FC = () => {
           onPageChange={setPage}
         />
       </div>
-    </main>
+      <ConfirmDeleteModal
+        isOpen={isOpen}
+        onClose={close}
+        onConfirm={handleDeleteLocation}
+        loading={deleting}
+      />
+    </div>
   );
 };
 

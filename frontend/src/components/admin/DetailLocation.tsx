@@ -9,8 +9,9 @@ import {
   callGetLocationById,
   callUpdateLocation,
 } from "../../services/location";
-import CustomDropZone from "../CustomDropZone";
+
 import { LocationFormData, locationSchema } from "../../validations/location";
+import CustomDropZone from "../ui/CustomDropZone";
 
 const DetailLocation: React.FC = () => {
   const { id } = useParams<{ id: string }>();

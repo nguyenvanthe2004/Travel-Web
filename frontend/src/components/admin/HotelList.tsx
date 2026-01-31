@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { IHotel } from "../../types/hotel";
 import { HotelStatus } from "../../constants";
-import CustomTable from "../CustomTable";
-import Pagination from "../Pagination";
+
 import { List, Pencil, Plus } from "lucide-react";
+import CustomTable from "../ui/CustomTable";
+import Pagination from "../ui/Pagination";
 
 const HotelList: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -303,7 +304,7 @@ const HotelList: React.FC = () => {
       </div>
 
       {/* Table */}
-      <CustomTable<IHotel>
+      <CustomTable
         data={fakeHotels}
         columns={hotelColumns}
         loading={false}

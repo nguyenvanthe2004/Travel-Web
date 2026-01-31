@@ -1,9 +1,9 @@
 import React from "react";
 import { Booking } from "../../types/booking";
 import { BookingStatus } from "../../constants";
-import CustomTable from "../CustomTable";
-import Pagination from "../Pagination";
 import { Download, Eye, Funnel, List } from "lucide-react";
+import CustomTable from "../ui/CustomTable";
+import Pagination from "../ui/Pagination";
 
 const BookingList: React.FC = () => {
   const [page, setPage] = React.useState(1);
@@ -253,13 +253,12 @@ const BookingList: React.FC = () => {
           </div>
         </div>
 
-        <CustomTable<Booking>
+        <CustomTable
           data={fakeBookings}
           loading={false}
           className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
           columns={bookingColumns}
         />
-
         <Pagination
           currentPage={page}
           totalPages={128}

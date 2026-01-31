@@ -1,9 +1,10 @@
 import type React from "react";
 import { useState, useEffect } from "react";
-import { uploadFile } from "../services/file";
-import { CLOUDINARY_URL } from "../constants";
+
 import { toast } from "react-toastify";
-import { CustomDropZoneProps } from "../types";
+import { CustomDropZoneProps } from "../../types";
+import { uploadFile } from "../../services/file";
+import { CLOUDINARY_URL } from "../../constants";
 
 const CustomDropZone: React.FC<CustomDropZoneProps> = ({
   value,
@@ -15,16 +16,13 @@ const CustomDropZone: React.FC<CustomDropZoneProps> = ({
   disabled = false,
   label = "Image",
   description,
-  previewUrl,
 }) => {
-  const [preview, setPreview] = useState<string | null>(
-    previewUrl || value || null,
-  );
+  const [preview, setPreview] = useState<string | null>(value || null);
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    setPreview(previewUrl || value || null);
-  }, [previewUrl, value]);
+    setPreview(value || null);
+  }, [value]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -69,15 +67,10 @@ const CustomDropZone: React.FC<CustomDropZoneProps> = ({
       )}
 
       <div className="space-y-4">
-        {/* ===== PREVIEW IMAGE ===== */}
         {preview && (
-          <div className="relative w-full h-64 rounded-xl overflow-hidden border-2 border-slate-200 group">
+          <div className="relative w-full h-64 rounded-xl overflow-hidden border-2 border-dashed border-[#0F8FA0] group">
             <img
-              src={
-                preview.startsWith("http")
-                  ? preview
-                  : `${CLOUDINARY_URL}${preview}`
-              }
+              src={`${CLOUDINARY_URL}${preview}`}
               alt="Preview"
               className="w-full h-full object-contain"
             />
@@ -87,7 +80,7 @@ const CustomDropZone: React.FC<CustomDropZoneProps> = ({
                 type="button"
                 onClick={handleRemoveImage}
                 disabled={isUploading}
-                className="absolute top-1 left-4/7 w-8 h-8 flex items-center justify-center bg-black/60 text-white rounded-full hover:bg-red-500 transition"
+                className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/60 text-white rounded-full hover:bg-red-500 transition"
               >
                 ✕
               </button>

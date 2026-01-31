@@ -4,7 +4,7 @@ import { logout } from "../../redux/slices/currentUser";
 import { useDispatch } from "react-redux";
 import { callLogout } from "../../services/auth";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Hotel, LogOut, Menu, Settings, User, X } from "lucide-react";
 import { toastError } from "../../lib/toast";
 
 const SideBar: React.FC = () => {
@@ -78,7 +78,7 @@ const SideBar: React.FC = () => {
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-[#fff4e6] text-[#1c140d] cursor-pointer transition-all border-l-4 border-primary"
             >
-              <span className="material-symbols-outlined text-xl">person</span>
+              <span className="material-symbols-outlined text-xl"><User /></span>
               <span className="font-semibold text-sm">Profile</span>
             </div>
             <div
@@ -86,7 +86,7 @@ const SideBar: React.FC = () => {
               className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#9c7349] hover:bg-[#f4ede7] cursor-pointer transition-all"
             >
               <span className="material-symbols-outlined text-xl">
-                apartment
+                <Hotel />
               </span>
               <span className="font-medium text-sm">My Hotels</span>
             </div>
@@ -95,7 +95,7 @@ const SideBar: React.FC = () => {
               className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#9c7349] hover:bg-[#f4ede7] cursor-pointer transition-all"
             >
               <span className="material-symbols-outlined text-xl">
-                settings
+                <Settings />
               </span>
               <span className="font-medium text-sm">Settings</span>
             </div>
@@ -122,7 +122,7 @@ const SideBar: React.FC = () => {
             }}
             className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-500 hover:bg-red-50 cursor-pointer transition-all"
           >
-            <span className="material-symbols-outlined text-xl">logout</span>
+            <span className="material-symbols-outlined text-xl"><LogOut /></span>
             <span className="font-semibold text-sm">Logout</span>
           </div>
         </div>

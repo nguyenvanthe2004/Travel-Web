@@ -2,21 +2,12 @@ import { BadRequestError } from "routing-controllers";
 import { Service } from "typedi";
 import { LocationRepository } from "../repositories/LocationRepository";
 import { CreateLocationDto, UpdateLocationDto } from "../dtos/LocationDto";
-import { ILocation } from "../models/Location";
 
 @Service()
 export class LocationService {
   constructor(private readonly locationRepo: LocationRepository) {}
 
-  async findAllWithoutPagination() {
-    try {
-      return this.locationRepo.findAllWithoutPagination();
-    } catch (error) {
-      throw new BadRequestError(error.message);
-    }
-  }
-
-  async findAll(page = 1, limit = 10) {
+  async findAll(page = 1, limit?: number) {
     try {
       page = Math.max(1, Number(page));
       limit = Math.max(1, Number(limit));
@@ -53,7 +44,7 @@ export class LocationService {
       throw new BadRequestError(error.message);
     }
   }
-  async update(id: string, dto: Partial<UpdateLocationDto>) {
+  async update(id: string, dto: UpdateLocationDto) {
     try {
       const updatedLocation = await this.locationRepo.update(id, dto);
       if (!updatedLocation) {

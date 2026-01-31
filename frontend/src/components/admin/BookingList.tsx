@@ -3,6 +3,7 @@ import { Booking } from "../../types/booking";
 import { BookingStatus } from "../../constants";
 import CustomTable from "../CustomTable";
 import Pagination from "../Pagination";
+import { Download, Eye, Funnel, List } from "lucide-react";
 
 const BookingList: React.FC = () => {
   const [page, setPage] = React.useState(1);
@@ -135,11 +136,11 @@ const BookingList: React.FC = () => {
         <div className="flex items-center justify-end gap-2">
           <button className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
             <span className="material-symbols-outlined text-xl">
-              visibility
+              <Eye />
             </span>
           </button>
           <button className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-            <span className="material-symbols-outlined text-xl">more_vert</span>
+            <span className="material-symbols-outlined text-xl"><List /></span>
           </button>
         </div>
       ),
@@ -239,13 +240,13 @@ const BookingList: React.FC = () => {
           <div className="flex items-center gap-2 sm:gap-3 mt-3 sm:mt-0">
             <button className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 border border-gray-200 :border-gray-700 rounded-lg text-xs sm:text-sm font-medium text-gray-600 :text-gray-300 hover:bg-gray-50 :hover:bg-gray-800 transition-colors flex-1 sm:flex-initial justify-center">
               <span className="material-symbols-outlined text-base sm:text-lg">
-                tune
+                <Funnel />
               </span>
               <span className="hidden xs:inline">Filter</span>
             </button>
             <button className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 border border-gray-200 :border-gray-700 rounded-lg text-xs sm:text-sm font-medium text-gray-600 :text-gray-300 hover:bg-gray-50 :hover:bg-gray-800 transition-colors flex-1 sm:flex-initial justify-center">
               <span className="material-symbols-outlined text-base sm:text-lg">
-                download
+                <Download />
               </span>
               <span className="hidden xs:inline">Export</span>
             </button>

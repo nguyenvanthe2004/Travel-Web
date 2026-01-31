@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import CustomTable from "../CustomTable";
 import { CLOUDINARY_URL } from "../../constants";
 import Pagination from "../Pagination";
+import { Pencil, Plus, Trash } from "lucide-react";
 
 const LocationList: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -19,18 +20,19 @@ const LocationList: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
+  const fetchLocations = async () => {
+    try {
+      const res = await callGetAllLocation(page, 10);
+      setLocations(res.data.data);
+      setTotalPages(res.data.totalPages);
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchLocations = async () => {
-      try {
-        const res = await callGetAllLocation(page, 10);
-        setLocations(res.data.data);
-        setTotalPages(res.data.totalPages)
-      } catch (error: any) {
-        toast.error(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchLocations();
   }, []);
 
@@ -39,7 +41,7 @@ const LocationList: React.FC = () => {
     try {
       setDeleting(id);
       await callDeleteLocation(id);
-      setLocations((prev) => prev.filter((l) => l._id !== id));
+      fetchLocations();
       toast.success("Location deleted successfully!");
     } catch (error: any) {
       toast.error(error.message);
@@ -51,7 +53,7 @@ const LocationList: React.FC = () => {
   const columns = [
     {
       key: "image",
-      title: "Preview",
+      title: "Image",
       render: (row: Location) => (
         <div
           className="size-14 rounded-lg bg-cover bg-center border border-slate-200"
@@ -79,7 +81,7 @@ const LocationList: React.FC = () => {
             onClick={() => navigate(`/locations/update/${row._id}`)}
             className="p-2.5 text-slate-400 hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/10 rounded-lg"
           >
-            <span className="material-symbols-outlined text-[22px]">edit</span>
+            <span className="material-symbols-outlined text-[22px]"><Pencil /></span>
           </button>
 
           <button
@@ -92,7 +94,7 @@ const LocationList: React.FC = () => {
             }`}
           >
             <span className="material-symbols-outlined text-[22px]">
-              {deleting === row._id ? "hourglass_top" : "delete"}
+              {deleting === row._id ? "hourglass_top" : <Trash />}
             </span>
           </button>
         </div>
@@ -116,16 +118,16 @@ const LocationList: React.FC = () => {
             onClick={() => navigate("/locations/create")}
             className="flex items-center gap-2 px-5 py-2.5 bg-[#0F8FA0] text-white text-sm font-bold rounded-lg hover:bg-[#0E7A88]"
           >
-            <span className="material-symbols-outlined text-[20px]">add</span>
+            <span className="material-symbols-outlined text-[20px]"><Plus /></span>
             Add Location
           </button>
         </div>
-        <CustomTable
-          data={locations}
-          loading={loading}
-          columns={columns}
+        <CustomTable data={locations} loading={loading} columns={columns} />
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
         />
-        <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
     </main>
   );

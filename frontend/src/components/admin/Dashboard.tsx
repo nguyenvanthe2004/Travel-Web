@@ -1,3 +1,4 @@
+import { Banknote, Hotel, Notebook, UserRound } from "lucide-react";
 import type React from "react";
 
 const Dashboard: React.FC = () => {
@@ -15,7 +16,7 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
                   <span className="material-symbols-outlined text-[20px] sm:text-[24px]">
-                    book_online
+                    <Notebook />
                   </span>
                 </div>
                 <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
@@ -33,7 +34,7 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <div className="p-2 bg-[#0F8FA0]/10 text-[#0F8FA0] rounded-lg">
                   <span className="material-symbols-outlined text-[20px] sm:text-[24px]">
-                    apartment
+                    <Hotel />
                   </span>
                 </div>
                 <span className="text-[10px] sm:text-xs font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded-full">
@@ -51,7 +52,7 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
                   <span className="material-symbols-outlined text-[20px] sm:text-[24px]">
-                    person_add
+                    <UserRound />
                   </span>
                 </div>
                 <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
@@ -69,7 +70,7 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <div className="p-2 bg-green-50 text-green-600 rounded-lg">
                   <span className="material-symbols-outlined text-[20px] sm:text-[24px]">
-                    payments
+                    <Banknote />
                   </span>
                 </div>
                 <span className="text-[10px] sm:text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">

@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 interface NavItemData {
   key: string;
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   path: string;
 }
 

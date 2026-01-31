@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { CLOUDINARY_URL, UserRole } from "../../constants";
 import CustomTable from "../CustomTable";
 import Pagination from "../Pagination";
 import { callGetAllUser } from "../../services/user";
 import { IUser } from "../../types/user";
 import { toastError } from "../../lib/toast";
+import { Pencil, Trash, User, UserStar } from "lucide-react";
 
 const roleStyle: Record<IUser["role"], string> = {
   admin: "bg-purple-100 text-purple-700 border-purple-200",
   user: "bg-teal-100 text-teal-700 border-teal-200",
 };
 
-const roleIcon: Record<IUser["role"], string> = {
-  admin: "shield_person",
-  user: "person",
+const roleIcon: Record<IUser["role"], ReactNode> = {
+  admin: <UserStar />,
+  user: <User />,
 };
 
 const UserList: React.FC = () => {
@@ -30,7 +31,7 @@ const UserList: React.FC = () => {
         setUsers(res.data.data);
         setTotalPages(res.data.totalPages);
       } catch (error: any) {
-        toastError(error.message)
+        toastError(error.message);
       } finally {
         setLoading(false);
       }
@@ -47,7 +48,9 @@ const UserList: React.FC = () => {
         <div className="flex items-center gap-3 min-w-[240px]">
           <div className="w-10 h-10 rounded-full overflow-hidden border border-primary/20 flex-shrink-0">
             <img
-              src={`${CLOUDINARY_URL}/${row.avatar}`}
+              src={
+                row.avatar ? `${CLOUDINARY_URL}/${row.avatar}` : "/images/avatar.png"
+              }
               alt={row.fullName}
               className="w-full h-full object-cover"
             />
@@ -76,7 +79,7 @@ const UserList: React.FC = () => {
         </span>
       ),
     },
-      {
+    {
       key: "createdAt",
       title: "Joined",
       hideOnMobile: true,
@@ -94,11 +97,13 @@ const UserList: React.FC = () => {
       render: () => (
         <div className="flex items-center justify-end gap-2 min-w-[120px]">
           <button className="p-1.5 text-[#538893] hover:text-primary hover:bg-primary/5 rounded">
-            <span className="material-symbols-outlined text-[22px]">edit</span>
+            <span className="material-symbols-outlined text-[22px]">
+              <Pencil />
+            </span>
           </button>
           <button className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg">
             <span className="material-symbols-outlined text-[22px]">
-              delete
+              <Trash />
             </span>
           </button>
         </div>

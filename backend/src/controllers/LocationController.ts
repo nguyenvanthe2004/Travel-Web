@@ -27,9 +27,6 @@ export class LocationController {
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
   ) {
-    if (!limit) {
-      return await this.locationService.findAllWithoutPagination();
-    }
     return await this.locationService.findAll(page, limit);
   }
   @Public()

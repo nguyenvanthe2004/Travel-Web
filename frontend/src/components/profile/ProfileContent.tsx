@@ -19,7 +19,7 @@ import {
   type UpdatePasswordFormData,
 } from "../../validations/auth";
 import { useForm } from "react-hook-form";
-import { Eye, EyeOff } from "lucide-react";
+import { Camera, Eye, EyeOff } from "lucide-react";
 import { CLOUDINARY_URL } from "../../constants";
 
 const ProfileContent: React.FC = () => {
@@ -135,7 +135,7 @@ const ProfileContent: React.FC = () => {
                   className="absolute bottom-0 right-0 bg-orange-400 text-white p-2 rounded-full border-2 border-white shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
                 >
                   <span className="material-symbols-outlined text-base">
-                    photo_camera
+                    <Camera />
                   </span>
                   <input
                     ref={fileInputRef}

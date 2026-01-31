@@ -1,11 +1,59 @@
-import { Hotel } from "lucide-react";
+import { BadgeQuestionMark, Bed, CalendarCheck, Hotel, LayoutDashboard, LogOut, MapPin, Settings, User } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { CLOUDINARY_URL, NAV_ITEMS, SYSTEM_ITEMS } from "../../constants";
+import { CLOUDINARY_URL } from "../../constants";
 import NavItem from "../NavItem";
+
+export const NAV_ITEMS = [
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    icon: <LayoutDashboard />,
+    path: "/dashboard",
+  },
+  {
+    key: "locations",
+    label: "Locations",
+    icon: <MapPin />,
+    path: "/locations",
+  },
+  {
+    key: "hotels",
+    label: "Hotels",
+    icon: <Bed />,
+    path: "/hotels",
+  },
+  {
+    key: "bookings",
+    label: "Bookings",
+    icon: <CalendarCheck />,
+    path: "/bookings",
+  },
+  {
+    key: "users",
+    label: "Users",
+    icon: <User />,
+    path: "/users",
+  },
+];
+
+export const SYSTEM_ITEMS = [
+  {
+    key: "settings",
+    label: "Settings",
+    icon: <Settings />,
+    path: "/settings",
+  },
+  {
+    key: "support",
+    label: "Support",
+    icon: <BadgeQuestionMark />,
+    path: "/support",
+  },
+];
 
 const SideBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -111,7 +159,7 @@ const SideBar: React.FC = () => {
               onClick={() => navigate("/login")}
               className="text-slate-400 hover:text-slate-600"
             >
-              <span className="material-symbols-outlined">logout</span>
+             <LogOut />
             </button>
           </div>
         </div>

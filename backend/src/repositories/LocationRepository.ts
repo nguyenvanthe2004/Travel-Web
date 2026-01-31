@@ -7,10 +7,10 @@ export class LocationRepository {
   countAll() {
     return LocationModel.countDocuments();
   }
-  findAllWithoutPagination() {
-    return LocationModel.find().lean();
-  }
   findAll(skip: number, limit: number): Promise<ILocation[]> {
+    if(!limit) {
+      return LocationModel.find().lean();
+    }
     return LocationModel.find().skip(skip).limit(limit).lean<ILocation[]>();
   }
 

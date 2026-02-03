@@ -1,5 +1,5 @@
 import type React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../../redux/slices/currentUser";
 import { useDispatch } from "react-redux";
 import { callLogout } from "../../services/auth";
@@ -7,10 +7,31 @@ import { useState } from "react";
 import { Hotel, LogOut, Menu, Settings, User, X } from "lucide-react";
 import { toastError } from "../../lib/toast";
 
+const menuItems = [
+  {
+    label: "Profile",
+    icon: <User />,
+    path: "/profile",
+  },
+  {
+    label: "My Hotels",
+    icon: <Hotel />,
+    path: "/hotel-manager",
+  },
+  {
+    label: "Settings",
+    icon: <Settings />,
+    path: "/settings",
+  },
+];
+
 const SideBar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  const isActive = (path: string) => pathname === path;
 
   const handleLogout = async () => {
     try {
@@ -74,31 +95,24 @@ const SideBar: React.FC = () => {
             </span>
           </div>
           <div className="px-3 space-y-1">
-            <div
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-[#fff4e6] text-[#1c140d] cursor-pointer transition-all border-l-4 border-primary"
-            >
-              <span className="material-symbols-outlined text-xl"><User /></span>
-              <span className="font-semibold text-sm">Profile</span>
-            </div>
-            <div
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#9c7349] hover:bg-[#f4ede7] cursor-pointer transition-all"
-            >
-              <span className="material-symbols-outlined text-xl">
-                <Hotel />
-              </span>
-              <span className="font-medium text-sm">My Hotels</span>
-            </div>
-            <div
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#9c7349] hover:bg-[#f4ede7] cursor-pointer transition-all"
-            >
-              <span className="material-symbols-outlined text-xl">
-                <Settings />
-              </span>
-              <span className="font-medium text-sm">Settings</span>
-            </div>
+            {menuItems.map((item) => (
+              <div
+                key={item.path}
+                onClick={() => {
+                  navigate(item.path);
+                  setIsOpen(false);
+                }}
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all
+        ${
+          isActive(item.path)
+            ? "bg-[#fff4e6] text-[#1c140d] border-l-4 border-primary font-semibold"
+            : "text-[#9c7349] hover:bg-[#f4ede7] font-medium"
+        }`}
+              >
+                <span className="text-xl">{item.icon}</span>
+                <span className="text-sm">{item.label}</span>
+              </div>
+            ))}
           </div>
         </div>
         <div className="px-3">
@@ -122,7 +136,9 @@ const SideBar: React.FC = () => {
             }}
             className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-500 hover:bg-red-50 cursor-pointer transition-all"
           >
-            <span className="material-symbols-outlined text-xl"><LogOut /></span>
+            <span className="material-symbols-outlined text-xl">
+              <LogOut />
+            </span>
             <span className="font-semibold text-sm">Logout</span>
           </div>
         </div>

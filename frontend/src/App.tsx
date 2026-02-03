@@ -16,6 +16,8 @@ import BookingPage from "./pages/admin/BookingPage";
 import UserPage from "./pages/admin/UserPage";
 import CreateLocation from "./pages/admin/CreateLocationPage";
 import DetailLocationPage from "./pages/admin/DetailLocationPage";
+import HotelPageUser from "./pages/home/HotelPageUser";
+import CreateHotelPageUser from "./pages/home/CreateHotelPageUser";
 
 function App() {
   const dispatch = useDispatch();
@@ -36,13 +38,18 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/hotel-manager" element={<HotelPageUser />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/locations">
           <Route index element={<LocationPage />} />
           <Route path="create" element={<CreateLocation />} />
           <Route path="update/:id" element={<DetailLocationPage />} />
         </Route>
-        <Route path="/hotels" element={<HotelPage />} />
+        <Route path="/hotels">
+          <Route index element={<HotelPageUser />} />
+          <Route path="create" element={<CreateHotelPageUser />} />
+          {/* <Route path="update/:id" element={<DetailHotelPage />} /> */}
+        </Route>
         <Route path="/bookings" element={<BookingPage />} />
         <Route path="/users" element={<UserPage />} />
       </Routes>

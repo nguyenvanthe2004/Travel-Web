@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { IHotel } from "../../types/hotel";
+import { HotelData } from "../../types/hotel";
 import { HotelStatus } from "../../constants";
-
 import { List, Pencil, Plus } from "lucide-react";
 import CustomTable from "../ui/CustomTable";
 import Pagination from "../ui/Pagination";
@@ -9,7 +8,7 @@ import Pagination from "../ui/Pagination";
 const HotelList: React.FC = () => {
   const [page, setPage] = useState(1);
 
-  const fakeHotels: IHotel[] = [
+  const fakeHotels: HotelData[] = [
     {
       _id: "1",
       name: "The Grand Azure",
@@ -43,7 +42,7 @@ const HotelList: React.FC = () => {
     {
       key: "hotel",
       title: "Hotel Details",
-      render: (row: IHotel) => (
+      render: (row: HotelData) => (
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="w-12 h-10 sm:w-16 sm:h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
             <img
@@ -67,7 +66,7 @@ const HotelList: React.FC = () => {
     {
       key: "location",
       title: "Location",
-      render: (row: IHotel) => (
+      render: (row: HotelData) => (
         <div className="flex items-center gap-1.5 text-sm text-gray-700">
           <svg
             className="w-4 h-4 text-teal-600 flex-shrink-0"
@@ -100,7 +99,7 @@ const HotelList: React.FC = () => {
       title: "Price / Night",
       headerClassName: "text-center",
       cellClassName: "text-center",
-      render: (row: IHotel) => (
+      render: (row: HotelData) => (
         <p className="text-sm font-semibold text-gray-900">
           ${row.price.toFixed(2)}
         </p>
@@ -110,7 +109,7 @@ const HotelList: React.FC = () => {
     {
       key: "status",
       title: "Status",
-      render: (row: IHotel) => (
+      render: (row: HotelData) => (
         <span
           className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase border ${
             {

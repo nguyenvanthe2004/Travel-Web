@@ -14,5 +14,7 @@ export interface UpdateHotelInput {
   name?: string;
   address?: string;
   description?: string;
+  images?: string[];
   status?: HotelStatus;
+  locationId: string;
 }

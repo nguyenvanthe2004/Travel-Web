@@ -20,7 +20,7 @@ export const hotelSchema = z.object({
     .min(1, "Description is required")
     .max(2000, "Description must not exceed 2000 characters"),
 
-  status: z.enum(HotelStatus),
+  status: z.nativeEnum(HotelStatus),
 
   images: z
     .array(z.string().trim().min(1, "Image URL is required"))
@@ -32,7 +32,6 @@ export const hotelSchema = z.object({
     .trim()
     .min(1, "Location is required")
     .regex(/^[0-9a-fA-F]{24}$/, "Invalid location ID format"),
-
 });
 
 export type HotelFormData = z.infer<typeof hotelSchema>;

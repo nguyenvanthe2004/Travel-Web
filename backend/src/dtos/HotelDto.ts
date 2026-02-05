@@ -48,9 +48,16 @@ export class UpdateHotelDto {
   @MinLength(2)
   description?: string;
 
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
+
   @IsOptional()
   @IsEnum(HotelStatus)
   status?: HotelStatus;
+
+  @IsMongoId()
+  locationId: string;
 }
 export class UpdateHotelStatusDto {
   @IsEnum(HotelStatus)

@@ -5,10 +5,9 @@ import {
   ForbiddenError,
   NotFoundError,
 } from "routing-controllers";
-import { UpdateHotelInput } from "../types/hotel";
 import { HotelStatus } from "../models/Hotel";
 import { UserProps } from "../types/auth";
-import { CreateHotelDto } from "../dtos/HotelDto";
+import { CreateHotelDto, UpdateHotelDto } from "../dtos/HotelDto";
 import { UserRepository } from "../repositories/UserRepository";
 
 @Service()
@@ -38,18 +37,33 @@ export class HotelService {
       throw new BadRequestError(error.message);
     }
   }
-  async findById(id: string) {
-    const hotel = this.hotelRepo.findById(id);
+  async getHotelById(id: string) {
+    const hotel = await this.hotelRepo.findHotelById(id);
     if (!hotel) {
       throw new NotFoundError("Hotel not found");
     }
     return hotel;
   }
-  async findByUser(userId: string) {
-    return this.hotelRepo.findByUser(userId);
+  async findByUser(userId: string, page = 1, limit = 10) {
+    page = Math.max(1, Number(page));
+    limit = Math.max(1, Number(limit));
+
+    const skip = (page - 1) * limit;
+
+    const [hotels, total] = await Promise.all([
+      this.hotelRepo.findByUser(userId, skip, limit),
+      this.hotelRepo.countByUser(userId),
+    ]);
+
+    return {
+      total,
+      totalPages: Math.ceil(total / limit),
+      data: hotels,
+    };
   }
+
   async create(dto: CreateHotelDto, user: UserProps) {
-    const userId = String(user._id);
+    const userId = String(user.userId);
     const existedUser = await this.userRepo.findOne(userId);
     if (!existedUser) {
       throw new BadRequestError("User not found");
@@ -67,8 +81,13 @@ export class HotelService {
       success: true,
     };
   }
-  async update(hotelId: string, data: UpdateHotelInput, userId: string) {
-    const hotel = await this.hotelRepo.findById(hotelId);
+  async update(hotelId: string, data: UpdateHotelDto, user: UserProps) {
+    const userId = String(user.userId);
+    const existedUser = await this.userRepo.findOne(userId);
+    if (!existedUser) {
+      throw new BadRequestError("User not found");
+    }
+    const hotel = await this.hotelRepo.findHotelById(hotelId);
     if (!hotel) {
       throw new NotFoundError("Hotel not found");
     }
@@ -81,7 +100,7 @@ export class HotelService {
   }
 
   async updateStatus(hotelId: string, status: HotelStatus, userId: string) {
-    const hotel = await this.hotelRepo.findById(hotelId);
+    const hotel = await this.hotelRepo.findHotelById(hotelId);
     if (!hotel) {
       throw new NotFoundError("Hotel not found");
     }
@@ -94,7 +113,7 @@ export class HotelService {
   }
 
   async delete(hotelId: string, userId: string) {
-    const hotel = await this.hotelRepo.findById(hotelId);
+    const hotel = await this.hotelRepo.findHotelById(hotelId);
     if (!hotel) {
       throw new NotFoundError("Hotel not found");
     }
@@ -104,5 +123,28 @@ export class HotelService {
     }
 
     return this.hotelRepo.delete(hotelId);
+  }
+
+  async findByStatus(status: HotelStatus, page = 1, limit = 10) {
+    page = Math.max(1, Number(page));
+    limit = Math.max(1, Number(limit));
+    const skip = (page - 1) * limit;
+
+    const [hotels, total] = await Promise.all([
+      this.hotelRepo.findByStatus(status, skip, limit),
+      this.hotelRepo.countByStatus(status),
+    ]);
+
+    return {
+      total,
+      totalPages: Math.ceil(total / limit),
+      data: hotels,
+    };
+  }
+  async countHotelStatus(status: HotelStatus) {
+    return {
+      status,
+      total: await this.hotelRepo.countByStatus(status),
+    };
   }
 }

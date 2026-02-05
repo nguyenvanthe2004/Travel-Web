@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { MapPin } from "lucide-react";
 import { Location } from "../../types/location";
-import { RootState } from "../../redux/store";
 import { HotelFormData, hotelSchema } from "../../validations/hotel";
 import { HotelStatus } from "../../constants";
 import CustomDropZone from "../ui/CustomDropZone";
@@ -13,7 +11,7 @@ import { callGetAllLocation } from "../../services/location";
 import { callCreateHotel } from "../../services/hotel";
 import { toast } from "react-toastify";
 
-const CreateHotel: React.FC = () => {
+const CreateHotelAdmin: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const navigate = useNavigate();
@@ -75,7 +73,7 @@ const CreateHotel: React.FC = () => {
     try {
       await callCreateHotel(data);
       toast.success("Hotel created successfully!");
-      navigate("/hotels/user");
+      navigate("/hotels");
     } catch (error: any) {
       toast.error(error.message || "Something went wrong");
     }
@@ -107,7 +105,9 @@ const CreateHotel: React.FC = () => {
                 placeholder="Enter hotel name..."
               />
               {errors.name && (
-                <p className="mt-2 text-sm text-red-500">{errors.name.message}</p>
+                <p className="mt-2 text-sm text-red-500">
+                  {errors.name.message}
+                </p>
               )}
             </div>
 
@@ -123,7 +123,9 @@ const CreateHotel: React.FC = () => {
                 placeholder="Enter hotel address..."
               />
               {errors.address && (
-                <p className="mt-2 text-sm text-red-500">{errors.address.message}</p>
+                <p className="mt-2 text-sm text-red-500">
+                  {errors.address.message}
+                </p>
               )}
             </div>
 
@@ -139,7 +141,9 @@ const CreateHotel: React.FC = () => {
                 placeholder="Enter hotel description..."
               />
               {errors.description && (
-                <p className="mt-2 text-sm text-red-500">{errors.description.message}</p>
+                <p className="mt-2 text-sm text-red-500">
+                  {errors.description.message}
+                </p>
               )}
             </div>
 
@@ -164,7 +168,9 @@ const CreateHotel: React.FC = () => {
                   ))}
                 </select>
                 {errors.locationId && (
-                  <p className="mt-2 text-sm text-red-500">{errors.locationId.message}</p>
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.locationId.message}
+                  </p>
                 )}
               </div>
 
@@ -183,7 +189,9 @@ const CreateHotel: React.FC = () => {
                   <option value={HotelStatus.RENOVATION}>Renovation</option>
                 </select>
                 {errors.status && (
-                  <p className="mt-2 text-sm text-red-500">{errors.status.message}</p>
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.status.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -230,7 +238,9 @@ const CreateHotel: React.FC = () => {
               </div>
 
               {errors.images && (
-                <p className="mt-3 text-sm text-red-500">{errors.images.message}</p>
+                <p className="mt-3 text-sm text-red-500">
+                  {errors.images.message}
+                </p>
               )}
             </div>
           </div>
@@ -239,7 +249,7 @@ const CreateHotel: React.FC = () => {
           <div className="mt-8 flex items-center justify-end gap-4">
             <button
               type="button"
-              onClick={() => navigate("/hotels/user")}
+              onClick={() => navigate("/hotels")}
               className="px-8 py-3 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all"
             >
               Cancel
@@ -256,7 +266,9 @@ const CreateHotel: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-[20px]">check</span>
+                  <span className="material-symbols-outlined text-[20px]">
+                    check
+                  </span>
                   <span>Create Hotel</span>
                 </>
               )}
@@ -268,4 +280,4 @@ const CreateHotel: React.FC = () => {
   );
 };
 
-export default CreateHotel;
+export default CreateHotelAdmin;

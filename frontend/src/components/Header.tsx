@@ -78,7 +78,7 @@ const Header: React.FC = () => {
               </button>
             </div>
 
-            {user ? (
+            {user.userId ? (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}

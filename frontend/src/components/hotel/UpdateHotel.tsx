@@ -1,19 +1,18 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { MapPin } from "lucide-react";
 import { Location } from "../../types/location";
-import { RootState } from "../../redux/store";
 import { HotelFormData, hotelSchema } from "../../validations/hotel";
 import { HotelStatus } from "../../constants";
 import CustomDropZone from "../ui/CustomDropZone";
 import { callGetAllLocation } from "../../services/location";
-import { callCreateHotel } from "../../services/hotel";
+import { callGetHotelById, callUpdateHotel } from "../../services/hotel";
 import { toast } from "react-toastify";
 
-const CreateHotel: React.FC = () => {
+const UpdateHotel: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const navigate = useNavigate();
@@ -39,20 +38,43 @@ const CreateHotel: React.FC = () => {
 
   const watchImages = watch("images");
 
-  useEffect(() => {
-    const fetchLocations = async () => {
-      setIsLoadingLocations(true);
-      try {
-        const response = await callGetAllLocation(1, 100);
-        setLocations(response.data?.data || []);
-      } catch (error) {
-        toast.error("Failed to load locations");
-      } finally {
-        setIsLoadingLocations(false);
+  const fetchLocations = async () => {
+    setIsLoadingLocations(true);
+    try {
+      const response = await callGetAllLocation(1, 100);
+      setLocations(response.data?.data || []);
+    } catch (error) {
+      toast.error("Failed to load locations");
+    } finally {
+      setIsLoadingLocations(false);
+    }
+  };
+
+  const fetchHotelById = async () => {
+    try {
+      if (!id) {
+        toast.error("Hotel ID not found");
+        return;
       }
-    };
+      const { data } = await callGetHotelById(id);
+      setValue("name", data.name);
+      setValue("address", data.address);
+      setValue("description", data.description);
+      setValue("status", data.status);
+      setValue("locationId", data.locationId?._id)
+      setValue("images", data.images?.length ? data.images : [""]);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
     fetchLocations();
   }, []);
+  
+  useEffect(() => {
+    fetchHotelById();
+  }, [id, setValue]);
 
   const updateImage = (index: number, url: string) => {
     const updatedImages = [...watchImages];
@@ -72,12 +94,13 @@ const CreateHotel: React.FC = () => {
   };
 
   const onSubmit = async (data: HotelFormData) => {
+    if (!id) return;
     try {
-      await callCreateHotel(data);
-      toast.success("Hotel created successfully!");
+      await callUpdateHotel(id, data);
+      toast.success("Hotel updated successfully!");
       navigate("/hotels/user");
     } catch (error: any) {
-      toast.error(error.message || "Something went wrong");
+      toast.error(error.message || "Update failed");
     }
   };
 
@@ -86,10 +109,10 @@ const CreateHotel: React.FC = () => {
       <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
         <div className="mb-10">
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            Add New Hotel
+            Update Hotel
           </h2>
           <p className="text-slate-500 text-sm mt-2">
-            Create a new hotel property with detailed information
+            Update a hotel property with detailed information
           </p>
         </div>
 
@@ -107,7 +130,9 @@ const CreateHotel: React.FC = () => {
                 placeholder="Enter hotel name..."
               />
               {errors.name && (
-                <p className="mt-2 text-sm text-red-500">{errors.name.message}</p>
+                <p className="mt-2 text-sm text-red-500">
+                  {errors.name.message}
+                </p>
               )}
             </div>
 
@@ -123,7 +148,9 @@ const CreateHotel: React.FC = () => {
                 placeholder="Enter hotel address..."
               />
               {errors.address && (
-                <p className="mt-2 text-sm text-red-500">{errors.address.message}</p>
+                <p className="mt-2 text-sm text-red-500">
+                  {errors.address.message}
+                </p>
               )}
             </div>
 
@@ -139,7 +166,9 @@ const CreateHotel: React.FC = () => {
                 placeholder="Enter hotel description..."
               />
               {errors.description && (
-                <p className="mt-2 text-sm text-red-500">{errors.description.message}</p>
+                <p className="mt-2 text-sm text-red-500">
+                  {errors.description.message}
+                </p>
               )}
             </div>
 
@@ -164,7 +193,9 @@ const CreateHotel: React.FC = () => {
                   ))}
                 </select>
                 {errors.locationId && (
-                  <p className="mt-2 text-sm text-red-500">{errors.locationId.message}</p>
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.locationId.message}
+                  </p>
                 )}
               </div>
 
@@ -183,7 +214,9 @@ const CreateHotel: React.FC = () => {
                   <option value={HotelStatus.RENOVATION}>Renovation</option>
                 </select>
                 {errors.status && (
-                  <p className="mt-2 text-sm text-red-500">{errors.status.message}</p>
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.status.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -230,7 +263,9 @@ const CreateHotel: React.FC = () => {
               </div>
 
               {errors.images && (
-                <p className="mt-3 text-sm text-red-500">{errors.images.message}</p>
+                <p className="mt-3 text-sm text-red-500">
+                  {errors.images.message}
+                </p>
               )}
             </div>
           </div>
@@ -256,7 +291,9 @@ const CreateHotel: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-[20px]">check</span>
+                  <span className="material-symbols-outlined text-[20px]">
+                    check
+                  </span>
                   <span>Create Hotel</span>
                 </>
               )}
@@ -268,4 +305,4 @@ const CreateHotel: React.FC = () => {
   );
 };
 
-export default CreateHotel;
+export default UpdateHotel;

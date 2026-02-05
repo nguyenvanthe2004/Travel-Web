@@ -16,7 +16,7 @@ const menuItems = [
   {
     label: "My Hotels",
     icon: <Hotel />,
-    path: "/hotel-manager",
+    path: "/hotels/user",
   },
   {
     label: "Settings",

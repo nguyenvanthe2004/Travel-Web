@@ -24,7 +24,7 @@ import { Request, Response } from "express";
 import { UserRole } from "../models/User";
 import { Public } from "../decorators/public";
 import { UploadService } from "../services/UploadService";
-import { UserProps } from "../types/auth";
+import { JwtPayload, UserProps } from "../types/auth";
 
 @Service()
 @JsonController("/users")
@@ -44,8 +44,7 @@ export class UserController {
   }
 
   @Get("/current")
-  async getCurrent(@Req() req: Request) {
-    const user = (req as any).user;
+  async getCurrent(@Req() req: Request, @CurrentUser() user: JwtPayload,) {
     return this.userService.currentUser(user);
   }
 

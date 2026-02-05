@@ -84,7 +84,7 @@ export class UserService {
 
       return {
         user: {
-          userId: user._id,
+          userId: user._id.toString(),
           fullName: user.fullName,
           phone: user.phone,
           email: user.email,
@@ -233,7 +233,7 @@ export class UserService {
 
   async updateProfile(data: UpdateProfileDto, user: UserProps, res: Response) {
     try {
-      const userId = String(user._id);
+      const userId = String(user.userId);
       const existedUser = await this.userRepo.findOne(userId);
       if (!existedUser) {
         throw new BadRequestError("User not found");
@@ -255,7 +255,7 @@ export class UserService {
   }
   async updateAvatar(user: UserProps, avatar: string, res: Response) {
     try {
-      const userId = String(user._id);
+      const userId = String(user.userId);
       const existedUser = await this.userRepo.findOne(userId);
       if (!existedUser) {
         throw new BadRequestError("User not found");
@@ -270,7 +270,7 @@ export class UserService {
   }
   async updatePassword(user: UserProps, data: UpdatePasswordDto) {
     try {
-      const userId = String(user._id);
+      const userId = String(user.userId);
       const existedUser = await this.userRepo.findOne(userId);
       if (!existedUser) {
         throw new BadRequestError("User not found");

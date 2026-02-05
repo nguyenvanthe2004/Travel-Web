@@ -9,6 +9,14 @@ export class HotelRepository {
     return HotelModel.countDocuments();
   }
 
+  async countByUser(userId: string): Promise<number> {
+    return HotelModel.countDocuments({ userId });
+  }
+
+  async countByStatus(status: HotelStatus): Promise<number> {
+    return HotelModel.countDocuments({ status });
+  }
+
   async findAll(skip: number, limit: number): Promise<IHotel[]> {
     if (!limit) {
       return HotelModel.find().lean();
@@ -21,15 +29,34 @@ export class HotelRepository {
       .lean<IHotel[]>();
   }
 
-  async findById(id: string): Promise<IHotel | null> {
-    return HotelModel.findById(id)
-      .populate("locationId")
-      .populate("userId")
-      .exec();
+  async findHotelById(id: string): Promise<IHotel | null> {
+    return HotelModel.findById(id).populate("locationId", "_id name").lean();
   }
 
-  async findByUser(userId: string): Promise<IHotel[]> {
-    return HotelModel.find({ userId }).exec();
+  async findByUser(
+    userId: string,
+    skip: number,
+    limit: number,
+  ): Promise<IHotel[]> {
+    return HotelModel.find({ userId })
+      .skip(skip)
+      .limit(limit)
+      .populate("locationId", "name")
+      .populate("userId", "name email")
+      .lean();
+  }
+
+  async findByStatus(
+    status: HotelStatus,
+    skip: number,
+    limit: number,
+  ): Promise<IHotel[]> {
+    return HotelModel.find({ status })
+      .skip(skip)
+      .limit(limit)
+      .populate("locationId", "name")
+      .populate("userId", "name email")
+      .lean();
   }
 
   async findByLocation(locationId: string): Promise<IHotel[]> {
@@ -42,11 +69,7 @@ export class HotelRepository {
   }
 
   async update(id: string, data: UpdateHotelInput): Promise<IHotel | null> {
-    return HotelModel.findByIdAndUpdate(
-      id,
-      { $set: data },
-      { new: true },
-    ).exec();
+    return HotelModel.findByIdAndUpdate(id, { $set: data }, { new: true });
   }
 
   async updateStatus(id: string, status: HotelStatus): Promise<IHotel | null> {

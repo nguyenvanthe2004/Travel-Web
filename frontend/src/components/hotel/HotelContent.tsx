@@ -2,21 +2,37 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HotelData } from "../../types/hotel";
-import { callGetAllHotel } from "../../services/hotel";
-import { CLOUDINARY_URL } from "../../constants";
+import { callCountHotelStatus, callGetHotelByUser } from "../../services/hotel";
+import { CLOUDINARY_URL, HotelStatus } from "../../constants";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { ArrowRight, Loader, MapPin, Plus, Star } from "lucide-react";
 
 const HotelContent: React.FC = () => {
   const navigate = useNavigate();
   const [hotels, setHotels] = useState<HotelData[]>([]);
+  const [allHotel, setAllHotel] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [countByStatus, setCountByStatus] = useState<
+    Record<HotelStatus, number>
+  >({
+    [HotelStatus.OPEN]: 0,
+    [HotelStatus.CLOSED]: 0,
+    [HotelStatus.RENOVATION]: 0,
+  });
+
+  const user = useSelector((state: RootState) => state.auth.currentUser);
+  const userId = user.userId;
 
   const fetchHotels = async () => {
     try {
       setLoading(true);
-      const res = await callGetAllHotel(1, 12);
-      console.log(res.data.data);
-      setHotels(res.data.data);
+      const res = await callGetHotelByUser(userId, 1, 10);
+      const hotelList = res.data.data;
+      setHotels(hotelList);
+      setAllHotel(hotelList.length);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -24,14 +40,39 @@ const HotelContent: React.FC = () => {
     }
   };
   useEffect(() => {
-    fetchHotels();
+    if (userId) fetchHotels();
+  }, [userId]);
+
+  const fetchCountHotelByStatus = async () => {
+    try {
+      setLoading(true);
+
+      const [open, closed, renovation] = await Promise.all([
+        callCountHotelStatus(HotelStatus.OPEN),
+        callCountHotelStatus(HotelStatus.CLOSED),
+        callCountHotelStatus(HotelStatus.RENOVATION),
+      ]);
+
+      setCountByStatus({
+        [HotelStatus.OPEN]: open.data.total,
+        [HotelStatus.CLOSED]: closed.data.total,
+        [HotelStatus.RENOVATION]: renovation.data.total,
+      });
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchCountHotelByStatus();
   }, []);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <span className="material-symbols-outlined animate-spin text-4xl">
-          progress_activity
+          <Loader />
         </span>
       </div>
     );
@@ -52,10 +93,12 @@ const HotelContent: React.FC = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate("/hotels/create")}
+              onClick={() => navigate("/hotels/user/create")}
               className="flex items-center gap-2 min-w-[140px] cursor-pointer justify-center overflow-hidden rounded-xl h-12 px-6 bg-orange-500 text-white text-sm font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all active:translate-y-0"
             >
-              <span className="material-symbols-outlined text-[20px]">add</span>
+              <span className="material-symbols-outlined text-[20px]">
+                <Plus />
+              </span>
               <span>Add New Hotel</span>
             </button>
           </div>
@@ -67,34 +110,34 @@ const HotelContent: React.FC = () => {
               >
                 <span>All Hotel</span>
                 <span className="bg-slate-100 :bg-slate-800 text-xs py-0.5 px-2 rounded-full">
-                  12
+                  {allHotel}
                 </span>
               </a>
               <a
                 className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 :hover:text-slate-300 px-6 pb-4 pt-2 font-semibold transition-all"
                 href="#"
               >
-                <span>Active</span>
+                <span>Open</span>
                 <span className="bg-slate-100 :bg-slate-800 text-xs py-0.5 px-2 rounded-full">
-                  8
+                  {countByStatus.open}
                 </span>
               </a>
               <a
                 className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 :hover:text-slate-300 px-6 pb-4 pt-2 font-semibold transition-all"
                 href="#"
               >
-                <span>Maintenance</span>
+                <span>Renovation</span>
                 <span className="bg-slate-100 :bg-slate-800 text-xs py-0.5 px-2 rounded-full">
-                  3
+                  {countByStatus.renovation}
                 </span>
               </a>
               <a
                 className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 :hover:text-slate-300 px-6 pb-4 pt-2 font-semibold transition-all"
                 href="#"
               >
-                <span>Drafts</span>
+                <span>Closed</span>
                 <span className="bg-slate-100 :bg-slate-800 text-xs py-0.5 px-2 rounded-full">
-                  1
+                  {countByStatus.closed}
                 </span>
               </a>
             </div>
@@ -115,8 +158,8 @@ const HotelContent: React.FC = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-2 bg-primary/10 text-black px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                        <span className="material-symbols-outlined text-[14px]">
-                          star
+                        <span className=" text-amber-400 material-symbols-outlined text-[14px]">
+                          <Star />
                         </span>
                         Featured Property
                       </div>
@@ -131,10 +174,10 @@ const HotelContent: React.FC = () => {
                       </h3>
                       <div className="flex items-center gap-1 text-slate-500 :text-slate-400">
                         <span className="material-symbols-outlined text-sm">
-                          location_on
+                          <MapPin />
                         </span>
                         <span className="text-sm font-medium">
-                          {hotels[0].address}
+                          {hotels[0].address} - {hotels[0].locationId?.name}
                         </span>
                       </div>
                     </div>
@@ -164,7 +207,7 @@ const HotelContent: React.FC = () => {
                             4.9
                           </p>
                           <span className="material-symbols-outlined text-amber-400 text-[18px] fill-current">
-                            star
+                            <Star />
                           </span>
                         </div>
                       </div>
@@ -188,7 +231,12 @@ const HotelContent: React.FC = () => {
                         +5
                       </div>
                     </div>
-                    <button className="bg-orange-500 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all">
+                    <button
+                      onClick={() =>
+                        navigate(`/hotels/user/update/${hotels[0]._id}`)
+                      }
+                      className="bg-orange-500 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
+                    >
                       Manage Property
                     </button>
                   </div>
@@ -212,7 +260,7 @@ const HotelContent: React.FC = () => {
                   ></div>
                   <div className="absolute top-4 right-4">
                     <span className="bg-accent-green/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                      Active
+                      Open
                     </span>
                   </div>
                 </div>
@@ -223,9 +271,9 @@ const HotelContent: React.FC = () => {
                     </h4>
                     <p className="text-slate-500 :text-slate-400 text-sm flex items-center gap-1">
                       <span className="material-symbols-outlined text-[16px]">
-                        location_on
+                        <MapPin />
                       </span>
-                      {hotel.address}
+                      {hotel.address} - {hotel.locationId?.name}
                     </p>
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 :border-slate-800">
@@ -237,10 +285,15 @@ const HotelContent: React.FC = () => {
                         18 Units
                       </span>
                     </div>
-                    <button className="flex items-center gap-1 bg-slate-100 :bg-slate-800 hover:bg-primary hover:text-white text-slate-700 :text-slate-300 px-4 py-2 rounded-lg font-bold text-xs transition-all">
+                    <button
+                      onClick={() =>
+                        navigate(`/hotels/user/update/${hotel._id}`)
+                      }
+                      className="flex items-center gap-1 bg-slate-100 :bg-slate-800 hover:bg-orange-500 hover:text-white text-slate-700 :text-slate-300 px-4 py-2 rounded-lg font-bold text-xs transition-all"
+                    >
                       <span>Manage</span>
                       <span className="material-symbols-outlined text-[16px]">
-                        arrow_forward
+                        <ArrowRight />
                       </span>
                     </button>
                   </div>
@@ -276,7 +329,7 @@ const HotelContent: React.FC = () => {
                 <p className="text-2xl font-black">4.7</p>
                 <div className="flex text-amber-400">
                   <span className="material-symbols-outlined text-[18px] fill-current">
-                    star
+                    <Star />
                   </span>
                 </div>
               </div>

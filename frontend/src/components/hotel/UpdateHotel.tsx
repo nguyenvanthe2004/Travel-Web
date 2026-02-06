@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { FolderPlus, MapPin } from "lucide-react";
 import { Location } from "../../types/location";
 import { HotelFormData, hotelSchema } from "../../validations/hotel";
-import { HotelStatus } from "../../constants";
+import { HOTEL_STATUS_OPTIONS, HotelStatus } from "../../constants";
 import CustomDropZone from "../ui/CustomDropZone";
 import { callGetAllLocation } from "../../services/location";
 import { callGetHotelById, callUpdateHotel } from "../../services/hotel";
@@ -61,7 +61,7 @@ const UpdateHotel: React.FC = () => {
       setValue("address", data.address);
       setValue("description", data.description);
       setValue("status", data.status);
-      setValue("locationId", data.locationId?._id)
+      setValue("locationId", data.locationId?._id);
       setValue("images", data.images?.length ? data.images : [""]);
     } catch (error: any) {
       toast.error(error.message);
@@ -71,7 +71,7 @@ const UpdateHotel: React.FC = () => {
   useEffect(() => {
     fetchLocations();
   }, []);
-  
+
   useEffect(() => {
     fetchHotelById();
   }, [id, setValue]);
@@ -98,7 +98,7 @@ const UpdateHotel: React.FC = () => {
     try {
       await callUpdateHotel(id, data);
       toast.success("Hotel updated successfully!");
-      navigate("/hotels/user");
+      navigate("/my-hotel");
     } catch (error: any) {
       toast.error(error.message || "Update failed");
     }
@@ -209,9 +209,11 @@ const UpdateHotel: React.FC = () => {
                   className="block w-full px-4 py-3 bg-white text-slate-900 rounded-xl text-sm focus:border focus:outline-none transition-all"
                 >
                   <option value="">Select status</option>
-                  <option value={HotelStatus.OPEN}>Open</option>
-                  <option value={HotelStatus.CLOSED}>Closed</option>
-                  <option value={HotelStatus.RENOVATION}>Renovation</option>
+                  {HOTEL_STATUS_OPTIONS.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
                 </select>
                 {errors.status && (
                   <p className="mt-2 text-sm text-red-500">
@@ -252,7 +254,7 @@ const UpdateHotel: React.FC = () => {
                     className="w-full py-12 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 hover:border-[#0F8FA0] hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/5 transition-all flex flex-col items-center justify-center gap-3"
                   >
                     <span className="material-symbols-outlined text-[40px]">
-                      add_photo_alternate
+                      <FolderPlus />
                     </span>
                     <span className="text-sm font-semibold">Add Image</span>
                     <span className="text-xs text-slate-400">
@@ -274,7 +276,7 @@ const UpdateHotel: React.FC = () => {
           <div className="mt-8 flex items-center justify-end gap-4">
             <button
               type="button"
-              onClick={() => navigate("/hotels/user")}
+              onClick={() => navigate("/my-hotel")}
               className="px-8 py-3 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all"
             >
               Cancel

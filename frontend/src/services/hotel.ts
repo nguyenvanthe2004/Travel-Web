@@ -4,26 +4,27 @@ import instance from "./req";
 export const callCountHotelStatus = async (status: string) => {
   return await instance.get(`/hotels/count/${status}`);
 };
-export const callGetAllHotel = async (page: number, limit: number) => {
-  return await instance.get("/hotels", {
-    params: { page, limit },
+export const callGetAllHotel = async (
+  page: number,
+  limit: number,
+  status?: string,
+  locationId?: string,
+) => {
+  return instance.get(`/hotels/${status}/${locationId}`, {
+    params: {
+      page,
+      limit,
+      status,
+      locationId,
+    },
   });
 };
-export const callGetHotelByUser = async (
-  id: string,
+
+export const callGetMyHotel = async (
   page: number,
   limit: number,
 ) => {
-  return instance.get(`/hotels/user/${id}`, {
-    params: { page, limit },
-  });
-};
-export const callFilterHotelByStatus = (
-  status: string,
-  page: number,
-  limit: number,
-) => {
-  return instance.get(`/hotels/status/${status}`, {
+  return instance.get(`/hotels/user`, {
     params: { page, limit },
   });
 };

@@ -84,7 +84,7 @@ export class UserService {
 
       return {
         user: {
-          userId: user._id.toString(),
+          userId: user._id,
           fullName: user.fullName,
           phone: user.phone,
           email: user.email,

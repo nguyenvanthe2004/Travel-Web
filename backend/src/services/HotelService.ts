@@ -9,6 +9,7 @@ import { HotelStatus } from "../models/Hotel";
 import { UserProps } from "../types/auth";
 import { CreateHotelDto, UpdateHotelDto } from "../dtos/HotelDto";
 import { UserRepository } from "../repositories/UserRepository";
+import { UserRole } from "../models/User";
 
 @Service()
 export class HotelService {
@@ -17,7 +18,7 @@ export class HotelService {
     private readonly hotelRepo: HotelRepository,
   ) {}
 
-  async findAll(page = 1, limit?: number) {
+  async findAll(status?: HotelStatus, locationId?: string, page = 1, limit?: number) {
     try {
       page = Math.max(1, Number(page));
       limit = Math.max(1, Number(limit));
@@ -25,26 +26,27 @@ export class HotelService {
       const skip = (page - 1) * limit;
 
       const [hotels, total] = await Promise.all([
-        this.hotelRepo.findAll(skip, limit),
-        this.hotelRepo.countAll(),
+        this.hotelRepo.findAll(skip, limit, status, locationId),
+        this.hotelRepo.countAll(status, locationId),
       ]);
 
       return {
         totalPages: Math.ceil(total / limit),
         data: hotels,
       };
-    } catch (error) {
+    } catch (error: any) {
       throw new BadRequestError(error.message);
     }
   }
   async getHotelById(id: string) {
-    const hotel = await this.hotelRepo.findHotelById(id);
+    const hotel = await this.hotelRepo.findById(id);
     if (!hotel) {
       throw new NotFoundError("Hotel not found");
     }
     return hotel;
   }
-  async findByUser(userId: string, page = 1, limit = 10) {
+  async findByUser(user: UserProps, page = 1, limit = 10) {
+    const userId = String(user.userId);
     page = Math.max(1, Number(page));
     limit = Math.max(1, Number(limit));
 
@@ -87,7 +89,7 @@ export class HotelService {
     if (!existedUser) {
       throw new BadRequestError("User not found");
     }
-    const hotel = await this.hotelRepo.findHotelById(hotelId);
+    const hotel = await this.hotelRepo.findById(hotelId);
     if (!hotel) {
       throw new NotFoundError("Hotel not found");
     }
@@ -99,8 +101,13 @@ export class HotelService {
     return this.hotelRepo.update(hotelId, data);
   }
 
-  async updateStatus(hotelId: string, status: HotelStatus, userId: string) {
-    const hotel = await this.hotelRepo.findHotelById(hotelId);
+  async updateStatus(hotelId: string, status: HotelStatus, user: UserProps) {
+    const userId = String(user.userId);
+    const existedUser = await this.userRepo.findOne(userId);
+    if (!existedUser) {
+      throw new BadRequestError("User not found");
+    }
+    const hotel = await this.hotelRepo.findById(hotelId);
     if (!hotel) {
       throw new NotFoundError("Hotel not found");
     }
@@ -112,34 +119,19 @@ export class HotelService {
     return this.hotelRepo.updateStatus(hotelId, status);
   }
 
-  async delete(hotelId: string, userId: string) {
-    const hotel = await this.hotelRepo.findHotelById(hotelId);
+  async delete(hotelId: string, user: UserProps) {
+    const userId = String(user.userId);
+    const existedUser = await this.userRepo.findOne(userId);
+    if (!existedUser) {
+      throw new BadRequestError("User not found");
+    }
+    const hotel = await this.hotelRepo.findById(hotelId);
     if (!hotel) {
       throw new NotFoundError("Hotel not found");
     }
-
-    if (hotel.userId.toString() !== userId) {
-      throw new ForbiddenError("You are not allowed to delete this hotel");
-    }
-
+    if (user.role === UserRole.ADMIN) {
     return this.hotelRepo.delete(hotelId);
   }
-
-  async findByStatus(status: HotelStatus, page = 1, limit = 10) {
-    page = Math.max(1, Number(page));
-    limit = Math.max(1, Number(limit));
-    const skip = (page - 1) * limit;
-
-    const [hotels, total] = await Promise.all([
-      this.hotelRepo.findByStatus(status, skip, limit),
-      this.hotelRepo.countByStatus(status),
-    ]);
-
-    return {
-      total,
-      totalPages: Math.ceil(total / limit),
-      data: hotels,
-    };
   }
   async countHotelStatus(status: HotelStatus) {
     return {

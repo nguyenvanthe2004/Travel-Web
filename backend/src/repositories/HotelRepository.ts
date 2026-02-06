@@ -3,10 +3,17 @@ import { Types } from "mongoose";
 import { HotelModel, IHotel, HotelStatus } from "../models/Hotel";
 import { CreateHotelInput, UpdateHotelInput } from "../types/hotel";
 
+type HotelFindFilter = {
+  status?: HotelStatus;
+  locationId?: string;
+};
 @Service()
 export class HotelRepository {
-  countAll() {
-    return HotelModel.countDocuments();
+  countAll(status?: HotelStatus, locationId?: string) {
+    if (!status) {
+      return HotelModel.countDocuments();
+    }
+    return HotelModel.countDocuments({ status, locationId });
   }
 
   async countByUser(userId: string): Promise<number> {
@@ -17,11 +24,23 @@ export class HotelRepository {
     return HotelModel.countDocuments({ status });
   }
 
-  async findAll(skip: number, limit: number): Promise<IHotel[]> {
-    if (!limit) {
-      return HotelModel.find().lean();
+  async findAll(
+    skip: number,
+    limit: number,
+    status?: HotelStatus,
+    locationId?: string,
+  ): Promise<IHotel[]> {
+    const query: HotelFindFilter = {};
+
+    if (status) {
+      query.status = status;
     }
-    return await HotelModel.find()
+
+    if (locationId) {
+      query.locationId = locationId;
+    }
+
+    return HotelModel.find(query)
       .skip(skip)
       .limit(limit)
       .populate("locationId", "name")
@@ -29,7 +48,7 @@ export class HotelRepository {
       .lean<IHotel[]>();
   }
 
-  async findHotelById(id: string): Promise<IHotel | null> {
+  async findById(id: string): Promise<IHotel | null> {
     return HotelModel.findById(id).populate("locationId", "_id name").lean();
   }
 
@@ -57,10 +76,6 @@ export class HotelRepository {
       .populate("locationId", "name")
       .populate("userId", "name email")
       .lean();
-  }
-
-  async findByLocation(locationId: string): Promise<IHotel[]> {
-    return HotelModel.find({ locationId }).exec();
   }
 
   async create(data: CreateHotelInput): Promise<IHotel> {

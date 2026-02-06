@@ -45,7 +45,7 @@ export class UserController {
 
   @Get("/current")
   async getCurrent(@Req() req: Request, @CurrentUser() user: JwtPayload,) {
-    return this.userService.currentUser(user);
+    return user;
   }
 
   @Authorized([UserRole.ADMIN])

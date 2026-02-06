@@ -5,13 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { MapPin } from "lucide-react";
 import { Location } from "../../types/location";
 import { HotelFormData, hotelSchema } from "../../validations/hotel";
-import { HotelStatus } from "../../constants";
+import { HOTEL_STATUS_OPTIONS, HotelStatus } from "../../constants";
 import CustomDropZone from "../ui/CustomDropZone";
 import { callGetAllLocation } from "../../services/location";
 import { callCreateHotel } from "../../services/hotel";
 import { toast } from "react-toastify";
 
-const CreateHotelAdmin: React.FC = () => {
+const CreateHotel: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ const CreateHotelAdmin: React.FC = () => {
     const fetchLocations = async () => {
       setIsLoadingLocations(true);
       try {
-        const response = await callGetAllLocation(1, 100);
+        const response = await callGetAllLocation(1, 10);
         setLocations(response.data?.data || []);
       } catch (error) {
         toast.error("Failed to load locations");
@@ -184,9 +184,11 @@ const CreateHotelAdmin: React.FC = () => {
                   className="block w-full px-4 py-3 bg-white text-slate-900 rounded-xl text-sm focus:border focus:outline-none transition-all"
                 >
                   <option value="">Select status</option>
-                  <option value={HotelStatus.OPEN}>Open</option>
-                  <option value={HotelStatus.CLOSED}>Closed</option>
-                  <option value={HotelStatus.RENOVATION}>Renovation</option>
+                  {HOTEL_STATUS_OPTIONS.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
                 </select>
                 {errors.status && (
                   <p className="mt-2 text-sm text-red-500">
@@ -280,4 +282,4 @@ const CreateHotelAdmin: React.FC = () => {
   );
 };
 
-export default CreateHotelAdmin;
+export default CreateHotel;

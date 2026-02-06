@@ -11,13 +11,13 @@ import { setCurrentUser } from "./redux/slices/currentUser";
 import Profile from "./pages/home/ProfilePage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import LocationPage from "./pages/admin/LocationPage";
-import HotelPage from "./pages/admin/HotelPage";
+import HotelAdminPage from "./pages/admin/HotelAdminPage";
 import BookingPage from "./pages/admin/BookingPage";
 import UserPage from "./pages/admin/UserPage";
 import CreateLocation from "./pages/admin/CreateLocationPage";
 import DetailLocationPage from "./pages/admin/DetailLocationPage";
-import HotelPageUser from "./pages/home/HotelPageUser";
-import CreateHotelPageUser from "./pages/home/CreateHotelPageUser";
+import HotelPage from "./pages/home/HotelPage";
+import CreateMyHotelPage from "./pages/home/CreateMyHotelPage";
 import CreateHotelPage from "./pages/admin/CreateHotelPage";
 import UpdateHotelPage from "./pages/home/UpdateHotelPage";
 
@@ -40,20 +40,19 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/hotel-manager" element={<HotelPageUser />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/locations">
           <Route index element={<LocationPage />} />
           <Route path="create" element={<CreateLocation />} />
           <Route path="update/:id" element={<DetailLocationPage />} />
         </Route>
-        <Route path="/hotels/user">
-          <Route index element={<HotelPageUser />} />
-          <Route path="create" element={<CreateHotelPageUser />} />
+        <Route path="/my-hotel">
+          <Route index element={<HotelPage />} />
+          <Route path="create" element={<CreateMyHotelPage />} />
           <Route path="update/:id" element={<UpdateHotelPage />} />
         </Route>
         <Route path="/hotels">
-          <Route index element={<HotelPage />} />
+          <Route index element={<HotelAdminPage />} />
           <Route path="create" element={<CreateHotelPage />} />
         </Route>
         <Route path="/bookings" element={<BookingPage />} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { HotelData } from "../../types/hotel";
+import { Hotel } from "../../types/hotel";
 import { CLOUDINARY_URL, HotelStatus } from "../../constants";
 import {
   ArrowRight,
@@ -14,7 +14,6 @@ import CustomTable from "../ui/CustomTable";
 import Pagination from "../ui/Pagination";
 import {
   callDeleteHotel,
-  callFilterHotelByStatus,
   callGetAllHotel,
 } from "../../services/hotel";
 import { toastError } from "../../lib/toast";
@@ -25,7 +24,7 @@ import { useModal } from "../../hooks/useModal";
 
 const HotelList: React.FC = () => {
   const [page, setPage] = useState(1);
-  const [hotels, setHotels] = useState<HotelData[]>([]);
+  const [hotels, setHotels] = useState<Hotel[]>([]);
   const [statusFilter, setStatusFilter] = useState<HotelStatus>(
     HotelStatus.OPEN,
   );
@@ -42,7 +41,7 @@ const HotelList: React.FC = () => {
   const fetchHotels = async () => {
     try {
       setLoading(true);
-      const res = await callGetAllHotel(page, 10);
+      const res = await callGetAllHotel(1, 10, statusFilter);
       setHotels(res.data.data);
       setTotalPages(res.data.totalPages);
       setAllHotel(res.data.data.length);
@@ -54,34 +53,16 @@ const HotelList: React.FC = () => {
   };
   useEffect(() => {
     fetchHotels();
-  }, [page]);
+  }, [statusFilter, page]);
 
-  const fetchHotelsByStatus = async () => {
-    try {
-      setLoading(true);
-      const res = await callFilterHotelByStatus(statusFilter, page, 10);
-
-      setHotels(res.data.data);
-      setTotalPages(res.data.totalPages);
-    } catch (error: any) {
-      toastError(error.message || "Failed to fetch hotels");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchHotelsByStatus();
-  }, [statusFilter]);
-
-  const handleDeleteLocation = async () => {
+  const handleDeleteHotel = async () => {
     if (!deleteId) return;
     try {
       setDeleting(true);
       await callDeleteHotel(deleteId);
       setDeleteId("");
       close();
-      toast.success("Location deleted successfully!");
+      toast.success("Hotel deleted successfully!");
       fetchHotels();
     } catch (error: any) {
       toast.error(error.message);
@@ -94,7 +75,7 @@ const HotelList: React.FC = () => {
     {
       key: "hotel",
       title: "Hotel Details",
-      render: (hotel: HotelData) => (
+      render: (hotel: Hotel) => (
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="w-12 h-10 sm:w-16 sm:h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
             <img
@@ -118,7 +99,7 @@ const HotelList: React.FC = () => {
     {
       key: "location",
       title: "Location",
-      render: (hotel: HotelData) => (
+      render: (hotel: Hotel) => (
         <div className="flex items-center gap-1.5 text-sm text-gray-700">
           <MapPin className="w-4 h-4 text-teal-600 flex-shrink-0" />
           <span className="whitespace-nowrap text-xs sm:text-sm">
@@ -131,7 +112,7 @@ const HotelList: React.FC = () => {
     {
       key: "status",
       title: "Status",
-      render: (hotel: HotelData) => (
+      render: (hotel: Hotel) => (
         <span
           className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase border ${
             {
@@ -152,7 +133,7 @@ const HotelList: React.FC = () => {
       title: "Actions",
       headerClassName: "text-right",
       cellClassName: "text-right",
-      render: (hotel: HotelData) => (
+      render: (hotel: Hotel) => (
         <div className="flex items-center justify-end gap-1">
           <button
             onClick={() => {
@@ -384,7 +365,7 @@ const HotelList: React.FC = () => {
       <ConfirmDeleteModal
         isOpen={isOpen}
         onClose={close}
-        onConfirm={handleDeleteLocation}
+        onConfirm={handleDeleteHotel}
         loading={deleting}
       />
     </div>

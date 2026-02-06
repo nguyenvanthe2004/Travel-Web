@@ -1,19 +1,21 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { HotelData } from "../../types/hotel";
-import { callCountHotelStatus, callGetHotelByUser } from "../../services/hotel";
+import { Hotel } from "../../types/hotel";
+import { callCountHotelStatus, callGetMyHotel } from "../../services/hotel";
 import { CLOUDINARY_URL, HotelStatus } from "../../constants";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { ArrowRight, Loader, MapPin, Plus, Star } from "lucide-react";
+import { useModal } from "../../hooks/useModal";
 
-const HotelContent: React.FC = () => {
+const MyHotel: React.FC = () => {
   const navigate = useNavigate();
-  const [hotels, setHotels] = useState<HotelData[]>([]);
-  const [allHotel, setAllHotel] = useState("");
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [total, setTotal] = useState("");
   const [loading, setLoading] = useState(false);
+  const { isOpen, open, close } = useModal();
 
   const [countByStatus, setCountByStatus] = useState<
     Record<HotelStatus, number>
@@ -29,10 +31,10 @@ const HotelContent: React.FC = () => {
   const fetchHotels = async () => {
     try {
       setLoading(true);
-      const res = await callGetHotelByUser(userId, 1, 10);
+      const res = await callGetMyHotel(1, 10);
       const hotelList = res.data.data;
       setHotels(hotelList);
-      setAllHotel(hotelList.length);
+      setTotal(hotelList.length);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -93,7 +95,7 @@ const HotelContent: React.FC = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate("/hotels/user/create")}
+              onClick={() => navigate("/my-hotel/create")}
               className="flex items-center gap-2 min-w-[140px] cursor-pointer justify-center overflow-hidden rounded-xl h-12 px-6 bg-orange-500 text-white text-sm font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all active:translate-y-0"
             >
               <span className="material-symbols-outlined text-[20px]">
@@ -110,7 +112,7 @@ const HotelContent: React.FC = () => {
               >
                 <span>All Hotel</span>
                 <span className="bg-slate-100 :bg-slate-800 text-xs py-0.5 px-2 rounded-full">
-                  {allHotel}
+                  {total}
                 </span>
               </a>
               <a
@@ -233,7 +235,7 @@ const HotelContent: React.FC = () => {
                     </div>
                     <button
                       onClick={() =>
-                        navigate(`/hotels/user/update/${hotels[0]._id}`)
+                        navigate(`/my-hotel/update/${hotels[0]._id}`)
                       }
                       className="bg-orange-500 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
                     >
@@ -286,9 +288,7 @@ const HotelContent: React.FC = () => {
                       </span>
                     </div>
                     <button
-                      onClick={() =>
-                        navigate(`/hotels/user/update/${hotel._id}`)
-                      }
+                      onClick={() => navigate(`/my-hotel/update/${hotel._id}`)}
                       className="flex items-center gap-1 bg-slate-100 :bg-slate-800 hover:bg-orange-500 hover:text-white text-slate-700 :text-slate-300 px-4 py-2 rounded-lg font-bold text-xs transition-all"
                     >
                       <span>Manage</span>
@@ -341,4 +341,4 @@ const HotelContent: React.FC = () => {
   );
 };
 
-export default HotelContent;
+export default MyHotel;

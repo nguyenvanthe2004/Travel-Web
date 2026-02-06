@@ -19,11 +19,10 @@ import {
   UpdateHotelDto,
   UpdateHotelStatusDto,
 } from "../dtos/HotelDto";
-import { Request } from "express";
 import { Public } from "../decorators/public";
 import { UserProps } from "../types/auth";
-import { UserRole } from "../models/User";
 import { HotelStatus } from "../models/Hotel";
+import { UserRole } from "../models/User";
 
 @Service()
 @JsonController("/hotels")
@@ -31,41 +30,33 @@ export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
 
   @Get("/count/:status")
-  async countBySingleStatus(
-    @Param("status") status: HotelStatus,
-  ) {
+  async countBySingleStatus(@Param("status") status: HotelStatus) {
     return this.hotelService.countHotelStatus(status);
   }
 
   @Public()
-  @Get("/")
+  @Get("/:status/:locationId")
   async findAll(
+    @Param("status") status: HotelStatus,
+    @QueryParam("locationId") locationId: string,
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
   ) {
-    return await this.hotelService.findAll(page, limit);
+    return await this.hotelService.findAll(status, locationId, page, limit);
   }
 
-  @Get("/user/:userId")
-  async findByUser(
-    @Param("userId") userId: string,
+  @Get("/user")
+  async getCurrentHotel(
+    @CurrentUser() user: UserProps,
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
   ) {
-    return await this.hotelService.findByUser(userId, page, limit);
+    return await this.hotelService.findByUser(user, page, limit);
   }
   @Public()
   @Get("/:id")
   async findHotelById(@Param("id") id: string) {
     return await this.hotelService.getHotelById(id);
-  }
-  @Get("/status/:status")
-  async filterByStatus(
-    @Param("status") status: HotelStatus,
-    @QueryParam("page") page: number,
-    @QueryParam("limit") limit: number,
-  ) {
-    return this.hotelService.findByStatus(status, page, limit);
   }
 
   @Post("/")
@@ -83,18 +74,20 @@ export class HotelController {
   ) {
     return this.hotelService.update(hotelId, body, user);
   }
-  @Put("/status/:id")
+  @Put("/:id/status")
   async updateHotelStatus(
     @Param("id") hotelId: string,
     @Body({ validate: true }) body: UpdateHotelStatusDto,
-    @Req() req: Request,
+    @CurrentUser() user: UserProps,
   ) {
-    const userId = (req as any).user.userId;
-    return this.hotelService.updateStatus(hotelId, body.status, userId);
+    return this.hotelService.updateStatus(hotelId, body.status, user);
   }
+  @Authorized([UserRole.ADMIN])
   @Delete("/:id")
-  async deleteHotel(@Param("id") hotelId: string, @Req() req: Request) {
-    const userId = (req as any).user.userId;
-    return this.hotelService.delete(hotelId, userId);
+  async deleteHotel(
+    @Param("id") hotelId: string,
+    @CurrentUser() user: UserProps,
+  ) {
+    return this.hotelService.delete(hotelId, user);
   }
 }

@@ -78,8 +78,8 @@ export class HotelRepository {
       .lean();
   }
 
-  async create(data: CreateHotelInput): Promise<IHotel> {
-    const hotel = new HotelModel(data);
+  async create(data: CreateHotelInput, userId: string): Promise<IHotel> {
+    const hotel = new HotelModel({ ...data, userId });
     return hotel.save();
   }
 

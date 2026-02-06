@@ -7,7 +7,6 @@ export interface CreateHotelInput {
   images?: string[];
   status?: HotelStatus;
   locationId: string;
-  userId: string;
 }
 
 export interface UpdateHotelInput {

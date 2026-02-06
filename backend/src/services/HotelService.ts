@@ -18,7 +18,12 @@ export class HotelService {
     private readonly hotelRepo: HotelRepository,
   ) {}
 
-  async findAll(status?: HotelStatus, locationId?: string, page = 1, limit?: number) {
+  async findAll(
+    status?: HotelStatus,
+    locationId?: string,
+    page = 1,
+    limit?: number,
+  ) {
     try {
       page = Math.max(1, Number(page));
       limit = Math.max(1, Number(limit));
@@ -70,15 +75,17 @@ export class HotelService {
     if (!existedUser) {
       throw new BadRequestError("User not found");
     }
-    await this.hotelRepo.create({
-      name: dto.name,
-      description: dto.description,
-      images: dto.images,
-      address: dto.address,
-      locationId: dto.locationId,
-      status: HotelStatus.OPEN,
-      userId: userId,
-    });
+    await this.hotelRepo.create(
+      {
+        name: dto.name,
+        description: dto.description,
+        images: dto.images,
+        address: dto.address,
+        locationId: dto.locationId,
+        status: HotelStatus.OPEN,
+      },
+      userId,
+    );
     return {
       success: true,
     };
@@ -98,7 +105,9 @@ export class HotelService {
       throw new ForbiddenError("You are not allowed to update this hotel");
     }
 
-    return this.hotelRepo.update(hotelId, data);
+    if (user.role === UserRole.ADMIN) {
+      return this.hotelRepo.delete(hotelId);
+    }
   }
 
   async updateStatus(hotelId: string, status: HotelStatus, user: UserProps) {
@@ -130,8 +139,8 @@ export class HotelService {
       throw new NotFoundError("Hotel not found");
     }
     if (user.role === UserRole.ADMIN) {
-    return this.hotelRepo.delete(hotelId);
-  }
+      return this.hotelRepo.delete(hotelId);
+    }
   }
   async countHotelStatus(status: HotelStatus) {
     return {

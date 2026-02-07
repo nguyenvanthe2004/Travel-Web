@@ -12,6 +12,7 @@ interface ModalProps {
   showFooter?: boolean;
   width?: string;
   loading?: boolean;
+  disabled?: boolean,
   variant?: "default" | "danger" | "success";
 }
 

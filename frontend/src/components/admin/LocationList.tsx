@@ -5,7 +5,7 @@ import {
   callGetAllLocation,
 } from "../../services/location";
 import { Location } from "../../types/location";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CLOUDINARY_URL } from "../../constants";
 import { Pencil, Plus, Trash } from "lucide-react";

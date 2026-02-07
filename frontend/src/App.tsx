@@ -7,25 +7,29 @@ import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage ";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { callGetCurrentUser } from "./services/auth";
-import { logout, setCurrentUser } from "./redux/slices/currentUser";
+import { setCurrentUser } from "./redux/slices/currentUser";
 import Profile from "./pages/home/ProfilePage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import LocationPage from "./pages/admin/LocationPage";
-import HotelPage from "./pages/admin/HotelPage";
+import HotelAdminPage from "./pages/admin/HotelAdminPage";
 import BookingPage from "./pages/admin/BookingPage";
 import UserPage from "./pages/admin/UserPage";
 import CreateLocation from "./pages/admin/CreateLocationPage";
 import DetailLocationPage from "./pages/admin/DetailLocationPage";
+import HotelPage from "./pages/home/HotelPage";
+import CreateMyHotelPage from "./pages/home/CreateMyHotelPage";
+import CreateHotelPage from "./pages/admin/CreateHotelPage";
+import UpdateHotelPage from "./pages/home/UpdateHotelPage";
 
 function App() {
   const dispatch = useDispatch();
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await callGetCurrentUser();
+      dispatch(setCurrentUser(res.data));
+    } catch {}
+  };
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        const res = await callGetCurrentUser();
-        dispatch(setCurrentUser(res.data));
-      } catch {}
-    };
     fetchCurrentUser();
   }, [dispatch]);
   return (
@@ -42,7 +46,15 @@ function App() {
           <Route path="create" element={<CreateLocation />} />
           <Route path="update/:id" element={<DetailLocationPage />} />
         </Route>
-        <Route path="/hotels" element={<HotelPage />} />
+        <Route path="/my-hotel">
+          <Route index element={<HotelPage />} />
+          <Route path="create" element={<CreateMyHotelPage />} />
+          <Route path="update/:id" element={<UpdateHotelPage />} />
+        </Route>
+        <Route path="/hotels">
+          <Route index element={<HotelAdminPage />} />
+          <Route path="create" element={<CreateHotelPage />} />
+        </Route>
         <Route path="/bookings" element={<BookingPage />} />
         <Route path="/users" element={<UserPage />} />
       </Routes>

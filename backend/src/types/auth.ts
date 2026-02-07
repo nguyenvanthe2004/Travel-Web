@@ -10,5 +10,5 @@ export interface JwtPayload {
 }
 
 export type UserProps = Omit<JwtPayload, "userId"> & {
-  _id: string;
+  userId: string;
 };

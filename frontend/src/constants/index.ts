@@ -7,10 +7,15 @@ export enum UserRole {
 }
 
 export enum HotelStatus {
-  PENDING = "pending",
-  ACTIVE = "active",
-  MAINTENANCE = "maintenance",
+  OPEN = "open",
+  CLOSED = "closed",
+  RENOVATION = "renovation",
 }
+export const HOTEL_STATUS_OPTIONS = [
+  { value: HotelStatus.OPEN, label: "Open" },
+  { value: HotelStatus.CLOSED, label: "Closed" },
+  { value: HotelStatus.RENOVATION, label: "Renovation" },
+];
 export enum BookingStatus {
   PENDING = "pending",
   CONFIRMED = "confirmed",

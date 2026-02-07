@@ -12,8 +12,6 @@ import { mongooseSerializer } from "./interceptors/serialize.interceptor";
 import { LocationController } from "./controllers/LocationController";
 import { AuthMiddleware, authorizationChecker } from "./middlewares/authMiddleware";
 import { HotelController } from "./controllers/HotelController";
-import { BookingController } from "./controllers/BookingController";
-import { RoomController } from "./controllers/RoomController";
 import { FileController } from "./controllers/FileController";
 
 dotenv.config();
@@ -32,7 +30,7 @@ export const startServer = async () => {
     app.use(mongooseSerializer);
 
     useExpressServer(app, {
-      controllers: [UserController, LocationController, FileController],
+      controllers: [UserController, LocationController, FileController, HotelController],
       middlewares: [ErrorHandler, AuthMiddleware],
       authorizationChecker: authorizationChecker,
       currentUserChecker: async (action: Action) => {

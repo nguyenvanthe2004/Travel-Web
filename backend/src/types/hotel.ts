@@ -17,3 +17,8 @@ export interface UpdateHotelInput {
   status?: HotelStatus;
   locationId: string;
 }
+
+export type HotelFindFilter = {
+  status?: string;
+  locationId?: string;
+};

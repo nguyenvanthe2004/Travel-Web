@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { MapPin } from "lucide-react";
 import { Location } from "../../types/location";
 import { HotelFormData, hotelSchema } from "../../validations/hotel";
-import { HOTEL_STATUS_OPTIONS, HotelStatus } from "../../constants";
+import { HotelStatus } from "../../constants";
 import CustomDropZone from "../ui/CustomDropZone";
 import { callGetAllLocation } from "../../services/location";
 import { callCreateHotel } from "../../services/hotel";
@@ -29,7 +29,7 @@ const CreateMyHotel: React.FC = () => {
       name: "",
       address: "",
       description: "",
-      images: [""],
+      images: [],
       status: HotelStatus.OPEN,
       locationId: "",
     },
@@ -41,7 +41,7 @@ const CreateMyHotel: React.FC = () => {
     const fetchLocations = async () => {
       setIsLoadingLocations(true);
       try {
-        const response = await callGetAllLocation(1, 10);
+        const response = await callGetAllLocation(1);
         setLocations(response.data?.data || []);
       } catch (error) {
         toast.error("Failed to load locations");
@@ -183,9 +183,9 @@ const CreateMyHotel: React.FC = () => {
                   {...register("status")}
                   className="block w-full px-4 py-3 bg-white text-slate-900 rounded-xl text-sm focus:border focus:outline-none transition-all"
                 >
-                  {HOTEL_STATUS_OPTIONS.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
+                  {Object.values(HotelStatus).map((status) => (
+                    <option key={status} value={status}>
+                      {status}
                     </option>
                   ))}
                 </select>

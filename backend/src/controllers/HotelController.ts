@@ -30,19 +30,22 @@ export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
 
   @Get("/count/:status")
-  async countBySingleStatus(@Param("status") status: HotelStatus, @CurrentUser() user: UserProps, ) {
+  async countBySingleStatus(
+    @Param("status") status: HotelStatus,
+    @CurrentUser() user: UserProps,
+  ) {
     return this.hotelService.countHotelStatus(status, user);
   }
 
   @Public()
-  @Get("/:status/:locationId")
+  @Get("/")
   async findAll(
-    @Param("status") status: HotelStatus,
-    @QueryParam("locationId") locationId: string,
     @QueryParam("page") page: number,
-    @QueryParam("limit") limit: number,
+    @QueryParam("limit") limit?: number,
+    @QueryParam("status") status?: string,
+    @QueryParam("locationId") locationId?: string,
   ) {
-    return await this.hotelService.findAll(status, locationId, page, limit);
+    return await this.hotelService.findAll(page, limit, status, locationId);
   }
 
   @Get("/user")
@@ -51,7 +54,7 @@ export class HotelController {
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
   ) {
-    return await this.hotelService.findByUser(user, page, limit);
+    return await this.hotelService.findByUser(page, limit, user);
   }
   @Public()
   @Get("/:id")
@@ -82,7 +85,6 @@ export class HotelController {
   ) {
     return this.hotelService.updateStatus(hotelId, body.status, user);
   }
-  @Authorized([UserRole.ADMIN])
   @Delete("/:id")
   async deleteHotel(
     @Param("id") hotelId: string,

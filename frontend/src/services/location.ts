@@ -1,6 +1,6 @@
 import instance from "./req";
 
-export const callGetAllLocation = async (page: number, limit: number) => {
+export const callGetAllLocation = async (page: number, limit?: number) => {
   return await instance.get("/locations", {
     params: { page, limit },
   });

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { RefreshCcw } from "lucide-react";
-import { HOTEL_STATUS_OPTIONS, HotelStatus } from "../../constants";
+import { HotelStatus } from "../../constants";
 import Modal from "./Modal";
 
 interface UpdateStatusModalProps {
@@ -28,9 +28,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
   value,
   loading = false,
 }) => {
-  const [status, setStatus] = useState<HotelStatus | "">(
-    value ?? "",
-  );
+  const [status, setStatus] = useState<HotelStatus | "">(value ?? "");
 
   const handleConfirm = () => {
     if (!status) return;
@@ -67,9 +65,9 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
           >
             <option value="">Select status</option>
 
-            {HOTEL_STATUS_OPTIONS.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
+            {Object.values(HotelStatus).map((status) => (
+              <option key={status} value={status}>
+                {status}
               </option>
             ))}
           </select>

@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FolderPlus, MapPin } from "lucide-react";
 import { Location } from "../../types/location";
 import { HotelFormData, hotelSchema } from "../../validations/hotel";
-import { HOTEL_STATUS_OPTIONS, HotelStatus } from "../../constants";
+import { HotelStatus } from "../../constants";
 import CustomDropZone from "../ui/CustomDropZone";
 import { callGetAllLocation } from "../../services/location";
 import { callGetHotelById, callUpdateHotel } from "../../services/hotel";
@@ -30,7 +30,7 @@ const UpdateHotel: React.FC = () => {
       name: "",
       address: "",
       description: "",
-      images: [""],
+      images: [],
       status: HotelStatus.OPEN,
       locationId: "",
     },
@@ -41,7 +41,7 @@ const UpdateHotel: React.FC = () => {
   const fetchLocations = async () => {
     setIsLoadingLocations(true);
     try {
-      const response = await callGetAllLocation(1, 100);
+      const response = await callGetAllLocation(1);
       setLocations(response.data?.data || []);
     } catch (error) {
       toast.error("Failed to load locations");
@@ -62,7 +62,7 @@ const UpdateHotel: React.FC = () => {
       setValue("description", data.description);
       setValue("status", data.status);
       setValue("locationId", data.locationId?._id);
-      setValue("images", data.images?.length ? data.images : [""]);
+      setValue("images", data.images?.length ? data.images : []);
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -209,9 +209,9 @@ const UpdateHotel: React.FC = () => {
                   className="block w-full px-4 py-3 bg-white text-slate-900 rounded-xl text-sm focus:border focus:outline-none transition-all"
                 >
                   <option value="">Select status</option>
-                  {HOTEL_STATUS_OPTIONS.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
+                  {Object.values(HotelStatus).map((status) => (
+                    <option key={status} value={status}>
+                      {status}
                     </option>
                   ))}
                 </select>

@@ -19,10 +19,10 @@ export class HotelService {
   ) {}
 
   async findAll(
-    status?: HotelStatus,
-    locationId?: string,
     page = 1,
     limit?: number,
+    status?: string,
+    locationId?: string,
   ) {
     try {
       page = Math.max(1, Number(page));
@@ -32,7 +32,7 @@ export class HotelService {
 
       const [hotels, total] = await Promise.all([
         this.hotelRepo.findAll(skip, limit, status, locationId),
-        this.hotelRepo.countAll(status, locationId),
+        this.hotelRepo.countAll(status),
       ]);
 
       return {
@@ -50,7 +50,7 @@ export class HotelService {
     }
     return hotel;
   }
-  async findByUser(user: UserProps, page = 1, limit = 10) {
+  async findByUser(page = 1, limit = 10, user: UserProps) {
     const userId = String(user.userId);
     page = Math.max(1, Number(page));
     limit = Math.max(1, Number(limit));
@@ -58,7 +58,7 @@ export class HotelService {
     const skip = (page - 1) * limit;
 
     const [hotels, total] = await Promise.all([
-      this.hotelRepo.findByUser(userId, skip, limit),
+      this.hotelRepo.findByUser(skip, limit, userId),
       this.hotelRepo.countByUser(userId),
     ]);
 
@@ -100,14 +100,13 @@ export class HotelService {
     if (!hotel) {
       throw new NotFoundError("Hotel not found");
     }
+    const isOwner = hotel.userId.toString() === userId;
+    const isAdmin = user.role === UserRole.ADMIN;
 
-    if (hotel.userId.toString() !== userId) {
+    if (!isOwner && !isAdmin) {
       throw new ForbiddenError("You are not allowed to update this hotel");
     }
-
-    if (user.role === UserRole.ADMIN) {
-      return this.hotelRepo.delete(hotelId);
-    }
+    return this.hotelRepo.update(hotelId, data);
   }
 
   async updateStatus(hotelId: string, status: HotelStatus, user: UserProps) {
@@ -121,10 +120,12 @@ export class HotelService {
       throw new NotFoundError("Hotel not found");
     }
 
-    if (hotel.userId.toString() !== userId) {
-      throw new ForbiddenError("You are not allowed to change hotel status");
-    }
+    const isOwner = hotel.userId.toString() === userId;
+    const isAdmin = user.role === UserRole.ADMIN;
 
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenError("You are not allowed to update this hotel");
+    }
     return this.hotelRepo.updateStatus(hotelId, status);
   }
 
@@ -138,12 +139,16 @@ export class HotelService {
     if (!hotel) {
       throw new NotFoundError("Hotel not found");
     }
-    if (user.role === UserRole.ADMIN) {
-      return this.hotelRepo.delete(hotelId);
+    const isOwner = hotel.userId.toString() === userId;
+    const isAdmin = user.role === UserRole.ADMIN;
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenError("You are not allowed to update this hotel");
     }
+    return this.hotelRepo.delete(hotelId);
   }
   async countHotelStatus(status: HotelStatus, user: UserProps) {
-    const userId = String(user.userId)
+    const userId = String(user.userId);
     return {
       status,
       total: await this.hotelRepo.countByStatus(status, userId),

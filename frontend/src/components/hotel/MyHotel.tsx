@@ -2,19 +2,27 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Hotel } from "../../types/hotel";
-import { callCountHotelStatus, callGetMyHotel } from "../../services/hotel";
+import {
+  callCountHotelStatus,
+  callDeleteHotel,
+  callGetMyHotel,
+} from "../../services/hotel";
 import { CLOUDINARY_URL, HotelStatus } from "../../constants";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { ArrowRight, Loader, MapPin, Plus, Star } from "lucide-react";
+import { ArrowRight, Loader, MapPin, Plus, Star, Trash } from "lucide-react";
 import { useModal } from "../../hooks/useModal";
+import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
+import UpdateStatusModal from "../ui/UpdateStatusModal";
 
 const MyHotel: React.FC = () => {
   const navigate = useNavigate();
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [total, setTotal] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deleteId, setDeleteId] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const { isOpen, open, close } = useModal();
 
   const [countByStatus, setCountByStatus] = useState<
@@ -69,6 +77,22 @@ const MyHotel: React.FC = () => {
   useEffect(() => {
     fetchCountHotelByStatus();
   }, []);
+
+  const handleDeleteHotel = async () => {
+    if (!deleteId) return;
+    try {
+      setDeleting(true);
+      await callDeleteHotel(deleteId);
+      setDeleteId("");
+      close();
+      toast.success("Hotel deleted successfully!");
+      fetchHotels();
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -146,71 +170,76 @@ const MyHotel: React.FC = () => {
           </div>
           {hotels[0] && (
             <div className="mb-10 group">
-              <div className="relative overflow-hidden rounded-2xl bg-white :bg-slate-900 border border-slate-200 :border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row">
+              <div className="relative overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row">
+                <button
+                  onClick={() => {
+                    setDeleteId(hotels[0]._id);
+                    open();
+                  }}
+                  className="
+                  absolute top-4 right-4 z-10
+                  p-2.5 rounded-xl
+                  opacity-0 group-hover:opacity-100
+                  text-slate-400 hover:text-red-500
+                  hover:bg-red-50
+                  transition-all
+                  "
+                >
+                  <Trash className="w-5 h-5" />
+                </button>
                 <div className="md:w-1/3 h-64 md:h-auto overflow-hidden">
                   <div
                     className="w-full h-full bg-center bg-no-repeat bg-cover transform group-hover:scale-105 transition-transform duration-700"
-                    data-alt="Modern luxury beach resort with infinity pool"
                     style={{
                       backgroundImage: `url(${CLOUDINARY_URL}/${hotels[0].images[0]})`,
                     }}
-                  ></div>
+                  />
                 </div>
                 <div className="flex-1 p-8 flex flex-col justify-between gap-6">
                   <div className="space-y-4">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-2 bg-primary/10 text-black px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                        <span className=" text-amber-400 material-symbols-outlined text-[14px]">
-                          <Star />
-                        </span>
+                        <Star className="w-4 h-4 text-amber-400" />
                         Featured Property
                       </div>
-                      <span className="flex items-center gap-1.5 bg-accent-green/10 text-accent-green px-3 py-1 rounded-full text-xs font-bold">
-                        <span className="size-2 bg-accent-green rounded-full"></span>
-                        Active
-                      </span>
                     </div>
+
                     <div>
-                      <h3 className="text-2xl font-bold text-slate-900 :text-white mb-1">
+                      <h3 className="text-2xl font-bold text-slate-900 mb-1">
                         {hotels[0].name}
                       </h3>
-                      <div className="flex items-center gap-1 text-slate-500 :text-slate-400">
-                        <span className="material-symbols-outlined text-sm">
-                          <MapPin />
-                        </span>
+                      <div className="flex items-center gap-1 text-slate-500">
+                        <MapPin className="w-4 h-4" />
                         <span className="text-sm font-medium">
                           {hotels[0].address} - {hotels[0].locationId?.name}
                         </span>
                       </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-4 border-y border-slate-100 :border-slate-800 py-4">
+
+                    <div className="grid grid-cols-3 gap-4 border-y border-slate-100 py-4">
                       <div>
-                        <p className="text-xs text-slate-400 :text-slate-500 uppercase font-bold tracking-widest">
+                        <p className="text-xs text-slate-400 uppercase font-bold tracking-widest">
                           Rooms
                         </p>
-                        <p className="text-lg font-bold text-slate-800 :text-slate-200">
-                          42
-                        </p>
+                        <p className="text-lg font-bold text-slate-800">42</p>
                       </div>
+
                       <div>
-                        <p className="text-xs text-slate-400 :text-slate-500 uppercase font-bold tracking-widest">
+                        <p className="text-xs text-slate-400 uppercase font-bold tracking-widest">
                           Avg. Occupancy
                         </p>
-                        <p className="text-lg font-bold text-slate-800 :text-slate-200">
-                          88%
-                        </p>
+                        <p className="text-lg font-bold text-slate-800">88%</p>
                       </div>
+
                       <div>
-                        <p className="text-xs text-slate-400 :text-slate-500 uppercase font-bold tracking-widest">
+                        <p className="text-xs text-slate-400 uppercase font-bold tracking-widest">
                           Rating
                         </p>
                         <div className="flex items-center gap-1">
-                          <p className="text-lg font-bold text-slate-800 :text-slate-200">
+                          <p className="text-lg font-bold text-slate-800">
                             4.9
                           </p>
-                          <span className="material-symbols-outlined text-amber-400 text-[18px] fill-current">
-                            <Star />
-                          </span>
+                          <Star className="w-5 h-5 text-amber-400" />
                         </div>
                       </div>
                     </div>
@@ -218,21 +247,22 @@ const MyHotel: React.FC = () => {
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex -space-x-2">
                       <div
-                        className="size-8 rounded-full border-2 border-white :border-slate-900 bg-cover bg-center"
+                        className="size-8 rounded-full border-2 border-white bg-cover bg-center"
                         style={{
                           backgroundImage: `url(${CLOUDINARY_URL}/${hotels[0].images[1]})`,
                         }}
-                      ></div>
+                      />
                       <div
-                        className="size-8 rounded-full border-2 border-white :border-slate-900 bg-cover bg-center"
+                        className="size-8 rounded-full border-2 border-white bg-cover bg-center"
                         style={{
                           backgroundImage: `url(${CLOUDINARY_URL}/${hotels[0].images[2]})`,
                         }}
-                      ></div>
-                      <div className="size-8 rounded-full border-2 border-white :border-slate-900 bg-slate-100 :bg-slate-800 flex items-center justify-center text-[10px] font-bold">
+                      />
+                      <div className="size-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold">
                         +5
                       </div>
                     </div>
+
                     <button
                       onClick={() =>
                         navigate(`/my-hotel/update/${hotels[0]._id}`)
@@ -246,61 +276,98 @@ const MyHotel: React.FC = () => {
               </div>
             </div>
           )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {hotels.map((hotel) => (
               <div
                 key={hotel._id}
-                className="bg-white :bg-slate-900 rounded-2xl border border-slate-200 :border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-all group"
+                className="relative bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg transition-all group"
               >
+                {" "}
                 <div className="relative h-48 overflow-hidden">
                   <div
                     className="w-full h-full bg-center bg-no-repeat bg-cover group-hover:scale-105 transition-transform duration-500"
-                    data-alt="Rustic cozy lodge in the snow-capped mountains"
                     style={{
                       backgroundImage: `url(${CLOUDINARY_URL}/${hotel.images[0]})`,
                     }}
-                  ></div>
-                  <div className="absolute top-4 right-4">
-                    <span className="bg-accent-green/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                      Open
-                    </span>
+                  />
+                  <button
+                    onClick={() => {
+                      setDeleteId(hotel._id);
+                      open();
+                    }}
+                    className="
+                      absolute top-3 right-3 z-10
+                      p-2 rounded-lg
+                      bg-white/80 backdrop-blur
+                      text-slate-400 hover:text-red-500
+                      opacity-0 group-hover:opacity-100
+                      transition-all
+                    "
+                  >
+                    <Trash className="w-4 h-4" />
+                  </button>
+
+                  <div className="absolute top-3 left-3 z-10">
+                    <div className="relative group/status">
+                      <button
+                        className={`
+                        px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
+                        backdrop-blur shadow-sm transition
+                        ${
+                          hotel.status === "open"
+                            ? "bg-green-500/90 text-white"
+                            : hotel.status === "closed"
+                              ? "bg-red-500/90 text-white"
+                              : "bg-amber-500/90 text-white"
+                        }
+                        `}
+                      >
+                        {hotel.status}
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div className="p-5">
                   <div className="mb-4">
-                    <h4 className="text-lg font-bold text-slate-900 :text-white mb-1">
+                    <h4 className="text-lg font-bold text-slate-900 mb-1">
                       {hotel.name}
                     </h4>
-                    <p className="text-slate-500 :text-slate-400 text-sm flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">
-                        <MapPin />
-                      </span>
+                    <p className="text-slate-500 text-sm flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
                       {hotel.address} - {hotel.locationId?.name}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 :border-slate-800">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-slate-400 :text-slate-500 uppercase tracking-tighter">
+
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <div>
+                      <span className="text-xs font-bold text-slate-400 uppercase">
                         Rooms
                       </span>
-                      <span className="text-sm font-bold text-slate-700 :text-slate-300">
+                      <div className="text-sm font-bold text-slate-700">
                         18 Units
-                      </span>
+                      </div>
                     </div>
+
                     <button
                       onClick={() => navigate(`/my-hotel/update/${hotel._id}`)}
-                      className="flex items-center gap-1 bg-slate-100 :bg-slate-800 hover:bg-orange-500 hover:text-white text-slate-700 :text-slate-300 px-4 py-2 rounded-lg font-bold text-xs transition-all"
+                      className="
+                        flex items-center gap-1
+                        bg-slate-100 hover:bg-orange-500 hover:text-white
+                        text-slate-700
+                        px-4 py-2 rounded-lg
+                        font-bold text-xs transition-all
+                      "
                     >
-                      <span>Manage</span>
-                      <span className="material-symbols-outlined text-[16px]">
-                        <ArrowRight />
-                      </span>
+                      Manage
+                      <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
           <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-8 p-8 rounded-2xl bg-slate-900 text-white overflow-hidden relative">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
             <div className="relative">
@@ -337,6 +404,12 @@ const MyHotel: React.FC = () => {
           </div>
         </div>
       </div>
+      <ConfirmDeleteModal
+        isOpen={isOpen}
+        onClose={close}
+        onConfirm={handleDeleteHotel}
+        loading={deleting}
+      />
     </div>
   );
 };

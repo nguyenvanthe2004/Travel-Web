@@ -6,7 +6,7 @@ export interface Hotel {
   address: string;
   description: string;
   images: string[];
-  locationId?: {
+  locationId: {
     name: string;
   };
   status: HotelStatus;

@@ -12,10 +12,7 @@ import {
 } from "lucide-react";
 import CustomTable from "../ui/CustomTable";
 import Pagination from "../ui/Pagination";
-import {
-  callDeleteHotel,
-  callGetAllHotel,
-} from "../../services/hotel";
+import { callDeleteHotel, callGetAllHotel } from "../../services/hotel";
 import { toastError } from "../../lib/toast";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -25,9 +22,8 @@ import { useModal } from "../../hooks/useModal";
 const HotelList: React.FC = () => {
   const [page, setPage] = useState(1);
   const [hotels, setHotels] = useState<Hotel[]>([]);
-  const [statusFilter, setStatusFilter] = useState<HotelStatus>(
-    HotelStatus.OPEN,
-  );
+  const [statusFilter, setStatusFilter] = useState<HotelStatus | undefined>();
+
   const [allHotel, setAllHotel] = useState("");
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
@@ -41,7 +37,7 @@ const HotelList: React.FC = () => {
   const fetchHotels = async () => {
     try {
       setLoading(true);
-      const res = await callGetAllHotel(1, 10, statusFilter);
+      const res = await callGetAllHotel(page, 10, statusFilter);
       setHotels(res.data.data);
       setTotalPages(res.data.totalPages);
       setAllHotel(res.data.data.length);
@@ -206,7 +202,8 @@ const HotelList: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2">
             <button
               onClick={() => {
-                fetchHotels(); 
+                setStatusFilter(undefined);
+                setPage(1);
               }}
               className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-lg border border-gray-200 transition-colors text-sm font-medium"
             >

@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { FolderPlus, MapPin } from "lucide-react";
 import { Location } from "../../types/location";
 import { HotelFormData, hotelSchema } from "../../validations/hotel";
-import { HOTEL_STATUS_OPTIONS, HotelStatus } from "../../constants";
+import { HotelStatus } from "../../constants";
 import CustomDropZone from "../ui/CustomDropZone";
 import { callGetAllLocation } from "../../services/location";
 import { callCreateHotel } from "../../services/hotel";
@@ -29,7 +29,7 @@ const CreateHotel: React.FC = () => {
       name: "",
       address: "",
       description: "",
-      images: [""],
+      images: [],
       status: HotelStatus.OPEN,
       locationId: "",
     },
@@ -75,7 +75,7 @@ const CreateHotel: React.FC = () => {
       toast.success("Hotel created successfully!");
       navigate("/hotels");
     } catch (error: any) {
-      toast.error(error.message || "Something went wrong");
+      toast.error(error.message);
     }
   };
 
@@ -184,9 +184,9 @@ const CreateHotel: React.FC = () => {
                   className="block w-full px-4 py-3 bg-white text-slate-900 rounded-xl text-sm focus:border focus:outline-none transition-all"
                 >
                   <option value="">Select status</option>
-                  {HOTEL_STATUS_OPTIONS.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
+                  {Object.values(HotelStatus).map((status) => (
+                    <option key={status} value={status}>
+                      {status}
                     </option>
                   ))}
                 </select>
@@ -229,7 +229,7 @@ const CreateHotel: React.FC = () => {
                     className="w-full py-12 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 hover:border-[#0F8FA0] hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/5 transition-all flex flex-col items-center justify-center gap-3"
                   >
                     <span className="material-symbols-outlined text-[40px]">
-                      add_photo_alternate
+                      <FolderPlus />
                     </span>
                     <span className="text-sm font-semibold">Add Image</span>
                     <span className="text-xs text-slate-400">

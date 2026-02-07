@@ -30,8 +30,8 @@ export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
 
   @Get("/count/:status")
-  async countBySingleStatus(@Param("status") status: HotelStatus) {
-    return this.hotelService.countHotelStatus(status);
+  async countBySingleStatus(@Param("status") status: HotelStatus, @CurrentUser() user: UserProps, ) {
+    return this.hotelService.countHotelStatus(status, user);
   }
 
   @Public()

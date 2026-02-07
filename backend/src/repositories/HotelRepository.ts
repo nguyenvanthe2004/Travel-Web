@@ -20,8 +20,8 @@ export class HotelRepository {
     return HotelModel.countDocuments({ userId });
   }
 
-  async countByStatus(status: HotelStatus): Promise<number> {
-    return HotelModel.countDocuments({ status });
+  async countByStatus(status: HotelStatus, userId: string): Promise<number> {
+    return HotelModel.countDocuments({ status, userId });
   }
 
   async findAll(

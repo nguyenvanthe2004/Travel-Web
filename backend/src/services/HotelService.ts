@@ -142,10 +142,11 @@ export class HotelService {
       return this.hotelRepo.delete(hotelId);
     }
   }
-  async countHotelStatus(status: HotelStatus) {
+  async countHotelStatus(status: HotelStatus, user: UserProps) {
+    const userId = String(user.userId)
     return {
       status,
-      total: await this.hotelRepo.countByStatus(status),
+      total: await this.hotelRepo.countByStatus(status, userId),
     };
   }
 }

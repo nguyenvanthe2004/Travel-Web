@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 const UpdateHotel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [locations, setLocations] = useState<Location[]>([]);
-  const [isLoadingLocations, setIsLoadingLocations] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -39,14 +39,14 @@ const UpdateHotel: React.FC = () => {
   const watchImages = watch("images");
 
   const fetchLocations = async () => {
-    setIsLoadingLocations(true);
+    setLoading(true);
     try {
       const response = await callGetAllLocation(1);
       setLocations(response.data?.data || []);
     } catch (error) {
       toast.error("Failed to load locations");
     } finally {
-      setIsLoadingLocations(false);
+      setLoading(false);
     }
   };
 
@@ -182,7 +182,7 @@ const UpdateHotel: React.FC = () => {
                 </label>
                 <select
                   {...register("locationId")}
-                  disabled={isLoadingLocations}
+                  disabled={loading}
                   className="block w-full px-4 py-3 bg-white text-slate-900 rounded-xl text-sm focus:border focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Select location</option>

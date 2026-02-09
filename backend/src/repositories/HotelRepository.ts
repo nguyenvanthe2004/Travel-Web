@@ -10,7 +10,7 @@ import {
 @Service()
 export class HotelRepository {
   countAll(status?: string, locationId?: string) {
-    if (!status || !locationId) {
+    if (!status && !locationId) {
       return HotelModel.countDocuments();
     }
     return HotelModel.countDocuments({ status, locationId });

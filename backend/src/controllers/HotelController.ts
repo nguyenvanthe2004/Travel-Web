@@ -29,12 +29,11 @@ import { UserRole } from "../models/User";
 export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
 
-  @Get("/count/:status")
+  @Get("/count/status")
   async countBySingleStatus(
-    @Param("status") status: HotelStatus,
     @CurrentUser() user: UserProps,
   ) {
-    return this.hotelService.countHotelStatus(status, user);
+    return this.hotelService.countHotelStatus(user);
   }
 
   @Public()
@@ -48,7 +47,7 @@ export class HotelController {
     return await this.hotelService.findAll(page, limit, status, locationId);
   }
 
-  @Get("/user")
+  @Get("/my-hotel")
   async getCurrentHotel(
     @CurrentUser() user: UserProps,
     @QueryParam("page") page: number,

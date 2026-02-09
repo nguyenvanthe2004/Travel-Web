@@ -15,6 +15,13 @@ import { ArrowRight, Loader, MapPin, Plus, Star, Trash } from "lucide-react";
 import { useModal } from "../../hooks/useModal";
 import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
 import UpdateStatusModal from "../ui/UpdateStatusModal";
+import LoadingPage from "../ui/LoadingPage";
+
+type CountByStatus = {
+  open: number;
+  closed: number;
+  renovation: number;
+};
 
 const MyHotel: React.FC = () => {
   const navigate = useNavigate();
@@ -25,12 +32,10 @@ const MyHotel: React.FC = () => {
   const [deleting, setDeleting] = useState(false);
   const { isOpen, open, close } = useModal();
 
-  const [countByStatus, setCountByStatus] = useState<
-    Record<HotelStatus, number>
-  >({
-    [HotelStatus.OPEN]: 0,
-    [HotelStatus.CLOSED]: 0,
-    [HotelStatus.RENOVATION]: 0,
+  const [countByStatus, setCountByStatus] = useState<CountByStatus>({
+    open: 0,
+    closed: 0,
+    renovation: 0,
   });
 
   const user = useSelector((state: RootState) => state.auth.currentUser);
@@ -42,7 +47,7 @@ const MyHotel: React.FC = () => {
       const res = await callGetMyHotel(1, 10);
       const hotelList = res.data.data;
       setHotels(hotelList);
-      setTotal(hotelList.length);
+      setTotal(res.data.total);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -55,25 +60,22 @@ const MyHotel: React.FC = () => {
 
   const fetchCountHotelByStatus = async () => {
     try {
-      setLoading(true);
-
-      const [open, closed, renovation] = await Promise.all([
-        callCountHotelStatus(HotelStatus.OPEN),
-        callCountHotelStatus(HotelStatus.CLOSED),
-        callCountHotelStatus(HotelStatus.RENOVATION),
-      ]);
-
-      setCountByStatus({
-        [HotelStatus.OPEN]: open.data.total,
-        [HotelStatus.CLOSED]: closed.data.total,
-        [HotelStatus.RENOVATION]: renovation.data.total,
+      const data = await callCountHotelStatus();
+      const result: CountByStatus = {
+        open: 0,
+        closed: 0,
+        renovation: 0,
+      };
+      data.forEach((item: { status: HotelStatus; total: number }) => {
+        result[item.status] = item.total;
       });
+
+      setCountByStatus(result);
     } catch (error: any) {
       toast.error(error.message);
-    } finally {
-      setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchCountHotelByStatus();
   }, []);
@@ -95,13 +97,7 @@ const MyHotel: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <span className="material-symbols-outlined animate-spin text-4xl">
-          <Loader />
-        </span>
-      </div>
-    );
+    return <LoadingPage />;
   }
 
   return (

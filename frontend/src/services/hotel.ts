@@ -2,8 +2,9 @@ import { HotelStatus } from "../constants";
 import { HotelFormData } from "../validations/hotel";
 import instance from "./req";
 
-export const callCountHotelStatus = async (status: string) => {
-  return await instance.get(`/hotels/count/${status}`);
+export const callCountHotelStatus = async () => {
+  const res = await instance.get("/hotels/count/status");
+  return res.data;
 };
 export const callGetAllHotel = async (
   page = 1,
@@ -22,7 +23,7 @@ export const callGetAllHotel = async (
 };
 
 export const callGetMyHotel = async (page: number, limit: number) => {
-  return instance.get(`/hotels/user`, {
+  return instance.get(`/hotels/my-hotel`, {
     params: { page, limit },
   });
 };

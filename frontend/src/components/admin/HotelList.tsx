@@ -7,6 +7,7 @@ import {
   CircleCheck,
   CircleX,
   MapPin,
+  Pencil,
   Plus,
   Trash,
 } from "lucide-react";
@@ -132,6 +133,14 @@ const HotelList: React.FC = () => {
       render: (hotel: Hotel) => (
         <div className="flex items-center justify-end gap-1">
           <button
+            onClick={() => navigate(`/hotels/update/${hotel._id}`)}
+            className="p-2.5 text-slate-400 hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/10 rounded-lg"
+          >
+            <span className="material-symbols-outlined text-[22px]">
+              <Pencil />
+            </span>
+          </button>
+          <button
             onClick={() => {
               setDeleteId(hotel._id);
               open();
@@ -183,16 +192,6 @@ const HotelList: React.FC = () => {
               <span className="text-xs font-semibold text-red-500">-2%</span>
             </div>
           </div>
-
-          <button className="bg-teal-600 hover:bg-teal-700 text-white px-5 py-3 rounded-xl font-semibold flex items-center gap-2 transition-colors">
-            <Plus />
-            <span
-              onClick={() => navigate("/hotels/create")}
-              className="hidden sm:inline"
-            >
-              Add New Hotel
-            </span>
-          </button>
         </div>
       </div>
 
@@ -205,11 +204,16 @@ const HotelList: React.FC = () => {
                 setStatusFilter(undefined);
                 setPage(1);
               }}
-              className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-lg border border-gray-200 transition-colors text-sm font-medium"
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                ${
+                  !statusFilter
+                    ? "bg-teal-600 text-white border-teal-600"
+                    : "bg-gray-50 hover:bg-gray-100 border-gray-200"
+                }
+              `}
             >
-              <MapPin className="w-4 h-4 text-teal-600" />
+              <MapPin className="w-4 h-4" />
               <span>All Cities</span>
-
               <ChevronDown className="w-4 h-4 ml-auto" />
             </button>
 
@@ -218,9 +222,15 @@ const HotelList: React.FC = () => {
                 setStatusFilter(HotelStatus.OPEN);
                 setPage(1);
               }}
-              className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-lg border border-gray-200 transition-colors text-sm font-medium"
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                ${
+                  statusFilter === HotelStatus.OPEN
+                    ? "bg-teal-600 text-white border-teal-600"
+                    : "bg-gray-50 hover:bg-gray-100 border-gray-200"
+                }
+              `}
             >
-              <CircleCheck className="w-4 h-4 text-teal-600" />
+              <CircleCheck className="w-4 h-4" />
               <span>Open</span>
               <ChevronDown className="w-4 h-4 ml-auto" />
             </button>
@@ -230,9 +240,15 @@ const HotelList: React.FC = () => {
                 setStatusFilter(HotelStatus.CLOSED);
                 setPage(1);
               }}
-              className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-lg border border-gray-200 transition-colors text-sm font-medium"
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                ${
+                  statusFilter === HotelStatus.CLOSED
+                    ? "bg-teal-600 text-white border-teal-600"
+                    : "bg-gray-50 hover:bg-gray-100 border-gray-200"
+                }
+              `}
             >
-              <CircleX className="w-4 h-4 text-teal-600" />
+              <CircleX className="w-4 h-4" />
               <span>Closed</span>
               <ChevronDown className="w-4 h-4 ml-auto" />
             </button>

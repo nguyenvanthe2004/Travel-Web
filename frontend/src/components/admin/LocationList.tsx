@@ -65,7 +65,7 @@ const LocationList: React.FC = () => {
         <div
           className="size-14 rounded-lg bg-cover bg-center border border-slate-200"
           style={{
-            backgroundImage: `url(${CLOUDINARY_URL}${row.image})`,
+            backgroundImage: `url(${CLOUDINARY_URL}${row.images})`,
           }}
         />
       ),

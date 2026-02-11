@@ -5,6 +5,7 @@ import { Hotel } from "../../types/hotel";
 import {
   callCountHotelStatus,
   callDeleteHotel,
+  callGetAllHotel,
   callGetMyHotel,
 } from "../../services/hotel";
 import { CLOUDINARY_URL, HotelStatus } from "../../constants";
@@ -16,6 +17,8 @@ import { useModal } from "../../hooks/useModal";
 import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
 import UpdateStatusModal from "../ui/UpdateStatusModal";
 import LoadingPage from "../ui/LoadingPage";
+import Pagination from "../ui/Pagination";
+import { toastError } from "../../lib/toast";
 
 type CountByStatus = {
   open: number;
@@ -25,8 +28,11 @@ type CountByStatus = {
 
 const MyHotel: React.FC = () => {
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [total, setTotal] = useState("");
+  const [statusFilter, setStatusFilter] = useState<HotelStatus | undefined>();
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -54,9 +60,6 @@ const MyHotel: React.FC = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    if (userId) fetchHotels();
-  }, [userId]);
 
   const fetchCountHotelByStatus = async () => {
     try {
@@ -76,9 +79,35 @@ const MyHotel: React.FC = () => {
     }
   };
 
+  const fetchAllHotels = async () => {
+    try {
+      setLoading(true);
+      const res = await callGetAllHotel(page, 10, statusFilter);
+      setHotels(res.data.data);
+      setTotalPages(res.data.totalPages);
+    } catch (error: any) {
+      toastError(error.message || "Failed to fetch hotels");
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    fetchCountHotelByStatus();
-  }, []);
+    fetchAllHotels();
+  }, [statusFilter, page]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchData = async () => {
+      try {
+        await Promise.all([fetchHotels(), fetchCountHotelByStatus()]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [userId]);
 
   const handleDeleteHotel = async () => {
     if (!deleteId) return;
@@ -125,43 +154,90 @@ const MyHotel: React.FC = () => {
             </button>
           </div>
           <div className="mb-8 overflow-x-auto">
-            <div className="flex border-b border-slate-200 :border-slate-700 min-w-max">
-              <a
-                className="flex items-center gap-2 border-b-2 border-primary text-slate-900 :text-white px-6 pb-4 pt-2 font-bold transition-all"
-                href="#"
+            <div className="flex border-b border-slate-200 min-w-max">
+              {/* ALL */}
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter(undefined);
+                  setPage(1);
+                }}
+                className={`flex items-center gap-2 border-b-2 px-6 pb-4 pt-2 transition-all
+                  ${
+                    !statusFilter
+                    ? "border-black text-black font-bold"
+                    : "border-transparent text-slate-500 hover:text-black"
+                 }
+                `}
               >
                 <span>All Hotel</span>
-                <span className="bg-slate-100 :bg-slate-800 text-xs py-0.5 px-2 rounded-full">
+                <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
                   {total}
                 </span>
-              </a>
-              <a
-                className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 :hover:text-slate-300 px-6 pb-4 pt-2 font-semibold transition-all"
-                href="#"
+              </button>
+
+              {/* OPEN */}
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter(HotelStatus.OPEN);
+                  setPage(1);
+                }}
+                className={`flex items-center gap-2 border-b-2 px-6 pb-4 pt-2 transition-all
+                  ${
+                    statusFilter === HotelStatus.OPEN
+                    ? "border-black text-black font-bold"
+                    : "border-transparent text-slate-500 hover:text-black"
+                  }
+                  `}
               >
                 <span>Open</span>
-                <span className="bg-slate-100 :bg-slate-800 text-xs py-0.5 px-2 rounded-full">
+                <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
                   {countByStatus.open}
                 </span>
-              </a>
-              <a
-                className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 :hover:text-slate-300 px-6 pb-4 pt-2 font-semibold transition-all"
-                href="#"
+              </button>
+
+              {/* RENOVATION */}
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter(HotelStatus.RENOVATION);
+                  setPage(1);
+                }}
+                className={`flex items-center gap-2 border-b-2 px-6 pb-4 pt-2 transition-all
+                  ${
+                  statusFilter === HotelStatus.RENOVATION
+                  ? "border-black text-black font-bold"
+                  : "border-transparent text-slate-500 hover:text-black"
+                  }
+                `}
               >
                 <span>Renovation</span>
-                <span className="bg-slate-100 :bg-slate-800 text-xs py-0.5 px-2 rounded-full">
+                <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
                   {countByStatus.renovation}
                 </span>
-              </a>
-              <a
-                className="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 :hover:text-slate-300 px-6 pb-4 pt-2 font-semibold transition-all"
-                href="#"
+              </button>
+
+              {/* CLOSED */}
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter(HotelStatus.CLOSED);
+                  setPage(1);
+                }}
+                className={`flex items-center gap-2 border-b-2 px-6 pb-4 pt-2 transition-all
+                    ${
+                    statusFilter === HotelStatus.CLOSED
+                    ? "border-black text-black font-bold"
+                    : "border-transparent text-slate-500 hover:text-black"
+                    }
+                    `}
               >
                 <span>Closed</span>
-                <span className="bg-slate-100 :bg-slate-800 text-xs py-0.5 px-2 rounded-full">
+                <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
                   {countByStatus.closed}
                 </span>
-              </a>
+              </button>
             </div>
           </div>
           {hotels[0] && (
@@ -363,6 +439,12 @@ const MyHotel: React.FC = () => {
               </div>
             ))}
           </div>
+
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
 
           <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-8 p-8 rounded-2xl bg-slate-900 text-white overflow-hidden relative">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -mr-32 -mt-32"></div>

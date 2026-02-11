@@ -18,8 +18,8 @@ import CreateLocation from "./pages/admin/CreateLocationPage";
 import DetailLocationPage from "./pages/admin/DetailLocationPage";
 import MyHotelPage from "./pages/home/MyHotelPage";
 import CreateMyHotelPage from "./pages/home/CreateMyHotelPage";
-import CreateHotelPage from "./pages/admin/CreateHotelPage";
 import UpdateHotelPage from "./pages/home/UpdateHotelPage";
+import DetailHotelPage from "./pages/admin/DetailHotelPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -53,7 +53,7 @@ function App() {
         </Route>
         <Route path="/hotels">
           <Route index element={<HotelPage />} />
-          <Route path="create" element={<CreateHotelPage />} />
+          <Route path="update/:id" element={<DetailHotelPage />} />
         </Route>
         <Route path="/bookings" element={<BookingPage />} />
         <Route path="/users" element={<UserPage />} />

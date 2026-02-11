@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useForm, Controller } from "react-hook-form";
@@ -9,13 +9,18 @@ import {
   callGetLocationById,
   callUpdateLocation,
 } from "../../services/location";
-
 import { LocationFormData, locationSchema } from "../../validations/location";
-import CustomDropZone from "../ui/CustomDropZone";
+import { uploadMultiple } from "../../services/file";
+import DropZone from "../ui/Dropzone";
+import { Loader2 } from "lucide-react";
+import LoadingPage from "../ui/LoadingPage";
 
 const DetailLocation: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const {
     register,
@@ -27,38 +32,89 @@ const DetailLocation: React.FC = () => {
     resolver: zodResolver(locationSchema),
     defaultValues: {
       name: "",
-      image: "",
+      images: [],
     },
   });
 
+  const watchImages = watch("images") || [];
+
   useEffect(() => {
     if (!id) return;
+    setLoadingLocation(true);
 
     const fetchLocation = async () => {
       try {
         const { data } = await callGetLocationById(id);
         setValue("name", data.name);
-        setValue("image", data.image);
+        setValue("images", data.images);
       } catch (error: any) {
         toast.error(error.message);
+      } finally {
+        setLoadingLocation(false);
       }
     };
 
     fetchLocation();
   }, [id, setValue]);
 
-  const imageUrl = watch("image");
+  const handleFilesChange = (files: File[]) => {
+    const totalImages = watchImages.length + files.length;
+
+    if (totalImages > 10) {
+      toast.error(
+        `Maximum 10 images allowed. You can add ${10 - watchImages.length} more.`,
+      );
+      return;
+    }
+
+    setSelectedFiles(files);
+  };
+  const removeOldImage = (index: number) => {
+    const updated = watchImages.filter((_, i) => i !== index);
+    setValue("images", updated, { shouldValidate: true });
+  };
   const onSubmit = async (data: LocationFormData) => {
     if (!id) return;
 
     try {
-      await callUpdateLocation(id, data.name, data.image);
+      let uploadedUrls: string[] = [];
+
+      if (selectedFiles.length > 0) {
+        setIsUploading(true);
+        const uploadResponse = await uploadMultiple(selectedFiles);
+        uploadedUrls = uploadResponse.data.map((item: any) => item.name);
+      }
+
+      const finalImages = [...data.images, ...uploadedUrls];
+
+      if (finalImages.length === 0) {
+        toast.error("At least one image is required");
+        return;
+      }
+
+      if (finalImages.length > 10) {
+        toast.error("Maximum 10 images allowed");
+        return;
+      }
+
+      const finalData = {
+        ...data,
+        images: finalImages,
+      };
+
+      await callUpdateLocation(id, finalData);
       toast.success("Location updated successfully!");
       navigate("/locations");
     } catch (error: any) {
       toast.error(error.message || "Update failed");
     }
   };
+  const isProcessing = isSubmitting || isUploading;
+  if (loadingLocation) {
+    return (
+      <LoadingPage />
+    );
+  }
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
@@ -82,6 +138,7 @@ const DetailLocation: React.FC = () => {
               </label>
               <input
                 {...register("name")}
+                disabled={isProcessing}
                 className="block w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border rounded-lg sm:rounded-xl text-sm placeholder:text-slate-400 focus:border-[#0F8FA0] focus:ring-2 focus:ring-[#0F8FA0]/20 focus:outline-none transition-all"
                 placeholder="Enter location name..."
               />
@@ -93,21 +150,20 @@ const DetailLocation: React.FC = () => {
             </div>
 
             {/* Location Image */}
-            <CustomDropZone
-              label="Location Image"
-              description="Upload Location Image (PNG, JPG, WEBP - Max 5MB)"
-              value={imageUrl}
-              previewUrl={imageUrl}
-              onChange={(url) =>
-                setValue("image", url, { shouldValidate: true })
-              }
-              onRemove={() => setValue("image", "", { shouldValidate: true })}
-              maxSize={5}
+            <DropZone
+              label="Images"
+              value={selectedFiles}
+              onChange={handleFilesChange}
+              existingImages={watchImages}
+              onRemoveExisting={removeOldImage}
               accept="image/*"
+              disabled={isProcessing}
+              maxFiles={10}
+              maxSize={10}
             />
 
-            {errors.image && (
-              <p className="text-sm text-red-500">{errors.image.message}</p>
+            {errors.images && (
+              <p className="text-sm text-red-500">{errors.images.message}</p>
             )}
           </div>
 

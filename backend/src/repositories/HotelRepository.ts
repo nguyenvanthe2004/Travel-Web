@@ -58,6 +58,7 @@ export class HotelRepository {
     userId: string,
   ): Promise<IHotel[]> {
     return HotelModel.find({ userId })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate("locationId", "name")

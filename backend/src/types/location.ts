@@ -1,4 +1,4 @@
 export interface CreateLocationInput {
   name: string;
-  image: string;
+  images: string[];
 }

@@ -1,11 +1,11 @@
 import type React from "react";
 import ProfileLayout from "../../layouts/ProfileLayout";
-import UpdateHotel from "../../components/hotel/UpdateHotel";
+import UpdateMyHotel from "../../components/hotel/UpdateMyHotel";
 
 const UpdateHotelPage: React.FC = () => {
   return (
     <ProfileLayout>
-      <UpdateHotel />
+      <UpdateMyHotel />
     </ProfileLayout>
   );
 };

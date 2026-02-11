@@ -54,6 +54,9 @@ export class UpdateHotelDto {
 
   @IsMongoId()
   locationId: string;
+
+  @IsEnum(HotelStatus)
+  status: HotelStatus;
 }
 export class UpdateHotelStatusDto {
   @IsEnum(HotelStatus)

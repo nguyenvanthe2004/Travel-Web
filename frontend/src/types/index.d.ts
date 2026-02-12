@@ -1,15 +1,3 @@
-export interface CustomDropZoneProps {
-  value?: string | null;
-  onChange: (url: string) => void;
-  onRemove: () => void;
-  className?: string;
-  maxSize?: number;
-  accept?: string;
-  disabled?: boolean;
-  label?: string;
-  description?: string;
-  previewUrl?: string;
-}
 
 export interface TableColumn<T> {
   key: string;

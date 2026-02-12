@@ -9,3 +9,12 @@ export const uploadFile = async (file: File) => {
     },
   });
 };
+export const uploadMultiple = async (files: File[]) => {
+  const formData = new FormData();
+
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  return await instance.post("/files/upload-multiple", formData);
+};

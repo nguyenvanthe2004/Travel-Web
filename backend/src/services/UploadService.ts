@@ -20,7 +20,7 @@ export class UploadService {
         name: result.public_id,
         url: result.secure_url,
       };
-    } catch (error) {
+    } catch (error: any) {
       throw new BadRequestError(error.message);
     }
   }
@@ -41,7 +41,7 @@ export class UploadService {
         name: img.public_id,
         url: img.secure_url,
       }));
-    } catch (error) {
+    } catch (error: any) {
       throw new BadRequestError(error.message);
     }
   }

@@ -21,7 +21,7 @@ export class LocationRepository {
   async create(data: CreateLocationInput): Promise<ILocation> {
     const location = new LocationModel({
       name: data.name,
-      image: data.image,
+      images: data.images,
     });
     return location.save();
   }

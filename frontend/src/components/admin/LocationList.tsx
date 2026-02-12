@@ -5,7 +5,7 @@ import {
   callGetAllLocation,
 } from "../../services/location";
 import { Location } from "../../types/location";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CLOUDINARY_URL } from "../../constants";
 import { Pencil, Plus, Trash } from "lucide-react";
@@ -65,7 +65,7 @@ const LocationList: React.FC = () => {
         <div
           className="size-14 rounded-lg bg-cover bg-center border border-slate-200"
           style={{
-            backgroundImage: `url(${CLOUDINARY_URL}${row.image})`,
+            backgroundImage: `url(${CLOUDINARY_URL}${row.images})`,
           }}
         />
       ),

@@ -1,11 +1,13 @@
 import { HotelStatus } from "../constants";
 
-export interface IHotel {
+export interface Hotel {
   _id: string;
   name: string;
-  image: string;
-  city: string;
-  country: string;
-  price: number;
+  address: string;
+  description: string;
+  images: string[];
+  locationId: {
+    name: string;
+  };
   status: HotelStatus;
 }

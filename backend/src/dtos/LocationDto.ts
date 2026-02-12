@@ -1,18 +1,20 @@
-import { IsString, MinLength } from "class-validator";
+import { IsArray, IsString, MinLength } from "class-validator";
 
 export class CreateLocationDto {
   @IsString()
   @MinLength(2)
   name: string;
 
-  @IsString()
-  image: string;
+  @IsArray()
+  @IsString({ each: true })
+  images: string[];
 }
 export class UpdateLocationDto {
   @IsString()
   @MinLength(2)
   name?: string;
 
-  @IsString()
-  image?: string;
+  @IsArray()
+  @IsString({ each: true })
+  images: string[];
 }

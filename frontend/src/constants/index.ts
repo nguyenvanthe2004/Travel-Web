@@ -7,10 +7,11 @@ export enum UserRole {
 }
 
 export enum HotelStatus {
-  PENDING = "pending",
-  ACTIVE = "active",
-  MAINTENANCE = "maintenance",
+  OPEN = "open",
+  CLOSED = "closed",
+  RENOVATION = "renovation",
 }
+
 export enum BookingStatus {
   PENDING = "pending",
   CONFIRMED = "confirmed",

@@ -69,16 +69,7 @@ const Header: React.FC = () => {
 
             <div className="h-6 w-px bg-gray-200"></div>
 
-            <div className="flex gap-4">
-              <button onClick={() => navigate("/")} className="text-sm font-medium hover:text-orange-400 cursor-pointer">
-                User
-              </button>
-              <button onClick={() => navigate("/dashboard")} className="text-sm font-medium hover:text-orange-400 cursor-pointer">
-                Admin
-              </button>
-            </div>
-
-            {user ? (
+            {user.userId ? (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -94,9 +85,14 @@ const Header: React.FC = () => {
                       <p className="font-semibold text-sm text-gray-900">
                         {user.fullName}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">{user.email}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {user.email}
+                      </p>
                       {user.role === UserRole.ADMIN && (
-                        <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-600 rounded">
+                        <span
+                          onClick={() => navigate("/dashboard")}
+                          className="cursor-pointer inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-600 rounded"
+                        >
                           Admin
                         </span>
                       )}
@@ -111,7 +107,7 @@ const Header: React.FC = () => {
                         <span>Profile</span>
                       </a>
                       <a
-                        href="/hotel-manager"
+                        onClick={() => navigate("/my-hotel")}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
                       >
                         <Hotel size={16} />
@@ -162,7 +158,7 @@ const Header: React.FC = () => {
       {/* Overlay */}
       <div
         className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 ${
-          isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setIsMobileMenuOpen(false)}
       />
@@ -170,7 +166,7 @@ const Header: React.FC = () => {
       {/* Mobile Menu - Slide từ trái */}
       <div
         className={`fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white z-40 lg:hidden shadow-2xl transform transition-transform duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="h-full overflow-y-auto">
@@ -213,36 +209,33 @@ const Header: React.FC = () => {
               </a>
             </nav>
 
-            {/* User/Admin Toggle */}
-            <div className="flex gap-3 pt-3 border-t border-gray-200">
-              <button 
-                onClick={() => navigate("/")}
-                className="flex-1 text-sm font-medium text-gray-700 hover:text-orange-500 px-4 py-2 rounded-lg hover:bg-orange-50 transition-colors"
-              >
-                User
-              </button>
-              <button 
-                onClick={() => navigate("/dashboard")}
-                className="flex-1 text-sm font-medium text-gray-700 hover:text-orange-500 px-4 py-2 rounded-lg hover:bg-orange-50 transition-colors"
-              >
-                Admin
-              </button>
-            </div>
-
             {/* User Section */}
             {user?.userId ? (
               <div className="space-y-3 pt-3 border-t border-gray-200">
                 <div className="flex items-center gap-3 pb-3 px-4">
                   <div className="size-12 rounded-full border-4 border-orange-100 overflow-hidden bg-cover bg-center flex-shrink-0">
-                    <img src={`${CLOUDINARY_URL}${user.avatar}`} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={
+                        user?.avatar
+                          ? `${CLOUDINARY_URL}${user.avatar}`
+                          : "/images/avatar.png"
+                      }
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm text-gray-900 truncate">
                       {user.fullName}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {user.email}
+                    </p>
                     {user.role === UserRole.ADMIN && (
-                      <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-600 rounded">
+                      <span
+                        onClick={() => navigate("/dashboard")}
+                        className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-600 rounded"
+                      >
                         Admin
                       </span>
                     )}
@@ -261,7 +254,7 @@ const Header: React.FC = () => {
                 </a>
                 <a
                   onClick={() => {
-                    navigate("/hotel-manager");
+                    navigate("/my-hotel");
                     setIsMobileMenuOpen(false);
                   }}
                   className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"

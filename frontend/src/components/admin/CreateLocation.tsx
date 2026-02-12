@@ -6,34 +6,54 @@ import { useNavigate } from "react-router-dom";
 import { LocationFormData, locationSchema } from "../../validations/location";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import CustomDropZone from "../ui/CustomDropZone";
+import DropZone from "../ui/Dropzone";
+import { uploadMultiple } from "../../services/file";
 
 const CreateLocation: React.FC = () => {
   const navigate = useNavigate();
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
+
     formState: { errors, isSubmitting },
   } = useForm<LocationFormData>({
     resolver: zodResolver(locationSchema),
     mode: "onChange",
   });
 
-  const imageUrl = watch("image");
+  const handleFilesChange = (files: File[]) => {
+    setSelectedFiles(files);
+    setValue(
+      "images",
+      files.map((_, index) => `temp_${index}`),
+      { shouldValidate: true },
+    );
+  };
+
   const onSubmit = async (data: LocationFormData) => {
     try {
-      await callCreateLocation(data.name, data.image);
+      setIsUploading(true);
+      const uploadResponse = await uploadMultiple(selectedFiles);
+      const uploadedUrls = uploadResponse.data.map((item: any) => item.name);
+
+      const locationData = {
+        ...data,
+        images: uploadedUrls,
+      };
+      await callCreateLocation(locationData);
       toast.success("Location created successfully!");
       navigate("/locations");
     } catch (error: any) {
       toast.error(error.message || "Something went wrong");
     }
   };
+  const isProcessing = isSubmitting || isUploading;
 
-   return (
+  return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
       <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
         <div className="mb-10">
@@ -55,6 +75,7 @@ const CreateLocation: React.FC = () => {
               <input
                 type="text"
                 {...register("name")}
+                disabled={isProcessing}
                 className="block w-full px-4 py-3 bg-white border rounded-xl text-sm placeholder:text-slate-400 focus:border-[#0F8FA0] focus:ring-2 focus:ring-[#0F8FA0]/20 focus:outline-none transition-all"
                 placeholder="Enter location name..."
               />
@@ -66,23 +87,18 @@ const CreateLocation: React.FC = () => {
             </div>
 
             {/* Location Image */}
-            <CustomDropZone
-              label="Location Image"
-              description="Upload Location Image"
-              value={imageUrl}
-              onChange={(url) =>
-                setValue("image", url, { shouldValidate: true })
-              }
-              onRemove={() =>
-                setValue("image", "", { shouldValidate: true })
-              }
-              accept="image/*"
-            />
+            <DropZone
+                value={selectedFiles}
+                onChange={handleFilesChange}
+                label="Images"
+                accept="image/*"
+                disabled={isProcessing}
+                maxFiles={10}
+                maxSize={10}
+              />
 
-            {errors.image && (
-              <p className="text-sm text-red-500">
-                {errors.image.message}
-              </p>
+            {errors.images && (
+              <p className="text-sm text-red-500">{errors.images.message}</p>
             )}
           </div>
 

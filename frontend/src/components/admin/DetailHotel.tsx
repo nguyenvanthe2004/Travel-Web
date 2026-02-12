@@ -11,15 +11,15 @@ import { callGetAllLocation } from "../../services/location";
 import { callGetHotelById, callUpdateHotel } from "../../services/hotel";
 import { uploadMultiple } from "../../services/file";
 import { toast } from "react-toastify";
+import LoadingPage from "../ui/LoadingPage";
 
 const DetailHotel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [locations, setLocations] = useState<Location[]>([]);
-  const [loadingLocations, setLoadingLocations] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [loadingHotel, setLoadingHotel] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
   const {
@@ -45,15 +45,15 @@ const DetailHotel: React.FC = () => {
 
   useEffect(() => {
     const fetchLocations = async () => {
-      setLoadingLocations(true);
+      setLoading(true);
       try {
-        const response = await callGetAllLocation(1, 100);
+        const response = await callGetAllLocation(1);
         setLocations(response.data?.data || []);
       } catch (error) {
         toast.error("Failed to load locations");
         console.error(error);
       } finally {
-        setLoadingLocations(false);
+        setLoading(false);
       }
     };
 
@@ -64,7 +64,7 @@ const DetailHotel: React.FC = () => {
     const fetchHotel = async () => {
       if (!id) return;
 
-      setLoadingHotel(true);
+      setLoading(true);
       try {
         const { data } = await callGetHotelById(id);
 
@@ -79,7 +79,7 @@ const DetailHotel: React.FC = () => {
         toast.error(error?.response?.data?.message || "Failed to load hotel");
         navigate("/my-hotel");
       } finally {
-        setLoadingHotel(false);
+        setLoading(false);
       }
     };
 
@@ -118,16 +118,6 @@ const DetailHotel: React.FC = () => {
 
       const finalImages = [...data.images, ...uploadedUrls];
 
-      if (finalImages.length === 0) {
-        toast.error("At least one image is required");
-        return;
-      }
-
-      if (finalImages.length > 10) {
-        toast.error("Maximum 10 images allowed");
-        return;
-      }
-
       const finalData = {
         ...data,
         images: finalImages,
@@ -149,15 +139,8 @@ const DetailHotel: React.FC = () => {
 
   const isProcessing = isSubmitting || isUploading;
 
-  if (loadingHotel) {
-    return (
-      <main className="flex-1 overflow-y-auto bg-slate-50 flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-[#0F8FA0] mx-auto mb-4" />
-          <p className="text-slate-600">Loading hotel data...</p>
-        </div>
-      </main>
-    );
+  if (loading) {
+    <LoadingPage />;
   }
 
   return (
@@ -248,11 +231,11 @@ const DetailHotel: React.FC = () => {
                 </label>
                 <select
                   {...register("locationId")}
-                  disabled={loadingLocations || isProcessing}
+                  disabled={loading || isProcessing}
                   className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">
-                    {loadingLocations ? "Loading..." : "Select location"}
+                    {loading ? "Loading..." : "Select location"}
                   </option>
                   {locations.map((loc) => (
                     <option key={loc._id} value={loc._id}>
@@ -281,7 +264,9 @@ const DetailHotel: React.FC = () => {
                 >
                   {Object.values(HotelStatus).map((status) => (
                     <option key={status} value={status}>
-                      {status}
+                      <span>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </span>
                     </option>
                   ))}
                 </select>

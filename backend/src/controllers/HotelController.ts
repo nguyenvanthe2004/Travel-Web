@@ -17,7 +17,6 @@ import { HotelService } from "../services/HotelService";
 import {
   CreateHotelDto,
   UpdateHotelDto,
-  UpdateHotelStatusDto,
 } from "../dtos/HotelDto";
 import { Public } from "../decorators/public";
 import { UserProps } from "../types/auth";
@@ -75,14 +74,6 @@ export class HotelController {
     @CurrentUser() user: UserProps,
   ) {
     return this.hotelService.update(hotelId, body, user);
-  }
-  @Put("/:id/status")
-  async updateHotelStatus(
-    @Param("id") hotelId: string,
-    @Body({ validate: true }) body: UpdateHotelStatusDto,
-    @CurrentUser() user: UserProps,
-  ) {
-    return this.hotelService.updateStatus(hotelId, body.status, user);
   }
   @Delete("/:id")
   async deleteHotel(

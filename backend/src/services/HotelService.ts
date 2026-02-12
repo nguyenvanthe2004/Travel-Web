@@ -125,30 +125,6 @@ export class HotelService {
     }
   }
 
-  async updateStatus(hotelId: string, status: HotelStatus, user: UserProps) {
-    try {
-      const userId = String(user.userId);
-      const existedUser = await this.userRepo.findOne(userId);
-      if (!existedUser) {
-        throw new BadRequestError("User not found");
-      }
-      const hotel = await this.hotelRepo.findById(hotelId);
-      if (!hotel) {
-        throw new NotFoundError("Hotel not found");
-      }
-
-      const isOwner = hotel.userId.toString() === userId;
-      const isAdmin = user.role === UserRole.ADMIN;
-
-      if (!isOwner && !isAdmin) {
-        throw new ForbiddenError("You are not allowed to update this hotel");
-      }
-      return this.hotelRepo.updateStatus(hotelId, status);
-    } catch (error: any) {
-      throw new BadRequestError(error.message);
-    }
-  }
-
   async delete(hotelId: string, user: UserProps) {
     try {
       const userId = String(user.userId);
@@ -172,16 +148,13 @@ export class HotelService {
     }
   }
   async countHotelStatus(user: UserProps) {
-  const userId = String(user.userId);
-
-  const statuses = Object.values(HotelStatus);
-
-  return Promise.all(
-    statuses.map(async (status) => ({
-      status,
-      total: await this.hotelRepo.countByStatus(status, userId),
-    }))
-  );
-}
-
+    const userId = String(user.userId);
+    const statuses = Object.values(HotelStatus);
+    return Promise.all(
+      statuses.map(async (status) => ({
+        status,
+        total: await this.hotelRepo.countByStatus(status, userId),
+      })),
+    );
+  }
 }

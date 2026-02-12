@@ -12,14 +12,13 @@ import {
 import { LocationFormData, locationSchema } from "../../validations/location";
 import { uploadMultiple } from "../../services/file";
 import DropZone from "../ui/Dropzone";
-import { Loader2 } from "lucide-react";
 import LoadingPage from "../ui/LoadingPage";
 
 const DetailLocation: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
   const {
@@ -40,17 +39,17 @@ const DetailLocation: React.FC = () => {
 
   useEffect(() => {
     if (!id) return;
-    setLoadingLocation(true);
 
     const fetchLocation = async () => {
       try {
+        setLoading(true);
         const { data } = await callGetLocationById(id);
         setValue("name", data.name);
         setValue("images", data.images);
       } catch (error: any) {
         toast.error(error.message);
       } finally {
-        setLoadingLocation(false);
+        setLoading(false);
       }
     };
 
@@ -87,16 +86,6 @@ const DetailLocation: React.FC = () => {
 
       const finalImages = [...data.images, ...uploadedUrls];
 
-      if (finalImages.length === 0) {
-        toast.error("At least one image is required");
-        return;
-      }
-
-      if (finalImages.length > 10) {
-        toast.error("Maximum 10 images allowed");
-        return;
-      }
-
       const finalData = {
         ...data,
         images: finalImages,
@@ -110,10 +99,8 @@ const DetailLocation: React.FC = () => {
     }
   };
   const isProcessing = isSubmitting || isUploading;
-  if (loadingLocation) {
-    return (
-      <LoadingPage />
-    );
+  if (loading) {
+    return <LoadingPage />;
   }
 
   return (

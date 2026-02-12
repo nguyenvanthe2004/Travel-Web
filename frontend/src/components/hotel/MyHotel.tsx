@@ -15,10 +15,10 @@ import { RootState } from "../../redux/store";
 import { ArrowRight, Loader, MapPin, Plus, Star, Trash } from "lucide-react";
 import { useModal } from "../../hooks/useModal";
 import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
-import UpdateStatusModal from "../ui/UpdateStatusModal";
 import LoadingPage from "../ui/LoadingPage";
 import Pagination from "../ui/Pagination";
 import { toastError } from "../../lib/toast";
+import { HotelStatusBadge } from "../ui/HotelStatusBadge";
 
 type CountByStatus = {
   open: number;
@@ -47,7 +47,7 @@ const MyHotel: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.currentUser);
   const userId = user.userId;
 
-  const fetchHotels = async () => {
+  const fetchMyHotels = async () => {
     try {
       setLoading(true);
       const res = await callGetMyHotel(1, 10);
@@ -79,7 +79,7 @@ const MyHotel: React.FC = () => {
     }
   };
 
-  const fetchAllHotels = async () => {
+  const fetchHotelByStatus = async () => {
     try {
       setLoading(true);
       const res = await callGetAllHotel(page, 10, statusFilter);
@@ -92,7 +92,7 @@ const MyHotel: React.FC = () => {
     }
   };
   useEffect(() => {
-    fetchAllHotels();
+    fetchHotelByStatus();
   }, [statusFilter, page]);
 
   useEffect(() => {
@@ -100,7 +100,7 @@ const MyHotel: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        await Promise.all([fetchHotels(), fetchCountHotelByStatus()]);
+        await Promise.all([fetchMyHotels(), fetchCountHotelByStatus()]);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -117,7 +117,7 @@ const MyHotel: React.FC = () => {
       setDeleteId("");
       close();
       toast.success("Hotel deleted successfully!");
-      fetchHotels();
+      fetchMyHotels();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -155,7 +155,6 @@ const MyHotel: React.FC = () => {
           </div>
           <div className="mb-8 overflow-x-auto">
             <div className="flex border-b border-slate-200 min-w-max">
-              {/* ALL */}
               <button
                 type="button"
                 onClick={() => {
@@ -165,9 +164,9 @@ const MyHotel: React.FC = () => {
                 className={`flex items-center gap-2 border-b-2 px-6 pb-4 pt-2 transition-all
                   ${
                     !statusFilter
-                    ? "border-black text-black font-bold"
-                    : "border-transparent text-slate-500 hover:text-black"
-                 }
+                      ? "border-black text-black font-bold"
+                      : "border-transparent text-slate-500 hover:text-black"
+                  }
                 `}
               >
                 <span>All Hotel</span>
@@ -175,69 +174,34 @@ const MyHotel: React.FC = () => {
                   {total}
                 </span>
               </button>
+              {Object.values(HotelStatus).map((status) => {
+                const isActive = statusFilter === status;
 
-              {/* OPEN */}
-              <button
-                type="button"
-                onClick={() => {
-                  setStatusFilter(HotelStatus.OPEN);
-                  setPage(1);
-                }}
-                className={`flex items-center gap-2 border-b-2 px-6 pb-4 pt-2 transition-all
-                  ${
-                    statusFilter === HotelStatus.OPEN
-                    ? "border-black text-black font-bold"
-                    : "border-transparent text-slate-500 hover:text-black"
-                  }
-                  `}
-              >
-                <span>Open</span>
-                <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
-                  {countByStatus.open}
-                </span>
-              </button>
-
-              {/* RENOVATION */}
-              <button
-                type="button"
-                onClick={() => {
-                  setStatusFilter(HotelStatus.RENOVATION);
-                  setPage(1);
-                }}
-                className={`flex items-center gap-2 border-b-2 px-6 pb-4 pt-2 transition-all
-                  ${
-                  statusFilter === HotelStatus.RENOVATION
-                  ? "border-black text-black font-bold"
-                  : "border-transparent text-slate-500 hover:text-black"
-                  }
-                `}
-              >
-                <span>Renovation</span>
-                <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
-                  {countByStatus.renovation}
-                </span>
-              </button>
-
-              {/* CLOSED */}
-              <button
-                type="button"
-                onClick={() => {
-                  setStatusFilter(HotelStatus.CLOSED);
-                  setPage(1);
-                }}
-                className={`flex items-center gap-2 border-b-2 px-6 pb-4 pt-2 transition-all
-                    ${
-                    statusFilter === HotelStatus.CLOSED
-                    ? "border-black text-black font-bold"
-                    : "border-transparent text-slate-500 hover:text-black"
-                    }
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter(status);
+                      setPage(1);
+                    }}
+                    className={`flex items-center gap-2 border-b-2 px-6 pb-4 pt-2 transition-all
+                      ${
+                        isActive
+                          ? "border-black text-black font-bold"
+                          : "border-transparent text-slate-500 hover:text-black"
+                      }
                     `}
-              >
-                <span>Closed</span>
-                <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
-                  {countByStatus.closed}
-                </span>
-              </button>
+                  >
+                    <span>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </span>
+                    <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
+                      {countByStatus[status]}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
           {hotels[0] && (
@@ -380,25 +344,7 @@ const MyHotel: React.FC = () => {
                     <Trash className="w-4 h-4" />
                   </button>
 
-                  <div className="absolute top-3 left-3 z-10">
-                    <div className="relative group/status">
-                      <button
-                        className={`
-                        px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
-                        backdrop-blur shadow-sm transition
-                        ${
-                          hotel.status === "open"
-                            ? "bg-green-500/90 text-white"
-                            : hotel.status === "closed"
-                              ? "bg-red-500/90 text-white"
-                              : "bg-amber-500/90 text-white"
-                        }
-                        `}
-                      >
-                        {hotel.status}
-                      </button>
-                    </div>
-                  </div>
+                  <HotelStatusBadge status={hotel.status} />
                 </div>
                 <div className="p-5">
                   <div className="mb-4">
@@ -416,9 +362,7 @@ const MyHotel: React.FC = () => {
                       <span className="text-xs font-bold text-slate-400 uppercase">
                         Rooms
                       </span>
-                      <div className="text-sm font-bold text-slate-700">
-                        18 Units
-                      </div>
+                      <div className="text-sm font-bold text-slate-700">18</div>
                     </div>
 
                     <button

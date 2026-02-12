@@ -14,7 +14,7 @@ import { uploadMultiple } from "../../services/file";
 
 const CreateMyHotel: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
-  const [isLoadingLocations, setIsLoadingLocations] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ const CreateMyHotel: React.FC = () => {
 
   useEffect(() => {
     const fetchLocations = async () => {
-      setIsLoadingLocations(true);
+      setLoading(true);
       try {
         const response = await callGetAllLocation(1, 100);
         setLocations(response.data?.data || []);
@@ -48,7 +48,7 @@ const CreateMyHotel: React.FC = () => {
         toast.error("Failed to load locations");
         console.error(error);
       } finally {
-        setIsLoadingLocations(false);
+        setLoading(false);
       }
     };
     fetchLocations();
@@ -65,16 +65,6 @@ const CreateMyHotel: React.FC = () => {
 
   const onSubmit = async (data: HotelFormData) => {
     try {
-      if (selectedFiles.length === 0) {
-        toast.error("Please select at least one image");
-        return;
-      }
-
-      if (selectedFiles.length > 10) {
-        toast.error("Maximum 10 images allowed");
-        return;
-      }
-
       setIsUploading(true);
       const uploadResponse = await uploadMultiple(selectedFiles);
       const uploadedUrls = uploadResponse.data.map((item: any) => item.name);
@@ -187,11 +177,11 @@ const CreateMyHotel: React.FC = () => {
                 </label>
                 <select
                   {...register("locationId")}
-                  disabled={isLoadingLocations || isProcessing}
+                  disabled={loading || isProcessing}
                   className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">
-                    {isLoadingLocations ? "Loading..." : "Select location"}
+                    {loading ? "Loading..." : "Select location"}
                   </option>
                   {locations.map((location) => (
                     <option key={location._id} value={location._id}>
@@ -220,7 +210,9 @@ const CreateMyHotel: React.FC = () => {
                 >
                   {Object.values(HotelStatus).map((status) => (
                     <option key={status} value={status}>
-                      {status}
+                      <span>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </span>
                     </option>
                   ))}
                 </select>

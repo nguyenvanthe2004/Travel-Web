@@ -75,10 +75,6 @@ export class HotelRepository {
     return HotelModel.findByIdAndUpdate(id, { $set: data }, { new: true });
   }
 
-  async updateStatus(id: string, status: HotelStatus): Promise<IHotel | null> {
-    return HotelModel.findByIdAndUpdate(id, { status }, { new: true });
-  }
-
   async delete(id: string): Promise<boolean> {
     const result = await HotelModel.findByIdAndDelete(id).exec();
     return !!result;

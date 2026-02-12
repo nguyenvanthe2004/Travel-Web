@@ -36,16 +36,6 @@ const CreateLocation: React.FC = () => {
 
   const onSubmit = async (data: LocationFormData) => {
     try {
-      if (selectedFiles.length === 0) {
-        toast.error("Please select at least one image");
-        return;
-      }
-
-      if (selectedFiles.length > 10) {
-        toast.error("Maximum 10 images allowed");
-        return;
-      }
-
       setIsUploading(true);
       const uploadResponse = await uploadMultiple(selectedFiles);
       const uploadedUrls = uploadResponse.data.map((item: any) => item.name);

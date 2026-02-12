@@ -58,7 +58,3 @@ export class UpdateHotelDto {
   @IsEnum(HotelStatus)
   status: HotelStatus;
 }
-export class UpdateHotelStatusDto {
-  @IsEnum(HotelStatus)
-  status: HotelStatus;
-}

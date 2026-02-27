@@ -9,15 +9,19 @@ import {
 
 @Service()
 export class HotelRepository {
-  countAll(status?: string, locationId?: string) {
-    if (!status && !locationId) {
+  countAll(filter: { status?: string; locationId?: string }) {
+    if (!filter.status && !filter.locationId) {
       return HotelModel.countDocuments();
     }
-    return HotelModel.countDocuments({ status, locationId });
+    return HotelModel.countDocuments(filter);
   }
 
-  async countByUser(userId: string): Promise<number> {
-    return HotelModel.countDocuments({ userId });
+  async countByUser(userId: string, status?: string): Promise<number> {
+    const query: any = { userId };
+    if (status) {
+      query.status = status;
+    }
+    return HotelModel.countDocuments(query);
   }
 
   async countByStatus(status: HotelStatus, userId: string): Promise<number> {
@@ -56,14 +60,20 @@ export class HotelRepository {
     skip: number,
     limit: number,
     userId: string,
+    status?: string,
   ): Promise<IHotel[]> {
-    return HotelModel.find({ userId })
-      .sort({ createdAt: -1 })
+    const query: any = { userId };
+
+    if (status) {
+      query.status = status;
+    }
+
+    return HotelModel.find(query)
       .skip(skip)
       .limit(limit)
       .populate("locationId", "name")
-      .populate("userId", "name email")
-      .lean();
+      .populate("userId")
+      .lean<IHotel[]>();
   }
 
   async create(data: CreateHotelInput, userId: string): Promise<IHotel> {

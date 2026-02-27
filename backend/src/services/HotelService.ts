@@ -32,7 +32,7 @@ export class HotelService {
 
       const [hotels, total] = await Promise.all([
         this.hotelRepo.findAll(skip, limit, status, locationId),
-        this.hotelRepo.countAll(status),
+        this.hotelRepo.countAll({ status }),
       ]);
 
       return {
@@ -54,7 +54,7 @@ export class HotelService {
       throw new BadRequestError(error.message);
     }
   }
-  async findByUser(page = 1, limit = 10, user: UserProps) {
+  async findByUser(page = 1, limit = 10, user: UserProps, status?: string) {
     try {
       const userId = String(user.userId);
       page = Math.max(1, Number(page));
@@ -63,8 +63,8 @@ export class HotelService {
       const skip = (page - 1) * limit;
 
       const [hotels, total] = await Promise.all([
-        this.hotelRepo.findByUser(skip, limit, userId),
-        this.hotelRepo.countByUser(userId),
+        this.hotelRepo.findByUser(skip, limit, userId, status),
+        this.hotelRepo.countByUser(userId, status),
       ]);
 
       return {

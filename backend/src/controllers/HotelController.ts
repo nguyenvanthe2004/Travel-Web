@@ -14,10 +14,7 @@ import {
 } from "routing-controllers";
 import { Service } from "typedi";
 import { HotelService } from "../services/HotelService";
-import {
-  CreateHotelDto,
-  UpdateHotelDto,
-} from "../dtos/HotelDto";
+import { CreateHotelDto, UpdateHotelDto } from "../dtos/HotelDto";
 import { Public } from "../decorators/public";
 import { UserProps } from "../types/auth";
 import { HotelStatus } from "../models/Hotel";
@@ -29,9 +26,7 @@ export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
 
   @Get("/count/status")
-  async countBySingleStatus(
-    @CurrentUser() user: UserProps,
-  ) {
+  async countBySingleStatus(@CurrentUser() user: UserProps) {
     return this.hotelService.countHotelStatus(user);
   }
 
@@ -48,11 +43,12 @@ export class HotelController {
 
   @Get("/my-hotel")
   async getCurrentHotel(
-    @CurrentUser() user: UserProps,
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
+    @CurrentUser() user: UserProps,
+    @QueryParam("status") status?: string,
   ) {
-    return await this.hotelService.findByUser(page, limit, user);
+    return await this.hotelService.findByUser(page, limit, user, status);
   }
   @Public()
   @Get("/:id")

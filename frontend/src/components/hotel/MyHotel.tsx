@@ -31,7 +31,6 @@ const MyHotel: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [hotels, setHotels] = useState<Hotel[]>([]);
-  const [total, setTotal] = useState("");
   const [statusFilter, setStatusFilter] = useState<HotelStatus | undefined>();
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState("");
@@ -47,15 +46,14 @@ const MyHotel: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.currentUser);
   const userId = user.userId;
 
-  const fetchMyHotels = async () => {
+  const fetchHotelByStatus = async () => {
     try {
       setLoading(true);
-      const res = await callGetMyHotel(1, 10);
-      const hotelList = res.data.data;
-      setHotels(hotelList);
-      setTotal(res.data.total);
+      const res = await callGetMyHotel(page, 10, statusFilter);
+      setHotels(res.data.data);
+      setTotalPages(res.data.totalPages);
     } catch (error: any) {
-      toast.error(error.message);
+      toastError(error.message || "Failed to fetch hotels");
     } finally {
       setLoading(false);
     }
@@ -79,35 +77,19 @@ const MyHotel: React.FC = () => {
     }
   };
 
-  const fetchHotelByStatus = async () => {
-    try {
-      setLoading(true);
-      const res = await callGetAllHotel(page, 10, statusFilter);
-      setHotels(res.data.data);
-      setTotalPages(res.data.totalPages);
-    } catch (error: any) {
-      toastError(error.message || "Failed to fetch hotels");
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    fetchHotelByStatus();
-  }, [statusFilter, page]);
-
   useEffect(() => {
     if (!userId) return;
 
     const fetchData = async () => {
       try {
-        await Promise.all([fetchMyHotels(), fetchCountHotelByStatus()]);
+        await Promise.all([fetchHotelByStatus(), fetchCountHotelByStatus()]);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, statusFilter, page]);
 
   const handleDeleteHotel = async () => {
     if (!deleteId) return;
@@ -117,7 +99,7 @@ const MyHotel: React.FC = () => {
       setDeleteId("");
       close();
       toast.success("Hotel deleted successfully!");
-      fetchMyHotels();
+      fetchHotelByStatus();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -128,7 +110,10 @@ const MyHotel: React.FC = () => {
   if (loading) {
     return <LoadingPage />;
   }
-
+  const totalAllRooms = Object.values(countByStatus).reduce(
+    (sum, value) => sum + value,
+    0,
+  );
   return (
     <div className="flex-1 overflow-y-auto bg-[#fafafa] lg:ml-0">
       <div className="flex-1">
@@ -171,7 +156,7 @@ const MyHotel: React.FC = () => {
               >
                 <span>All Hotel</span>
                 <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
-                  {total}
+                  {totalAllRooms}
                 </span>
               </button>
               {Object.values(HotelStatus).map((status) => {
@@ -299,14 +284,24 @@ const MyHotel: React.FC = () => {
                       </div>
                     </div>
 
-                    <button
-                      onClick={() =>
-                        navigate(`/my-hotel/update/${hotels[0]._id}`)
-                      }
-                      className="bg-orange-500 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
-                    >
-                      Manage Property
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          navigate(`/my-hotel/update/${hotels[0]._id}`)
+                        }
+                        className="bg-orange-500 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() =>
+                          navigate(`/my-room/by-hotel/${hotels[0]._id}`)
+                        }
+                        className="bg-orange-500 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
+                      >
+                        Manage Property
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -365,19 +360,38 @@ const MyHotel: React.FC = () => {
                       <div className="text-sm font-bold text-slate-700">18</div>
                     </div>
 
-                    <button
-                      onClick={() => navigate(`/my-hotel/update/${hotel._id}`)}
-                      className="
+                    <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
+                      <button
+                        onClick={() =>
+                          navigate(`/my-hotel/update/${hotel._id}`)
+                        }
+                        className="
                         flex items-center gap-1
                         bg-slate-100 hover:bg-orange-500 hover:text-white
                         text-slate-700
                         px-4 py-2 rounded-lg
                         font-bold text-xs transition-all
                       "
-                    >
-                      Manage
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          navigate(`/my-room/by-hotel/${hotel._id}`)
+                        }
+                        className="
+                        flex items-center gap-1
+                        bg-slate-100 hover:bg-orange-500 hover:text-white
+                        text-slate-700
+                        px-4 py-2 rounded-lg
+                        font-bold text-xs transition-all
+                      "
+                      >
+                        Manage
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

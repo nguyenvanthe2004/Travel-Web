@@ -36,7 +36,7 @@ export class RoomRepository {
   }
 
   async findById(id: string): Promise<IRoom | null> {
-    return RoomModel.findById(id).populate("hotelId", "name").lean();
+    return RoomModel.findById(id).populate("hotelId", "name userId").lean();
   }
 
   async findByHotel(

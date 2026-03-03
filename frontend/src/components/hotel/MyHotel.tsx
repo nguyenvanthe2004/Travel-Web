@@ -1,11 +1,10 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Hotel } from "../../types/hotel";
 import {
   callCountHotelStatus,
   callDeleteHotel,
-  callGetAllHotel,
   callGetMyHotel,
 } from "../../services/hotel";
 import { CLOUDINARY_URL, HotelStatus } from "../../constants";
@@ -110,10 +109,9 @@ const MyHotel: React.FC = () => {
   if (loading) {
     return <LoadingPage />;
   }
-  const totalAllRooms = Object.values(countByStatus).reduce(
-    (sum, value) => sum + value,
-    0,
-  );
+  const totalAllHotels = useMemo(() => {
+    return Object.values(countByStatus).reduce((sum, value) => sum + value, 0);
+  }, [countByStatus]);
   return (
     <div className="flex-1 overflow-y-auto bg-[#fafafa] lg:ml-0">
       <div className="flex-1">
@@ -156,7 +154,7 @@ const MyHotel: React.FC = () => {
               >
                 <span>All Hotel</span>
                 <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
-                  {totalAllRooms}
+                  {totalAllHotels}
                 </span>
               </button>
               {Object.values(HotelStatus).map((status) => {
@@ -295,7 +293,7 @@ const MyHotel: React.FC = () => {
                       </button>
                       <button
                         onClick={() =>
-                          navigate(`/my-room/by-hotel/${hotels[0]._id}`)
+                          navigate(`/my-hotel/${hotels[0]._id}/room`)
                         }
                         className="bg-orange-500 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
                       >
@@ -377,9 +375,7 @@ const MyHotel: React.FC = () => {
                       </button>
 
                       <button
-                        onClick={() =>
-                          navigate(`/my-room/by-hotel/${hotel._id}`)
-                        }
+                        onClick={() => navigate(`/my-hotel/${hotel._id}/room`)}
                         className="
                         flex items-center gap-1
                         bg-slate-100 hover:bg-orange-500 hover:text-white

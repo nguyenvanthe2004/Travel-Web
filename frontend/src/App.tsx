@@ -58,13 +58,13 @@ function App() {
           <Route index element={<HotelPage />} />
           <Route path="update/:id" element={<DetailHotelPage />} />
         </Route>
-        <Route path="/my-room/by-hotel/:hotelId" element={<MyRoomPage />} />
+        <Route path="/my-hotel/:hotelId/room" element={<MyRoomPage />} />
         <Route
-          path="/my-room/by-hotel/:hotelId/create"
+          path="/my-hotel/:hotelId/room/create"
           element={<CreateMyRoomPage />}
         />
         <Route
-          path="/my-room/by-hotel/:hotelId/update/:roomId"
+          path="/my-hotel/:hotelId/room/update/:roomId"
           element={<UpdateRoomPage />}
         />
         <Route path="/bookings" element={<BookingPage />} />

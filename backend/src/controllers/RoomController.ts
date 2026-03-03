@@ -16,6 +16,7 @@ import { Service } from "typedi";
 import { Public } from "../decorators/public";
 import { RoomService } from "../services/RoomService";
 import { CreateRoomDto, UpdateRoomDto } from "../dtos/RoomDto";
+import { UserProps } from "../types/auth";
 
 @Service()
 @JsonController("/rooms")
@@ -45,11 +46,11 @@ export class RoomController {
   }
 
   @Public()
-  @Get("/by-hotel/:id")
+  @Get("/:hotelId/hotel")
   async findByHotel(
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
-    @Param("id") hotelId: string,
+    @Param("hotelId") hotelId: string,
   ) {
     return await this.roomService.findByHotel(page, limit, hotelId);
   }
@@ -62,11 +63,12 @@ export class RoomController {
   async update(
     @Param("id") roomId: string,
     @Body({ validate: true }) body: UpdateRoomDto,
+    @CurrentUser() user: UserProps,
   ) {
-    return this.roomService.update(roomId, body);
+    return this.roomService.update(roomId, body, user);
   }
   @Delete("/:id")
-  async delete(@Param("id") roomId: string) {
-    return this.roomService.delete(roomId);
+  async delete(@Param("id") roomId: string, @CurrentUser() user: UserProps) {
+    return this.roomService.delete(roomId, user);
   }
 }

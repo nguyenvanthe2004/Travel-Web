@@ -16,7 +16,7 @@ import {
   Wrench,
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   callCountRoomStatus,
   callDeleteRoom,
@@ -62,8 +62,8 @@ const MyRoom: React.FC = () => {
       const res = await callGetRoomsByHotelId(page, 10, hotelId);
       setRooms(res.data.data);
       setTotalPages(res.data.totalPages);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -93,7 +93,7 @@ const MyRoom: React.FC = () => {
       setRoomStatus(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error: any) {
-      toast.error(error.message || "Failed to fetch rooms");
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -128,10 +128,9 @@ const MyRoom: React.FC = () => {
     }
   };
 
-  const totalAllRooms = Object.values(countByStatus).reduce(
-    (sum, value) => sum + value,
-    0,
-  );
+  const totalAllRooms = useMemo(() => {
+    return Object.values(countByStatus).reduce((sum, value) => sum + value, 0);
+  }, [countByStatus]);
   return (
     <div className="flex-1 overflow-y-auto bg-[#fafafa] lg:ml-0">
       <div className="flex-1">
@@ -186,9 +185,7 @@ const MyRoom: React.FC = () => {
                   Filters
                 </button>
                 <button
-                  onClick={() =>
-                    navigate(`/my-room/by-hotel/${hotelId}/create`)
-                  }
+                  onClick={() => navigate(`/my-hotel/${hotelId}/room/create`)}
                   className="flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-700 text-white rounded-lg font-semibold text-sm shadow-lg shadow-blue-600/30 hover:shadow-blue-700/40 transition-all"
                 >
                   <span className="material-symbols-outlined text-lg">
@@ -322,7 +319,7 @@ const MyRoom: React.FC = () => {
                             <button
                               onClick={() =>
                                 navigate(
-                                  `/my-room/by-hotel/${hotelId}/update/${room._id}`,
+                                  `/my-hotel/${hotelId}/room/update/${room._id}`,
                                 )
                               }
                               disabled={room.status === RoomStatus.MAINTENANCE}
@@ -367,7 +364,7 @@ const MyRoom: React.FC = () => {
                   ))
               )}
               <button
-                onClick={() => navigate(`/my-room/by-hotel/${hotelId}/create`)}
+                onClick={() => navigate(`/my-hotel/${hotelId}/room/create`)}
                 className="group bg-blue-50 :bg-blue-900/20 border-2 border-dashed border-[#1B8398] :border-[#1B8398] rounded-xl flex flex-col items-center justify-center p-8 hover:bg-blue-100 :hover:bg-blue-900/30 hover:border-blue-400 :hover:border-blue-600 transition-all duration-300 min-h-[350px]"
               >
                 <div className="h-16 w-16 rounded-full bg-white :bg-gray-800 shadow-md flex items-center justify-center text-[#1B8398] :text-blue-400 mb-4 group-hover:scale-110 transition-transform">

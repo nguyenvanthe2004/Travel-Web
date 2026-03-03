@@ -10,7 +10,7 @@ export const callGetRoomsByHotelId = async (
   limit: number,
   hotelId?: string,
 ) => {
-  return instance.get(`/rooms/by-hotel/${hotelId}`, {
+  return instance.get(`/rooms/${hotelId}/hotel`, {
     params: { page, limit },
   });
 };

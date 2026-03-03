@@ -32,7 +32,7 @@ export class HotelService {
 
       const [hotels, total] = await Promise.all([
         this.hotelRepo.findAll(skip, limit, status, locationId),
-        this.hotelRepo.countAll({ status }),
+        this.hotelRepo.countAll(status),
       ]);
 
       return {
@@ -64,7 +64,7 @@ export class HotelService {
 
       const [hotels, total] = await Promise.all([
         this.hotelRepo.findByUser(skip, limit, userId, status),
-        this.hotelRepo.countByUser(userId, status),
+        this.hotelRepo.countByUser(status),
       ]);
 
       return {
@@ -91,7 +91,6 @@ export class HotelService {
           images: dto.images,
           address: dto.address,
           locationId: dto.locationId,
-          status: HotelStatus.OPEN,
         },
         userId,
       );

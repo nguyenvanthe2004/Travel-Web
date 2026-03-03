@@ -208,13 +208,7 @@ const CreateMyHotel: React.FC = () => {
                   disabled={isProcessing}
                   className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {Object.values(HotelStatus).map((status) => (
-                    <option key={status} value={status}>
-                      <span>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </span>
-                    </option>
-                  ))}
+                  <option value={HotelStatus.OPEN}>Open</option>
                 </select>
                 {errors.status && (
                   <p className="mt-2 text-sm text-red-500 flex items-center gap-1">

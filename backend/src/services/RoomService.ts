@@ -3,10 +3,15 @@ import { RoomRepository } from "../repositories/RoomRepository";
 import { BadRequestError, NotFoundError } from "routing-controllers";
 import { RoomStatus } from "../models/Room";
 import { CreateRoomDto, UpdateRoomDto } from "../dtos/RoomDto";
+import { UserProps } from "../types/auth";
+import { HotelRepository } from "../repositories/HotelRepository";
 
 @Service()
 export class RoomService {
-  constructor(private readonly RoomRepo: RoomRepository) {}
+  constructor(
+    private readonly RoomRepo: RoomRepository,
+    private readonly HotelRepo: HotelRepository,
+  ) {}
 
   async findAll(page = 1, limit?: number, status?: string, hotelId?: string) {
     try {
@@ -70,7 +75,6 @@ export class RoomService {
         maxGuests: dto.maxGuests,
         wide: dto.wide,
         hotelId: dto.hotelId,
-        status: RoomStatus.AVAILABLE,
       });
       return {
         success: true,
@@ -79,11 +83,16 @@ export class RoomService {
       throw new BadRequestError(error.message);
     }
   }
-  async update(roomId: string, data: UpdateRoomDto) {
+  async update(roomId: string, data: UpdateRoomDto, user: UserProps) {
     try {
+      const userId = String(user.userId);
       const room = await this.RoomRepo.findById(roomId);
       if (!room) {
         throw new NotFoundError("Room not found");
+      }
+      const hotel = await this.HotelRepo.findById(String(room.hotelId._id));
+      if (hotel.userId.toString() !== userId) {
+        throw new BadRequestError("You are not authorized to update this room");
       }
       return this.RoomRepo.update(roomId, data);
     } catch (error: any) {
@@ -91,11 +100,16 @@ export class RoomService {
     }
   }
 
-  async delete(roomId: string) {
+  async delete(roomId: string, user: UserProps) {
     try {
+      const userId = String(user.userId);
       const room = await this.RoomRepo.findById(roomId);
       if (!room) {
         throw new NotFoundError("Room not found");
+      }
+      const hotel = await this.HotelRepo.findById(String(room.hotelId._id));
+      if (hotel.userId.toString() !== userId) {
+        throw new BadRequestError("You are not authorized to delete this room");
       }
       return this.RoomRepo.delete(roomId);
     } catch (error: any) {
@@ -103,12 +117,12 @@ export class RoomService {
     }
   }
   async countByStatus() {
-      const statuses = Object.values(RoomStatus);
-      return Promise.all(
-        statuses.map(async (status) => ({
-          status,
-          total: await this.RoomRepo.countByStatus(status),
-        })),
-      );
-    }
+    const statuses = Object.values(RoomStatus);
+    return Promise.all(
+      statuses.map(async (status) => ({
+        status,
+        total: await this.RoomRepo.countByStatus(status),
+      })),
+    );
+  }
 }

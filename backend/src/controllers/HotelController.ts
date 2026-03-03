@@ -17,8 +17,6 @@ import { HotelService } from "../services/HotelService";
 import { CreateHotelDto, UpdateHotelDto } from "../dtos/HotelDto";
 import { Public } from "../decorators/public";
 import { UserProps } from "../types/auth";
-import { HotelStatus } from "../models/Hotel";
-import { UserRole } from "../models/User";
 
 @Service()
 @JsonController("/hotels")

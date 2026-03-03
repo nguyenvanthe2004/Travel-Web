@@ -4,20 +4,20 @@ import { HotelModel, IHotel, HotelStatus } from "../models/Hotel";
 import {
   CreateHotelInput,
   HotelFindFilter,
+  HotelQuery,
   UpdateHotelInput,
 } from "../types/hotel";
-
 @Service()
 export class HotelRepository {
-  countAll(filter: { status?: string; locationId?: string }) {
-    if (!filter.status && !filter.locationId) {
+  countAll(status?: string, locationId?: string) {
+    if (!status && !locationId) {
       return HotelModel.countDocuments();
     }
-    return HotelModel.countDocuments(filter);
+    return HotelModel.countDocuments({status , locationId});
   }
 
-  async countByUser(userId: string, status?: string): Promise<number> {
-    const query: any = { userId };
+  async countByUser(status?: string): Promise<number> {
+    const query: HotelFindFilter = {};
     if (status) {
       query.status = status;
     }
@@ -62,7 +62,7 @@ export class HotelRepository {
     userId: string,
     status?: string,
   ): Promise<IHotel[]> {
-    const query: any = { userId };
+    const query: HotelQuery = { userId };
 
     if (status) {
       query.status = status;

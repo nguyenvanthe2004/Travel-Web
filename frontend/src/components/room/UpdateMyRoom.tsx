@@ -55,9 +55,9 @@ const UpdateMyRoom: React.FC = () => {
         setValue("wide", data.wide);
         setValue("status", data.status);
         setValue("images", data.images);
-      } catch (error) {
-        toast.error("Failed to fetch room");
-        navigate("/my-room/by-hotel/" + hotelId);
+      } catch (error: any) {
+        toast.error(error.message);
+        navigate(`/my-hotel/${hotelId}/room`);
       } finally {
         setLoading(false);
       }
@@ -106,13 +106,9 @@ const UpdateMyRoom: React.FC = () => {
       await callUpdateRoom(roomId as string, roomData);
 
       toast.success("Room updated successfully!");
-      navigate("/my-room/by-hotel/" + hotelId);
+      navigate(`/my-hotel/${hotelId}/room`);
     } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message ||
-          error.message ||
-          "Failed to update room",
-      );
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -290,7 +286,7 @@ const UpdateMyRoom: React.FC = () => {
           <div className="flex items-center justify-end gap-4">
             <button
               type="button"
-              onClick={() => navigate(`/my-room/by-hotel/${hotelId}`)}
+              onClick={() => navigate(`/my-hotel/${hotelId}/room`)}
               disabled={isProcessing}
               className="px-8 py-3 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >

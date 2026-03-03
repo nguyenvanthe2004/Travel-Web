@@ -62,14 +62,10 @@ const CreateMyRoom: React.FC = () => {
       await callCreateRoom(roomData);
 
       toast.success("Room created successfully!");
-      navigate("/my-room/by-hotel/" + hotelId);
+      navigate(`/my-hotel/${hotelId}/room`);
     } catch (error: any) {
-      console.error("Create hotel error:", error);
-      toast.error(
-        error?.response?.data?.message ||
-          error.message ||
-          "Failed to create hotel",
-      );
+      console.error("Create room error:", error);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -207,13 +203,7 @@ const CreateMyRoom: React.FC = () => {
                   disabled={isProcessing}
                   className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {Object.values(RoomStatus).map((status) => (
-                    <option key={status} value={status}>
-                      <span>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </span>
-                    </option>
-                  ))}
+                  <option value={RoomStatus.AVAILABLE}>Available</option>
                 </select>
                 {errors.status && (
                   <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
@@ -250,7 +240,7 @@ const CreateMyRoom: React.FC = () => {
           <div className="flex items-center justify-end gap-4">
             <button
               type="button"
-              onClick={() => navigate("/my-room")}
+              onClick={() => navigate(`/my-hotel/${hotelId}/room`)}
               disabled={isProcessing}
               className="px-8 py-3 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >

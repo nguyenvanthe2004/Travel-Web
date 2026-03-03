@@ -1,8 +1,8 @@
 import { RoomFormData } from "../validations/room";
 import instance from "./req";
 
-export const callCountRoomStatus = async () => {
-  const res = await instance.get("/rooms/count/status");
+export const callCountRoomStatus = async (hotelId: string) => {
+  const res = await instance.get(`/rooms/count/status`, { params: { hotelId } });
   return res.data;
 };
 export const callGetRoomsByHotelId = async (

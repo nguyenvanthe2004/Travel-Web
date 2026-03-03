@@ -198,27 +198,6 @@ const CreateMyHotel: React.FC = () => {
                   </p>
                 )}
               </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-3">
-                  Status <span className="text-red-500">*</span>
-                </label>
-                <select
-                  {...register("status")}
-                  disabled={isProcessing}
-                  className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <option value={HotelStatus.OPEN}>Open</option>
-                </select>
-                {errors.status && (
-                  <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-base">
-                      error
-                    </span>
-                    {errors.status.message}
-                  </p>
-                )}
-              </div>
             </div>
 
             <div>

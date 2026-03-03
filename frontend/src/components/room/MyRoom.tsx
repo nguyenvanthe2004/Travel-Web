@@ -30,6 +30,8 @@ import Pagination from "../ui/Pagination";
 import { toast } from "react-toastify";
 import { useModal } from "../../hooks/useModal";
 import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
+import { Hotel } from "../../types/hotel";
+import { callGetHotelById } from "../../services/hotel";
 
 type CountByStatus = {
   available: number;
@@ -38,6 +40,7 @@ type CountByStatus = {
 };
 const MyRoom: React.FC = () => {
   const { hotelId } = useParams<{ hotelId: string }>();
+  const [hotel, setHotel] = useState<Hotel | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [roomStatus, setRoomStatus] = useState<Room[]>([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -55,6 +58,19 @@ const MyRoom: React.FC = () => {
   });
   const navigate = useNavigate();
 
+  const fetchHotelById = async () => {
+    if (!hotelId) return;
+    try {
+      setLoading(true);
+      const res = await callGetHotelById(hotelId);
+      setHotel(res.data);
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchRooms = async () => {
     try {
       setLoading(true);
@@ -68,10 +84,10 @@ const MyRoom: React.FC = () => {
       setLoading(false);
     }
   };
-
   const fetchCountRoomByStatus = async () => {
+    if (!hotelId) return;
     try {
-      const data = await callCountRoomStatus();
+      const data = await callCountRoomStatus(hotelId);
       const result: CountByStatus = {
         available: 0,
         booked: 0,
@@ -104,14 +120,14 @@ const MyRoom: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await Promise.all([fetchRooms(), fetchCountRoomByStatus()]);
+        await Promise.all([fetchRooms(), fetchCountRoomByStatus(), fetchHotelById()]);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, [page]);
+  }, [page, hotelId]);
   const handleDeleteRoom = async () => {
     if (!deleteId) return;
     try {
@@ -121,6 +137,7 @@ const MyRoom: React.FC = () => {
       close();
       toast.success("Room deleted successfully!");
       fetchRooms();
+      fetchCountRoomByStatus();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -131,10 +148,11 @@ const MyRoom: React.FC = () => {
   const totalAllRooms = useMemo(() => {
     return Object.values(countByStatus).reduce((sum, value) => sum + value, 0);
   }, [countByStatus]);
+
   return (
     <div className="flex-1 overflow-y-auto bg-[#fafafa] lg:ml-0">
       <div className="flex-1">
-        <div className="max-w-[1200px]">
+        <div className="max-w-[1200px] mx-auto px-6 py-8 md:py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <nav className="flex items-center space-x-2 text-sm text-gray-600 :text-gray-400 mb-6">
               <a
@@ -150,7 +168,7 @@ const MyRoom: React.FC = () => {
                 <ChevronRight />
               </span>
               <span className="font-semibold text-gray-900 :text-gray-100">
-                {rooms[0]?.hotelId?.name || "Hotel Name"}
+                {hotel?.name || "Hotel Name"}
               </span>
             </nav>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
@@ -165,7 +183,7 @@ const MyRoom: React.FC = () => {
                     </span>
                   </a>
                   <h1 className="text-4xl font-bold text-gray-900 :text-white tracking-tight leading-none">
-                    {rooms[0]?.hotelId?.name || "Hotel Name"}
+                    {hotel?.name || "Hotel Name"}
                   </h1>
                 </div>
                 <div className="flex items-center gap-2 text-gray-600 :text-gray-400">
@@ -173,7 +191,7 @@ const MyRoom: React.FC = () => {
                     <MapPin />
                   </span>
                   <span className="text-base">
-                    {rooms[0]?.hotelId?.locationId?.name || "Location Name"}
+                    {hotel?.locationId?.name || "Location Name"}
                   </span>
                 </div>
               </div>

@@ -24,8 +24,8 @@ export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
   @Get("/count/status")
-  async countBySingleStatus() {
-    return this.roomService.countByStatus();
+  async countBySingleStatus(@QueryParam("hotelId") hotelId?: string,) {
+    return this.roomService.countByStatus(hotelId);
   }
 
   @Public()

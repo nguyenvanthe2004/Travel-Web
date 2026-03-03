@@ -1,5 +1,4 @@
 import { Schema, model, Document, Types } from "mongoose";
-
 export enum RoomStatus {
   AVAILABLE = "available",
   BOOKED = "booked",
@@ -23,10 +22,9 @@ const RoomSchema = new Schema<IRoom>(
   {
     name: {
       type: String,
+      required: true,
     },
-    description: {
-      type: String,
-    },
+    description: String,
     images: {
       type: [String],
       required: true,
@@ -35,12 +33,8 @@ const RoomSchema = new Schema<IRoom>(
       type: Number,
       required: true,
     },
-    maxGuests: {
-      type: Number,
-    },
-    wide: {
-      type: Number,
-    },
+    maxGuests: Number,
+    wide: Number,
     status: {
       type: String,
       enum: Object.values(RoomStatus),

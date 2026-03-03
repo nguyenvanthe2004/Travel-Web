@@ -22,13 +22,10 @@ const HotelSchema = new Schema<IHotel>(
   {
     name: {
       type: String,
+      required: true,
     },
-    address: {
-      type: String,
-    },
-    description: {
-      type: String,
-    },
+    address: String,
+    description: String,
     images: {
       type: [String],
       required: true,
@@ -53,5 +50,14 @@ const HotelSchema = new Schema<IHotel>(
     timestamps: true,
   },
 );
+
+HotelSchema.virtual("rooms", {
+  ref: "Room",
+  localField: "_id",
+  foreignField: "hotelId",
+});
+
+HotelSchema.set("toObject", { virtuals: true });
+HotelSchema.set("toJSON", { virtuals: true });
 
 export const HotelModel = model<IHotel>("Hotel", HotelSchema);

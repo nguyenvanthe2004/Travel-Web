@@ -73,6 +73,7 @@ export class HotelRepository {
       .limit(limit)
       .populate("locationId", "name")
       .populate("userId")
+      .populate("rooms")
       .lean<IHotel[]>();
   }
 

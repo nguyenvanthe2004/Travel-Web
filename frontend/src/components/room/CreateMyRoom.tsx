@@ -153,64 +153,45 @@ const CreateMyRoom: React.FC = () => {
                 </p>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">
-                MaxGuests <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                {...register("maxGuests", { valueAsNumber: true })}
-                disabled={isProcessing}
-                className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                placeholder="Enter max guests..."
-              />
-              {errors.maxGuests && (
-                <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-base">
-                    error
-                  </span>
-                  {errors.maxGuests.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">
-                Wide <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                {...register("wide", { valueAsNumber: true })}
-                disabled={isProcessing}
-                className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                placeholder="Enter room wide..."
-              />
-              {errors.wide && (
-                <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-base">
-                    error
-                  </span>
-                  {errors.wide.message}
-                </p>
-              )}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-slate-900 mb-3">
-                  Status <span className="text-red-500">*</span>
+                  MaxGuests <span className="text-red-500">*</span>
                 </label>
-                <select
-                  {...register("status")}
+                <input
+                  type="number"
+                  {...register("maxGuests", { valueAsNumber: true })}
                   disabled={isProcessing}
-                  className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <option value={RoomStatus.AVAILABLE}>Available</option>
-                </select>
-                {errors.status && (
+                  className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  placeholder="Enter max guests..."
+                />
+                {errors.maxGuests && (
                   <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
                     <span className="material-symbols-outlined text-base">
                       error
                     </span>
-                    {errors.status.message}
+                    {errors.maxGuests.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">
+                  Wide <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  {...register("wide", { valueAsNumber: true })}
+                  disabled={isProcessing}
+                  className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  placeholder="Enter room wide..."
+                />
+                {errors.wide && (
+                  <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-base">
+                      error
+                    </span>
+                    {errors.wide.message}
                   </p>
                 )}
               </div>

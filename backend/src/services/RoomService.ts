@@ -91,6 +91,10 @@ export class RoomService {
         throw new NotFoundError("Room not found");
       }
       const hotel = await this.HotelRepo.findById(String(room.hotelId._id));
+      if (!hotel) {
+        throw new NotFoundError("Hotel not found");
+      }
+
       if (hotel.userId.toString() !== userId) {
         throw new BadRequestError("You are not authorized to update this room");
       }
@@ -108,6 +112,10 @@ export class RoomService {
         throw new NotFoundError("Room not found");
       }
       const hotel = await this.HotelRepo.findById(String(room.hotelId._id));
+      if (!hotel) {
+        throw new NotFoundError("Hotel not found");
+      }
+
       if (hotel.userId.toString() !== userId) {
         throw new BadRequestError("You are not authorized to delete this room");
       }
@@ -116,12 +124,13 @@ export class RoomService {
       throw new BadRequestError(error.message);
     }
   }
-  async countByStatus() {
+  async countByStatus(hotelId?: string) {
     const statuses = Object.values(RoomStatus);
+
     return Promise.all(
       statuses.map(async (status) => ({
         status,
-        total: await this.RoomRepo.countByStatus(status),
+        total: await this.RoomRepo.countByStatus(status, hotelId),
       })),
     );
   }

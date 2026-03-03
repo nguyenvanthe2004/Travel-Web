@@ -59,9 +59,18 @@ export class RoomRepository {
       .lean();
   }
 
-  async countByStatus(status: RoomStatus): Promise<number> {
-    return RoomModel.countDocuments({ status });
+  async countByStatus(
+  status: RoomStatus,
+  hotelId?: string
+): Promise<number> {
+  const query: RoomFindFilter = { status };
+
+  if (hotelId) {
+    query.hotelId = hotelId;
   }
+
+  return RoomModel.countDocuments(query);
+}
 
   async create(data: CreateRoomInput): Promise<IRoom> {
     const room = new RoomModel(data);

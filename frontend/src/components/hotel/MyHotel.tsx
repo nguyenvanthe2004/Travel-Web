@@ -1,11 +1,10 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Hotel } from "../../types/hotel";
 import {
   callCountHotelStatus,
   callDeleteHotel,
-  callGetAllHotel,
   callGetMyHotel,
 } from "../../services/hotel";
 import { CLOUDINARY_URL, HotelStatus } from "../../constants";
@@ -31,7 +30,6 @@ const MyHotel: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [hotels, setHotels] = useState<Hotel[]>([]);
-  const [total, setTotal] = useState("");
   const [statusFilter, setStatusFilter] = useState<HotelStatus | undefined>();
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState("");
@@ -47,20 +45,18 @@ const MyHotel: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.currentUser);
   const userId = user.userId;
 
-  const fetchMyHotels = async () => {
+  const fetchHotelByStatus = async () => {
     try {
       setLoading(true);
-      const res = await callGetMyHotel(1, 10);
-      const hotelList = res.data.data;
-      setHotels(hotelList);
-      setTotal(res.data.total);
+      const res = await callGetMyHotel(page, 10, statusFilter);
+      setHotels(res.data.data);
+      setTotalPages(res.data.totalPages);
     } catch (error: any) {
-      toast.error(error.message);
+      toastError(error.message || "Failed to fetch hotels");
     } finally {
       setLoading(false);
     }
   };
-
   const fetchCountHotelByStatus = async () => {
     try {
       const data = await callCountHotelStatus();
@@ -79,35 +75,19 @@ const MyHotel: React.FC = () => {
     }
   };
 
-  const fetchHotelByStatus = async () => {
-    try {
-      setLoading(true);
-      const res = await callGetAllHotel(page, 10, statusFilter);
-      setHotels(res.data.data);
-      setTotalPages(res.data.totalPages);
-    } catch (error: any) {
-      toastError(error.message || "Failed to fetch hotels");
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    fetchHotelByStatus();
-  }, [statusFilter, page]);
-
   useEffect(() => {
     if (!userId) return;
 
     const fetchData = async () => {
       try {
-        await Promise.all([fetchMyHotels(), fetchCountHotelByStatus()]);
+        await Promise.all([fetchHotelByStatus(), fetchCountHotelByStatus()]);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, statusFilter, page]);
 
   const handleDeleteHotel = async () => {
     if (!deleteId) return;
@@ -117,13 +97,17 @@ const MyHotel: React.FC = () => {
       setDeleteId("");
       close();
       toast.success("Hotel deleted successfully!");
-      fetchMyHotels();
+      fetchHotelByStatus();
+      fetchCountHotelByStatus();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
       setDeleting(false);
     }
   };
+  const totalAllHotels = useMemo(() => {
+    return Object.values(countByStatus).reduce((sum, value) => sum + value, 0);
+  }, [countByStatus]);
 
   if (loading) {
     return <LoadingPage />;
@@ -171,7 +155,7 @@ const MyHotel: React.FC = () => {
               >
                 <span>All Hotel</span>
                 <span className="bg-slate-100 text-xs py-0.5 px-2 rounded-full">
-                  {total}
+                  {totalAllHotels}
                 </span>
               </button>
               {Object.values(HotelStatus).map((status) => {
@@ -204,114 +188,6 @@ const MyHotel: React.FC = () => {
               })}
             </div>
           </div>
-          {hotels[0] && (
-            <div className="mb-10 group">
-              <div className="relative overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row">
-                <button
-                  onClick={() => {
-                    setDeleteId(hotels[0]._id);
-                    open();
-                  }}
-                  className="
-                  absolute top-4 right-4 z-10
-                  p-2.5 rounded-xl
-                  opacity-0 group-hover:opacity-100
-                  text-slate-400 hover:text-red-500
-                  hover:bg-red-50
-                  transition-all
-                  "
-                >
-                  <Trash className="w-5 h-5" />
-                </button>
-                <div className="md:w-1/3 h-64 md:h-auto overflow-hidden">
-                  <div
-                    className="w-full h-full bg-center bg-no-repeat bg-cover transform group-hover:scale-105 transition-transform duration-700"
-                    style={{
-                      backgroundImage: `url(${CLOUDINARY_URL}/${hotels[0].images[0]})`,
-                    }}
-                  />
-                </div>
-                <div className="flex-1 p-8 flex flex-col justify-between gap-6">
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2 bg-primary/10 text-black px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                        <Star className="w-4 h-4 text-amber-400" />
-                        Featured Property
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-2xl font-bold text-slate-900 mb-1">
-                        {hotels[0].name}
-                      </h3>
-                      <div className="flex items-center gap-1 text-slate-500">
-                        <MapPin className="w-4 h-4" />
-                        <span className="text-sm font-medium">
-                          {hotels[0].address} - {hotels[0].locationId?.name}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4 border-y border-slate-100 py-4">
-                      <div>
-                        <p className="text-xs text-slate-400 uppercase font-bold tracking-widest">
-                          Rooms
-                        </p>
-                        <p className="text-lg font-bold text-slate-800">42</p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs text-slate-400 uppercase font-bold tracking-widest">
-                          Avg. Occupancy
-                        </p>
-                        <p className="text-lg font-bold text-slate-800">88%</p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs text-slate-400 uppercase font-bold tracking-widest">
-                          Rating
-                        </p>
-                        <div className="flex items-center gap-1">
-                          <p className="text-lg font-bold text-slate-800">
-                            4.9
-                          </p>
-                          <Star className="w-5 h-5 text-amber-400" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex -space-x-2">
-                      <div
-                        className="size-8 rounded-full border-2 border-white bg-cover bg-center"
-                        style={{
-                          backgroundImage: `url(${CLOUDINARY_URL}/${hotels[0].images[1]})`,
-                        }}
-                      />
-                      <div
-                        className="size-8 rounded-full border-2 border-white bg-cover bg-center"
-                        style={{
-                          backgroundImage: `url(${CLOUDINARY_URL}/${hotels[0].images[2]})`,
-                        }}
-                      />
-                      <div className="size-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold">
-                        +5
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() =>
-                        navigate(`/my-hotel/update/${hotels[0]._id}`)
-                      }
-                      className="bg-orange-500 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
-                    >
-                      Manage Property
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {hotels.map((hotel) => (
@@ -362,22 +238,41 @@ const MyHotel: React.FC = () => {
                       <span className="text-xs font-bold text-slate-400 uppercase">
                         Rooms
                       </span>
-                      <div className="text-sm font-bold text-slate-700">18</div>
+                      <div className="text-sm font-bold text-slate-700">
+                        {hotel.rooms?.length || 0}
+                      </div>
                     </div>
 
-                    <button
-                      onClick={() => navigate(`/my-hotel/update/${hotel._id}`)}
-                      className="
+                    <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
+                      <button
+                        onClick={() =>
+                          navigate(`/my-hotel/update/${hotel._id}`)
+                        }
+                        className="
                         flex items-center gap-1
                         bg-slate-100 hover:bg-orange-500 hover:text-white
                         text-slate-700
                         px-4 py-2 rounded-lg
                         font-bold text-xs transition-all
                       "
-                    >
-                      Manage
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => navigate(`/my-hotel/${hotel._id}/room`)}
+                        className="
+                        flex items-center gap-1
+                        bg-slate-100 hover:bg-orange-500 hover:text-white
+                        text-slate-700
+                        px-4 py-2 rounded-lg
+                        font-bold text-xs transition-all
+                      "
+                      >
+                        Manage
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -1,22 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
-import { MapPin, Loader2 } from "lucide-react";
-import { Location } from "../../types/location";
-import { HotelFormData, hotelSchema } from "../../validations/hotel";
-import { HotelStatus } from "../../constants";
-import { callGetAllLocation } from "../../services/location";
-import { callCreateHotel } from "../../services/hotel";
+import { useNavigate, useParams } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import { RoomStatus } from "../../constants";
 import { toast } from "react-toastify";
 import DropZone from "../ui/Dropzone";
 import { uploadMultiple } from "../../services/file";
+import { roomSchema } from "../../validations/room";
+import { RoomFormData } from "../../validations/room";
+import { callCreateRoom } from "../../services/room";
+import LoadingPage from "../ui/LoadingPage";
 
-const CreateMyHotel: React.FC = () => {
-  const [locations, setLocations] = useState<Location[]>([]);
+const CreateMyRoom: React.FC = () => {
+  const { hotelId } = useParams();
   const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -25,34 +24,19 @@ const CreateMyHotel: React.FC = () => {
     formState: { errors, isSubmitting },
     setValue,
     watch,
-  } = useForm<HotelFormData>({
-    resolver: zodResolver(hotelSchema),
+  } = useForm<RoomFormData>({
+    resolver: zodResolver(roomSchema),
     mode: "onChange",
     defaultValues: {
       name: "",
-      address: "",
       description: "",
       images: [],
-      status: HotelStatus.OPEN,
-      locationId: "",
+      price: 0,
+      maxGuests: 0,
+      wide: 0,
+      status: RoomStatus.AVAILABLE,
     },
   });
-
-  useEffect(() => {
-    const fetchLocations = async () => {
-      setLoading(true);
-      try {
-        const response = await callGetAllLocation(1, 100);
-        setLocations(response.data?.data || []);
-      } catch (error) {
-        toast.error("Failed to load locations");
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLocations();
-  }, []);
 
   const handleFilesChange = (files: File[]) => {
     setSelectedFiles(files);
@@ -63,60 +47,61 @@ const CreateMyHotel: React.FC = () => {
     );
   };
 
-  const onSubmit = async (data: HotelFormData) => {
+  const onSubmit = async (data: RoomFormData) => {
     try {
-      setIsUploading(true);
+      setLoading(true);
       const uploadResponse = await uploadMultiple(selectedFiles);
       const uploadedUrls = uploadResponse.data.map((item: any) => item.name);
 
-      const hotelData = {
+      const roomData = {
         ...data,
         images: uploadedUrls,
+        hotelId,
       };
 
-      await callCreateHotel(hotelData);
+      await callCreateRoom(roomData);
 
-      toast.success("Hotel created successfully!");
-      navigate("/my-hotel");
+      toast.success("Room created successfully!");
+      navigate(`/my-hotel/${hotelId}/room`);
     } catch (error: any) {
-      console.error("Create hotel error:", error);
-      toast.error(
-        error?.response?.data?.message ||
-          error.message ||
-          "Failed to create hotel",
-      );
+      console.error("Create room error:", error);
+      toast.error(error.message);
     } finally {
-      setIsUploading(false);
+      setLoading(false);
     }
   };
 
-  const isProcessing = isSubmitting || isUploading;
+  const isProcessing = isSubmitting || loading;
+
+  if (loading) {
+    <LoadingPage />;
+  }
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
       <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-8 max-w-7xl mx-auto">
         <div className="mb-10">
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            Add New Hotel
+            Add New Room
           </h2>
           <p className="text-slate-500 text-sm mt-2">
-            Create a new hotel property with detailed information
+            Create a new room with detailed information
           </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 space-y-8">
-            {/* Hotel Name */}
+            {/* Room Name */}
             <div>
               <label className="block text-sm font-semibold text-slate-900 mb-3">
-                Hotel Name <span className="text-red-500">*</span>
+                Room Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 {...register("name")}
                 disabled={isProcessing}
                 className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                placeholder="Enter hotel name..."
+                placeholder="Enter room name..."
               />
               {errors.name && (
                 <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
@@ -124,27 +109,6 @@ const CreateMyHotel: React.FC = () => {
                     error
                   </span>
                   {errors.name.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-3">
-                Address <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                {...register("address")}
-                disabled={isProcessing}
-                className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                placeholder="Enter hotel address..."
-              />
-              {errors.address && (
-                <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-base">
-                    error
-                  </span>
-                  {errors.address.message}
                 </p>
               )}
             </div>
@@ -169,32 +133,65 @@ const CreateMyHotel: React.FC = () => {
                 </p>
               )}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <label className="block text-sm font-semibold text-slate-900 mb-3">
+                Price <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                {...register("price", { valueAsNumber: true })}
+                disabled={isProcessing}
+                className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="Enter room price..."
+              />
+              {errors.price && (
+                <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-base">
+                    error
+                  </span>
+                  {errors.price.message}
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-slate-900 mb-3">
-                  <MapPin className="w-4 h-4 inline mr-1.5 mb-0.5" />
-                  Location <span className="text-red-500">*</span>
+                  MaxGuests <span className="text-red-500">*</span>
                 </label>
-                <select
-                  {...register("locationId")}
-                  disabled={loading || isProcessing}
-                  className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <option value="">
-                    {loading ? "Loading..." : "Select location"}
-                  </option>
-                  {locations.map((location) => (
-                    <option key={location._id} value={location._id}>
-                      {location.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.locationId && (
+                <input
+                  type="number"
+                  {...register("maxGuests", { valueAsNumber: true })}
+                  disabled={isProcessing}
+                  className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  placeholder="Enter max guests..."
+                />
+                {errors.maxGuests && (
                   <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
                     <span className="material-symbols-outlined text-base">
                       error
                     </span>
-                    {errors.locationId.message}
+                    {errors.maxGuests.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3">
+                  Wide <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  {...register("wide", { valueAsNumber: true })}
+                  disabled={isProcessing}
+                  className="block w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 rounded-xl text-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  placeholder="Enter room wide..."
+                />
+                {errors.wide && (
+                  <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-base">
+                      error
+                    </span>
+                    {errors.wide.message}
                   </p>
                 )}
               </div>
@@ -224,7 +221,7 @@ const CreateMyHotel: React.FC = () => {
           <div className="flex items-center justify-end gap-4">
             <button
               type="button"
-              onClick={() => navigate("/my-hotel")}
+              onClick={() => navigate(`/my-hotel/${hotelId}/room`)}
               disabled={isProcessing}
               className="px-8 py-3 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -245,7 +242,7 @@ const CreateMyHotel: React.FC = () => {
                   <span className="material-symbols-outlined text-[20px]">
                     check
                   </span>
-                  <span>Create Hotel</span>
+                  <span>Create Room</span>
                 </>
               )}
             </button>
@@ -256,4 +253,4 @@ const CreateMyHotel: React.FC = () => {
   );
 };
 
-export default CreateMyHotel;
+export default CreateMyRoom;

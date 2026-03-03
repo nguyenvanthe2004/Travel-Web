@@ -22,9 +22,13 @@ export const callGetAllHotel = async (
   });
 };
 
-export const callGetMyHotel = async (page: number, limit: number) => {
+export const callGetMyHotel = async (
+  page = 1,
+  limit = 10,
+  status?: HotelStatus,
+) => {
   return instance.get(`/hotels/my-hotel`, {
-    params: { page, limit },
+    params: { page, limit, status },
   });
 };
 

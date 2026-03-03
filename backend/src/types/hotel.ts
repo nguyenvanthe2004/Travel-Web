@@ -22,3 +22,7 @@ export type HotelFindFilter = {
   status?: string;
   locationId?: string;
 };
+export type HotelQuery = {
+  userId: string;
+  status?: string;
+};

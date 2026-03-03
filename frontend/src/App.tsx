@@ -20,6 +20,9 @@ import MyHotelPage from "./pages/home/MyHotelPage";
 import CreateMyHotelPage from "./pages/home/CreateMyHotelPage";
 import UpdateHotelPage from "./pages/home/UpdateHotelPage";
 import DetailHotelPage from "./pages/admin/DetailHotelPage";
+import MyRoomPage from "./pages/home/MyRoomPage";
+import CreateMyRoomPage from "./pages/home/CreateMyRoomPage";
+import UpdateRoomPage from "./pages/home/UpdateRoomPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -55,6 +58,15 @@ function App() {
           <Route index element={<HotelPage />} />
           <Route path="update/:id" element={<DetailHotelPage />} />
         </Route>
+        <Route path="/my-hotel/:hotelId/room" element={<MyRoomPage />} />
+        <Route
+          path="/my-hotel/:hotelId/room/create"
+          element={<CreateMyRoomPage />}
+        />
+        <Route
+          path="/my-hotel/:hotelId/room/update/:roomId"
+          element={<UpdateRoomPage />}
+        />
         <Route path="/bookings" element={<BookingPage />} />
         <Route path="/users" element={<UserPage />} />
       </Routes>

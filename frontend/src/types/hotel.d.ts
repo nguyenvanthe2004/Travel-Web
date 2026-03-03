@@ -1,4 +1,5 @@
 import { HotelStatus } from "../constants";
+import { Room } from "./room";
 
 export interface Hotel {
   _id: string;
@@ -9,5 +10,6 @@ export interface Hotel {
   locationId: {
     name: string;
   };
+  rooms: Room[];
   status: HotelStatus;
 }

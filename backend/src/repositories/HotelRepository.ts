@@ -4,20 +4,24 @@ import { HotelModel, IHotel, HotelStatus } from "../models/Hotel";
 import {
   CreateHotelInput,
   HotelFindFilter,
+  HotelQuery,
   UpdateHotelInput,
 } from "../types/hotel";
-
 @Service()
 export class HotelRepository {
   countAll(status?: string, locationId?: string) {
     if (!status && !locationId) {
       return HotelModel.countDocuments();
     }
-    return HotelModel.countDocuments({ status, locationId });
+    return HotelModel.countDocuments({status , locationId});
   }
 
-  async countByUser(userId: string): Promise<number> {
-    return HotelModel.countDocuments({ userId });
+  async countByUser(status?: string): Promise<number> {
+    const query: HotelFindFilter = {};
+    if (status) {
+      query.status = status;
+    }
+    return HotelModel.countDocuments(query);
   }
 
   async countByStatus(status: HotelStatus, userId: string): Promise<number> {
@@ -56,14 +60,21 @@ export class HotelRepository {
     skip: number,
     limit: number,
     userId: string,
+    status?: string,
   ): Promise<IHotel[]> {
-    return HotelModel.find({ userId })
-      .sort({ createdAt: -1 })
+    const query: HotelQuery = { userId };
+
+    if (status) {
+      query.status = status;
+    }
+
+    return HotelModel.find(query)
       .skip(skip)
       .limit(limit)
       .populate("locationId", "name")
-      .populate("userId", "name email")
-      .lean();
+      .populate("userId")
+      .populate("rooms")
+      .lean<IHotel[]>();
   }
 
   async create(data: CreateHotelInput, userId: string): Promise<IHotel> {

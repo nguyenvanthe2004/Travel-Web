@@ -12,6 +12,12 @@ export enum HotelStatus {
   RENOVATION = "renovation",
 }
 
+export enum RoomStatus {
+  AVAILABLE = "available",
+  BOOKED = "booked",
+  MAINTENANCE = "maintenance",
+}
+
 export enum BookingStatus {
   PENDING = "pending",
   CONFIRMED = "confirmed",

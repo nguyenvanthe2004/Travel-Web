@@ -77,7 +77,7 @@ const DetailHotel: React.FC = () => {
       } catch (error: any) {
         console.error("Fetch hotel error:", error);
         toast.error(error?.response?.data?.message || "Failed to load hotel");
-        navigate("/my-hotel");
+        navigate("/hotels");
       } finally {
         setLoading(false);
       }

@@ -116,8 +116,6 @@ const UpdateMyRoom: React.FC = () => {
 
   const isProcessing = isSubmitting || isUploading;
 
-  if (loading) return <LoadingPage />;
-
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
       <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-8 max-w-7xl mx-auto">

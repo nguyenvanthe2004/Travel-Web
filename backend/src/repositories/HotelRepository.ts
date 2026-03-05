@@ -48,12 +48,13 @@ export class HotelRepository {
       .skip(skip)
       .limit(limit)
       .populate("locationId", "name")
+      .populate("rooms")
       .populate("userId")
       .lean<IHotel[]>();
   }
 
   async findById(id: string): Promise<IHotel | null> {
-    return HotelModel.findById(id).populate("locationId", "_id name").lean();
+    return HotelModel.findById(id).populate("locationId", "_id name").populate("rooms").lean();
   }
 
   async findByUser(

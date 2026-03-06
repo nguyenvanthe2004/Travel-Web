@@ -5,7 +5,7 @@ import { Hotel } from "../../types/hotel";
 import { callGetHotelById } from "../../services/hotel";
 import { toastError } from "../../lib/toast";
 import LoadingPage from "../ui/LoadingPage";
-import { CLOUDINARY_URL } from "../../constants";
+import { CLOUDINARY_URL, RoomStatus } from "../../constants";
 import {
   Dumbbell,
   Eclipse,
@@ -28,7 +28,7 @@ const DetailHotel: React.FC = () => {
   const navigate = useNavigate();
 
   const fetchHotelById = async () => {
-    if (!hotelId) return;
+    if (!hotelId) return null;
     try {
       setLoading(true);
       const res = await callGetHotelById(hotelId);
@@ -42,9 +42,10 @@ const DetailHotel: React.FC = () => {
   useEffect(() => {
     fetchHotelById();
   }, [hotelId]);
+  if (!hotel) return null;
 
-  const images = hotel?.images || [];
-  const price = hotel?.rooms?.[0]?.price ?? 0;
+  const images = hotel.images || [];
+
   if (loading) {
     return <LoadingPage />;
   }
@@ -135,20 +136,12 @@ const DetailHotel: React.FC = () => {
                   className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover/img:scale-105"
                   style={{ backgroundImage: `url(${CLOUDINARY_URL}${img})` }}
                 />
-
-                {index === 3 && images.length > 5 && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300">
-                    <span className="text-white font-bold text-lg">
-                      Xem thêm {images.length - 5} ảnh
-                    </span>
-                  </div>
-                )}
               </div>
             ))}
           </div>
         )}
       </section>
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 relative">
+      <div className="grid grid-cols-1 gap-8 relative">
         <div className="flex flex-col gap-10">
           <section>
             <div className="flex flex-col gap-2 mb-4">
@@ -169,26 +162,19 @@ const DetailHotel: React.FC = () => {
                 </div>
               </div>
               <h1 className="text-3xl md:text-4xl font-extrabold text-text-main-light:text-text-main-dark tracking-tight">
-                {hotel?.name}
+                {hotel.name}
               </h1>
               <div className="flex items-center gap-1 text-text-sec-light:text-text-sec-dark text-sm font-medium">
                 <span className="material-symbols-outlined text-[18px]">
                   <MapPin />
                 </span>
                 <span className="underline hover:text-orange-400 transition-colors cursor-pointer">
-                  {hotel?.address + ", " + hotel?.locationId?.name}
+                  {hotel.address + ", " + hotel.locationId.name}
                 </span>
               </div>
             </div>
             <p className="text-base text-text-sec-light:text-text-sec-dark leading-relaxed">
-              Experience world-className service at Grand Horizon Resort &amp;
-              Spa. Perched on the cliffs of Oia, our resort offers breathtaking
-              views of the caldera and the Aegean Sea. Featuring traditional
-              Cycladic architecture, modern luxury suites, and an award-winning
-              infinity pool, it's the perfect sanctuary for relaxation. Guests
-              can enjoy authentic Greek cuisine at our cliffside restaurant or
-              unwind with a signature treatment at the Horizon Spa.
-              {hotel?.description}
+              {hotel.description}
             </p>
           </section>
           <section>
@@ -247,69 +233,84 @@ const DetailHotel: React.FC = () => {
           <section>
             <h3 className="text-xl font-bold mb-6">Available Rooms</h3>
             <div className="flex flex-col gap-6">
-              {hotel?.rooms.map((room) => (
-                <div className="flex flex-col md:flex-row bg-surface-light:bg-surface-dark rounded-xl border-border-light:border-border-dark overflow-hidden shadow-sm transition-shadow">
+              {hotel.rooms.map((room) => {
+                if (room.status !== RoomStatus.AVAILABLE) return null;
+                return (
                   <div
-                    className="w-full md:w-1/3 bg-cover bg-center min-h-[200px] bg-center transition-transform duration-500 hover:scale-105 cursor-pointer"
-                    data-alt="Luxurious suite with private jacuzzi and ocean view"
-                    style={{
-                      backgroundImage: `url(${CLOUDINARY_URL}${room.images[0]})`,
-                    }}
-                  ></div>
-                  <div className="flex-1 p-5 flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="text-lg font-bold">{room.name}</h4>
-                        <span className="px-2 py-0.5 transition-colors/10 text-white bg-green-400/90 transition-colors text-xs font-bold rounded">
-                          {room.status.toLocaleLowerCase() === "available" &&
-                            "Available"}
-                        </span>
-                      </div>
-                      <ul className="text-sm text-text-sec-light:text-text-sec-dark space-y-1 mb-4">
-                        <li className="flex items-center gap-2">
-                          <span className="material-symbols-outlined text-[16px]">
-                            <User />
-                          </span>{" "}
-                          {room.maxGuests} Guests
-                        </li>
-
-                        <li className="flex items-center gap-2">
-                          <span className="material-symbols-outlined text-[16px]">
-                            <Fullscreen />
-                          </span>{" "}
-                          {room.wide} m²
-                        </li>
-                        <div className="flex -space-x-2">
-                          <div
-                            className="size-8 rounded-full border-2 border-white :border-slate-900 bg-cover bg-center cursor-pointer"
-                            style={{ backgroundImage: `url(${CLOUDINARY_URL}${room.images[1]})` }}
-                          ></div>
-                          <div
-                            className="size-8 rounded-full border-2 border-white :border-slate-900 bg-cover bg-center cursor-pointer"
-                            style={{ backgroundImage: `url(${CLOUDINARY_URL}${room.images[2]})` }}
-                          ></div>
-                          <div className="size-8 rounded-full border-2 border-white :border-slate-900 bg-slate-100 :bg-slate-800 flex items-center justify-center text-[10px] font-bold cursor-pointer">
-                            +5
-                          </div>
-                        </div>
-                      </ul>
-                    </div>
-                    <div className="flex items-end justify-between border-border-light:border-border-dark pt-4 mt-2">
+                    key={room._id}
+                    className="flex flex-col md:flex-row bg-surface-light:bg-surface-dark rounded-xl border-border-light:border-border-dark overflow-hidden shadow-sm transition-shadow"
+                  >
+                    <div
+                      className="w-full md:w-1/3 bg-cover bg-center min-h-[200px] bg-center transition-transform duration-500 hover:scale-105 cursor-pointer"
+                      data-alt="Luxurious suite with private jacuzzi and ocean view"
+                      style={{
+                        backgroundImage: `url(${CLOUDINARY_URL}${room.images[0]})`,
+                      }}
+                    ></div>
+                    <div className="flex-1 p-5 flex flex-col justify-between">
                       <div>
-                        <p className="text-2xl font-bold text-orange-400 transition-colors">
-                          ${room.price.toLocaleString()}
-                          <span className="text-sm font-medium text-text-main-light:text-text-main-dark">
-                            / night
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="text-lg font-bold">{room.name}</h4>
+                          <span className="px-2 py-0.5 transition-colors/10 text-white bg-green-400/90 transition-colors text-xs font-bold rounded">
+                            {room.status.toLocaleLowerCase() === "available" &&
+                              "Available"}
                           </span>
-                        </p>
+                        </div>
+                        <ul className="text-sm text-text-sec-light:text-text-sec-dark space-y-1 mb-4">
+                          <li className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[16px]">
+                              <User />
+                            </span>{" "}
+                            {room.maxGuests} Guests
+                          </li>
+
+                          <li className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[16px]">
+                              <Fullscreen />
+                            </span>{" "}
+                            {room.wide} m²
+                          </li>
+                          <div className="flex -space-x-2">
+                            <div
+                              className="size-8 rounded-full border-2 border-white :border-slate-900 bg-cover bg-center cursor-pointer"
+                              style={{
+                                backgroundImage: `url(${CLOUDINARY_URL}${room.images[1]})`,
+                              }}
+                            ></div>
+                            <div
+                              className="size-8 rounded-full border-2 border-white :border-slate-900 bg-cover bg-center cursor-pointer"
+                              style={{
+                                backgroundImage: `url(${CLOUDINARY_URL}${room.images[2]})`,
+                              }}
+                            ></div>
+                            <div className="size-8 rounded-full border-2 border-white :border-slate-900 bg-slate-100 :bg-slate-800 flex items-center justify-center text-[10px] font-bold cursor-pointer">
+                              {"+" + (room.images.length - 3)}
+                            </div>
+                          </div>
+                        </ul>
                       </div>
-                      <button className="bg-orange-400 transition-colors hover:bg-orange-600 transition-colors-hover text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-colors">
-                        Select Room
-                      </button>
+                      <div className="flex items-end justify-between border-border-light:border-border-dark pt-4 mt-2">
+                        <div>
+                          <p className="text-2xl font-bold text-orange-400 transition-colors">
+                            ${room.price.toLocaleString()}
+                            <span className="text-sm font-medium text-text-main-light:text-text-main-dark">
+                              / night
+                            </span>
+                          </p>
+                        </div>
+                        <button
+                          onClick={() =>
+                            navigate(`/hotels/${hotel._id}/room/${room._id}`)
+                          }
+                          className="bg-orange-400 transition-colors hover:bg-orange-600 transition-colors-hover text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-colors"
+                        >
+                          Select Room
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
           <section>
@@ -422,7 +423,7 @@ const DetailHotel: React.FC = () => {
                   Check-out
                 </div>
                 <div className="p-4 text-sm flex-1 flex items-center">
-                  Until 12:00
+                  Until 24:00
                 </div>
               </div>
               <div className="flex border-b border-border-light:border-border-dark last:border-0">
@@ -436,122 +437,6 @@ const DetailHotel: React.FC = () => {
             </div>
           </section>
         </div>
-        <aside className="hidden lg:block h-full">
-          <div className="sticky top-24 flex flex-col gap-6">
-            <div className="bg-surface-light:bg-surface-dark rounded-2xl p-6 shadow-xl shadow-black/5 border-border-light:border-border-dark">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <div className="flex items-end gap-1">
-                    <span className="text-3xl font-bold text-orange-400 transition-colors">
-                      ${price.toLocaleString()}
-                    </span>
-                    <span className="text-sm text-text-sec-light:text-text-sec-dark pb-1">
-                      /night
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="border-border-light:border-border-dark rounded-xl overflow-hidden mb-4">
-                <div className="flex border-border-light:border-border-dark">
-                  <div className="flex-1 p-3 hover:bg-background-light:hover:bg-background-dark transition-colors cursor-pointer border-border-light:border-border-dark">
-                    <p className="text-[10px] uppercase text-text-sec-light:text-text-sec-dark tracking-wider">
-                      Check-in
-                    </p>
-                    <p className="text-sm font-semibold">Oct 14, 2023</p>
-                  </div>
-                  <div className="flex-1 p-3 hover:bg-background-light:hover:bg-background-dark transition-colors cursor-pointer">
-                    <p className="text-[10px] uppercase text-text-sec-light:text-text-sec-dark tracking-wider">
-                      Check-out
-                    </p>
-                    <p className="text-sm font-semibold">Oct 18, 2023</p>
-                  </div>
-                </div>
-                <div className="p-3 hover:bg-background-light:hover:bg-background-dark transition-colors cursor-pointer">
-                  <p className="text-[10px] uppercase text-text-sec-light:text-text-sec-dark tracking-wider">
-                    Guests
-                  </p>
-                  <p className="text-sm font-semibold">
-                    {hotel?.rooms?.[0]?.maxGuests} Guests
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col gap-3 mb-6">
-                <div className="flex justify-between text-sm">
-                  <span className="text-text-sec-light:text-text-sec-dark underline decoration-dotted">
-                    ${price.toLocaleString()} x 4 nights
-                  </span>
-                  <span>${(price * 4).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-text-sec-light:text-text-sec-dark underline decoration-dotted">
-                    Cleaning fee
-                  </span>
-                  <span>$50</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-text-sec-light:text-text-sec-dark underline decoration-dotted">
-                    Service fee
-                  </span>
-                  <span>$80</span>
-                </div>
-                <div className="h-px bg-border-light:border-border-dark my-1"></div>
-                <div className="flex justify-between text-base font-bold">
-                  <span>Total (USD)</span>
-                  <span>${(price * 4 + 50 + 80).toLocaleString()}</span>
-                </div>
-              </div>
-              <button className="w-full bg-orange-400 transition-colors hover:bg-orange-600 transition-colors-hover text-white h-12 rounded-xl font-bold text-lg shadow-lg shadow-orange-400 transition-colors/25 transition-all transform active:scale-95">
-                Reserve Now
-              </button>
-              <p className="text-center text-xs text-text-sec-light:text-text-sec-dark mt-3">
-                You won't be charged yet
-              </p>
-            </div>
-            <div className="bg-surface-light:bg-surface-dark rounded-2xl overflow-hidden border-border-light:border-border-dark p-1">
-              <div
-                className="relative h-48 w-full bg-cover bg-center rounded-xl"
-                data-location="Santorini"
-                style={{
-                  backgroundImage:
-                    'url("https://lh3.googleusercontent.com/aida-public/AB6AXuB7WujOF98NJxS4nwMIC5cgsHVdQAav-TAqyD1X2gYAE49RTfKjRT2baJES4kkWQDexDbmdELNlyZs6t6Q12Qhyyc_gJOkQI1MOnShNagZuP_bR71uFjgnenqQiZxVPzA0pIIG-QIXsAn9yYrqCqk7RxuFeII0a4-vjxNhaHyBUK3KA9_KBxB6_AiCKWlYsX311-t0WcewlIPLzjCCTCwImoCU2PAFt4IFww51jfDTOLu48CnGtYghncocxB3dkBX7K8QVryEkbZ9w")',
-                }}
-              >
-                <div className="absolute inset-0 bg-black/10 hover:bg-black/0 transition-colors"></div>
-                <div className="absolute bottom-3 left-3 bg-white/90:bg-black/80 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm">
-                  <p className="text-xs font-bold flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px] text-orange-400 transition-colors">
-                      map
-                    </span>
-                    Show on map
-                  </p>
-                </div>
-              </div>
-              <div className="p-4">
-                <h4 className="font-bold text-sm mb-2">Location Highlights</h4>
-                <ul className="text-xs space-y-2 text-text-sec-light:text-text-sec-dark">
-                  <li className="flex justify-between">
-                    <span>Oia Castle</span>{" "}
-                    <span className="font-medium text-text-main-light:text-text-main-dark">
-                      0.2 km
-                    </span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Naval Museum</span>{" "}
-                    <span className="font-medium text-text-main-light:text-text-main-dark">
-                      0.4 km
-                    </span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Katharos Beach</span>{" "}
-                    <span className="font-medium text-text-main-light:text-text-main-dark">
-                      1.2 km
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   );

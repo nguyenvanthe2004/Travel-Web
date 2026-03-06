@@ -1,24 +1,20 @@
-import {
-  ArrowLeft,
-  ArrowRight,
-  Heart,
-  MoveLeft,
-  MoveRight,
-} from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, Heart, Star } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import { Hotel } from "../../types/hotel";
 import { toastError } from "../../lib/toast";
 import { callGetAllHotel } from "../../services/hotel";
 import LoadingPage from "../ui/LoadingPage";
 import { CLOUDINARY_URL } from "../../constants";
 import { useNavigate } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import type { Swiper as SwiperType } from "swiper";
 
-const HotelCard: React.FC = () => {
+const FeaturedHotel: React.FC = () => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [itemsPerView, setItemsPerView] = useState(4);
   const navigate = useNavigate();
+  const swiperRef = useRef<SwiperType | null>(null);
 
   const fetchHotels = async () => {
     try {
@@ -31,45 +27,23 @@ const HotelCard: React.FC = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchHotels();
   }, []);
 
-  const updateItemsPerView = () => {
-    const width = window.innerWidth;
+  if (loading) return <LoadingPage />;
 
-    if (width < 640) {
-      setItemsPerView(1);
-    } else if (width < 1024) {
-      setItemsPerView(2);
-    } else if (width < 1280) {
-      setItemsPerView(3);
-    } else {
-      setItemsPerView(4);
-    }
-  };
-  useEffect(() => {
-    updateItemsPerView();
-    window.addEventListener("resize", updateItemsPerView);
-    return () => window.removeEventListener("resize", updateItemsPerView);
-  }, []);
-
-  const handleNext = () => {
-    if (currentIndex < hotels.length - itemsPerView) {
-      setCurrentIndex((prev) => prev + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-    }
-  };
-  if (loading) {
-    return <LoadingPage />;
-  }
   return (
     <section className="py-12 px-6 bg-white">
+      <style>{`
+        .swiper { width: 100%; overflow: hidden; }
+        .swiper-wrapper { display: flex; flex-direction: row; box-sizing: content-box; }
+        .swiper-slide { flex-shrink: 0; height: auto; }
+        .swiper-pagination { display: flex; justify-content: center; gap: 6px; margin-top: 16px; }
+        .swiper-pagination-bullet { width: 8px; height: 8px; border-radius: 50%; background: #d1d5db; cursor: pointer; transition: background 0.2s; }
+        .swiper-pagination-bullet-active { background: #fb923c; }
+      `}</style>
       <div className="max-w-[1280px] mx-auto">
         <div className="flex items-end justify-between mb-8">
           <div>
@@ -82,60 +56,60 @@ const HotelCard: React.FC = () => {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={handlePrev}
+              onClick={() => swiperRef.current?.slidePrev()}
               className="size-10 rounded-full flex items-center justify-center hover:bg-background-light hover:border-primary/50 transition-colors"
             >
-              <span className="material-symbols-outlined">
-                <ArrowLeft />
-              </span>
+              <ArrowLeft />
             </button>
             <button
-              onClick={handleNext}
+              onClick={() => swiperRef.current?.slideNext()}
               className="size-10 rounded-full bg-orange-400 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-lg shadow-primary/20"
             >
-              <span className="material-symbols-outlined">
-                <ArrowRight />
-              </span>
+              <ArrowRight />
             </button>
           </div>
         </div>
-        <div className="overflow-hidden">
-          <div
-            className="flex gap-6 transition-transform duration-500"
-            style={{
-              transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
-            }}
-          >
-            {hotels.map((hotel) => (
+
+        <Swiper
+          modules={[Navigation, Pagination]}
+          spaceBetween={24}
+          slidesPerView={1}
+          pagination={{ clickable: true }}
+          onSwiper={(swiper) => (swiperRef.current = swiper)}
+          breakpoints={{
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+            1280: { slidesPerView: 4 },
+          }}
+        >
+          {hotels.map((hotel) => (
+            <SwiperSlide key={hotel._id}>
               <div
-                key={hotel._id}
-                className="flex-shrink-0 flex flex-col gap-3 group cursor-pointer"
-                style={{ minWidth: `${100 / itemsPerView}%` }}
+                className="flex flex-col gap-3 group cursor-pointer"
                 onClick={() => navigate(`/hotels/${hotel._id}`)}
               >
                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
                   <img
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    src={`${CLOUDINARY_URL}/${hotel?.images?.[0]}`}
+                    src={`${CLOUDINARY_URL}/${hotel.images?.[0]}`}
+                    alt={hotel.name}
                   />
                   <button className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white backdrop-blur-sm transition-colors text-red-500">
-                    <span className="material-symbols-outlined fill text-[20px]">
-                      <Heart />
-                    </span>
+                    <Heart size={20} />
                   </button>
                   <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1 shadow-sm">
-                    <span className="material-symbols-outlined fill text-yellow-500 text-[14px]">
-                      star
+                    <span className="text-yellow-500">
+                      <Star size={15} style={{ fill: "currentColor" }} />
                     </span>
                     4.9
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
                   <h4 className="font-bold text-lg text-text-main leading-tight group-hover:text-orange-400 transition-colors">
-                    {hotel?.name}
+                    {hotel.name}
                   </h4>
                   <p className="text-sm text-text-muted">
-                    {hotel?.locationId?.name}
+                    {hotel.locationId.name}
                   </p>
                   <div className="flex items-baseline gap-2 mt-1">
                     <span className="text-lg font-bold text-text-main">
@@ -145,12 +119,12 @@ const HotelCard: React.FC = () => {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </section>
   );
 };
 
-export default HotelCard;
+export default FeaturedHotel;

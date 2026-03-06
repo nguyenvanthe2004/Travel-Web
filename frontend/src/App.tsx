@@ -24,6 +24,7 @@ import MyRoomPage from "./pages/home/MyRoomPage";
 import CreateMyRoomPage from "./pages/home/CreateMyRoomPage";
 import UpdateRoomPage from "./pages/home/UpdateRoomPage";
 import HotelDetailPage from "./pages/home/DetailHotelPage";
+import DetailRoomPage from "./pages/home/DetailRoomPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -68,7 +69,10 @@ function App() {
           path="/my-hotel/:hotelId/room/update/:roomId"
           element={<UpdateRoomPage />}
         />
-        <Route path="/hotels/:hotelId" element={<HotelDetailPage />} />
+        <Route path="/hotels/:hotelId">
+          <Route index element={<HotelDetailPage />} />
+          <Route path="room/:roomId" element={<DetailRoomPage />} />
+        </Route>
         <Route path="/bookings" element={<BookingPage />} />
         <Route path="/users" element={<UserPage />} />
       </Routes>

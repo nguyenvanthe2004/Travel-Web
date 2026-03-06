@@ -10,7 +10,9 @@ export interface Room {
   wide?: number;
   status: RoomStatus;
   hotelId: {
+    _id: string;
     name: string;
+    rooms: Room[];
     locationId: {
       name: string;
     };

@@ -14,8 +14,8 @@ const DestinationCard: React.FC = () => {
   const fetchLocations = async () => {
     setLoading(true);
     try {
-      const response = await callGetAllLocation(1, 100);
-      setLocations(response.data?.data || []);
+      const response = await callGetAllLocation(1, 4);
+      setLocations(response.data.data || []);
     } catch (error) {
       toast.error("Failed to load locations");
       console.error(error);
@@ -54,20 +54,20 @@ const DestinationCard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {locations.slice(0, 4).map((location) => (
+          {locations.length > 0 && locations.map((location) => (
             <div
               key={location._id}
               className="group relative aspect-[4/5] overflow-hidden rounded-2xl cursor-pointer"
             >
               <img
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                src={`${CLOUDINARY_URL}/${location?.images?.[0]}`}
-                alt={location?.name}
+                src={`${CLOUDINARY_URL}/${location.images?.[0]}`}
+                alt={location.name}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6">
                 <h4 className="text-white text-xl font-bold">
-                  {location?.name}
+                  {location.name}
                 </h4>
                 <p className="text-white/80 text-sm mt-1">1,240 properties</p>
               </div>

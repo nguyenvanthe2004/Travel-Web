@@ -12,4 +12,5 @@ export interface Hotel {
   };
   rooms: Room[];
   status: HotelStatus;
+  rangePrice: string;
 }

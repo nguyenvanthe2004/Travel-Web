@@ -45,7 +45,7 @@ const Header: React.FC = () => {
       <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200">
         <div className="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="size-8 bg-primary rounded flex items-center justify-center text-white cursor-pointer">
+            <div onClick={() => navigate("/")} className="size-8 bg-primary rounded flex items-center justify-center text-white cursor-pointer">
               <img src="/icons/logo.svg" alt="" />
             </div>
             <h1 className="text-xl font-bold text-gray-900">Vista Stays</h1>

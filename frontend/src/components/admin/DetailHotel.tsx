@@ -12,12 +12,16 @@ import { callGetHotelById, callUpdateHotel } from "../../services/hotel";
 import { uploadMultiple } from "../../services/file";
 import { toast } from "react-toastify";
 import LoadingPage from "../ui/LoadingPage";
+import { Hotel } from "../../types/hotel";
+import { set } from "zod";
+import NotFoundPage from "../ui/NotFound";
 
 const DetailHotel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [locations, setLocations] = useState<Location[]>([]);
+  const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -67,6 +71,7 @@ const DetailHotel: React.FC = () => {
       setLoading(true);
       try {
         const { data } = await callGetHotelById(id);
+        setHotel(data);
 
         setValue("name", data.name);
         setValue("address", data.address);
@@ -75,9 +80,7 @@ const DetailHotel: React.FC = () => {
         setValue("locationId", data.locationId?._id || "");
         setValue("images", data.images || []);
       } catch (error: any) {
-        console.error("Fetch hotel error:", error);
-        toast.error(error?.response?.data?.message || "Failed to load hotel");
-        navigate("/hotels");
+        toast.error(error.message);
       } finally {
         setLoading(false);
       }
@@ -139,9 +142,9 @@ const DetailHotel: React.FC = () => {
 
   const isProcessing = isSubmitting || isUploading;
 
-  if (loading) {
-    <LoadingPage />;
-  }
+  if (loading) return <LoadingPage />;
+
+  if (!hotel) return <NotFoundPage />;
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
@@ -208,7 +211,7 @@ const DetailHotel: React.FC = () => {
               </label>
               <textarea
                 {...register("description")}
-                rows={4}
+                rows={10}
                 disabled={isProcessing}
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter hotel description..."
@@ -264,9 +267,7 @@ const DetailHotel: React.FC = () => {
                 >
                   {Object.values(HotelStatus).map((status) => (
                     <option key={status} value={status}>
-                      <span>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </span>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
                     </option>
                   ))}
                 </select>

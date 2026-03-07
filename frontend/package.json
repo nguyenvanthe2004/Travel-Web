@@ -25,6 +25,7 @@
     "react-toastify": "^11.0.5",
     "redux": "^5.0.1",
     "reflect-metadata": "^0.2.2",
+    "swiper": "^12.1.2",
     "tailwindcss": "^4.1.18",
     "zod": "^4.3.5"
   },

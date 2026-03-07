@@ -23,8 +23,8 @@ export class LocationService {
         totalPages: Math.ceil(total / limit),
         data: locations,
       };
-    } catch (error) {
-      throw new BadRequestError(error.message);
+    } catch (error: any) {
+      throw new BadRequestError("Failed to fetch locations");
     }
   }
 
@@ -32,7 +32,7 @@ export class LocationService {
     try {
       return this.locationRepo.findOne(id);
     } catch (error) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to fetch location");
     }
   }
 
@@ -41,7 +41,7 @@ export class LocationService {
       await this.locationRepo.create(dto);
       return { success: true };
     } catch (error: any) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to create location");
     }
   }
   async update(id: string, dto: UpdateLocationDto) {
@@ -52,7 +52,7 @@ export class LocationService {
       }
       return updatedLocation;
     } catch (error: any) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to update location");
     }
   }
   async delete(id: string) {
@@ -63,7 +63,7 @@ export class LocationService {
       }
       return deletedLocation;
     } catch (error: any) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to delete location");
     }
   }
 }

@@ -33,7 +33,7 @@ export const callGetMyHotel = async (
 };
 
 export const callGetHotelById = async (id: string) => {
-  return instance.get(`/hotels/${id}`);
+  return await instance.get(`/hotels/${id}`);
 };
 export const callCreateHotel = async (data: HotelFormData) => {
   return await instance.post("/hotels", data);

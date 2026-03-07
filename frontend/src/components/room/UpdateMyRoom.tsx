@@ -10,12 +10,15 @@ import { uploadMultiple } from "../../services/file";
 import { roomSchema, RoomFormData } from "../../validations/room";
 import { callGetRoomById, callUpdateRoom } from "../../services/room";
 import LoadingPage from "../ui/LoadingPage";
+import { Room } from "../../types/room";
+import NotFoundPage from "../ui/NotFound";
 
 const UpdateMyRoom: React.FC = () => {
   const { hotelId, roomId } = useParams();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+  const [room, setRoom] = useState<Room | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -40,29 +43,29 @@ const UpdateMyRoom: React.FC = () => {
   });
   const watchImages = watch("images") || [];
 
+  const fetchRoom = async () => {
+    if (!roomId) return;
+
+    setLoading(true);
+    try {
+      const { data } = await callGetRoomById(roomId);
+      setRoom(data);
+
+      setValue("name", data.name);
+      setValue("description", data.description);
+      setValue("price", data.price);
+      setValue("maxGuests", data.maxGuests);
+      setValue("wide", data.wide);
+      setValue("status", data.status);
+      setValue("images", data.images);
+    } catch (error: any) {
+      toast.error(error.message);
+      navigate(`/my-hotel/${hotelId}/room`);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchRoom = async () => {
-      if (!roomId) return;
-
-      setLoading(true);
-      try {
-        const { data } = await callGetRoomById(roomId);
-
-        setValue("name", data.name);
-        setValue("description", data.description);
-        setValue("price", data.price);
-        setValue("maxGuests", data.maxGuests);
-        setValue("wide", data.wide);
-        setValue("status", data.status);
-        setValue("images", data.images);
-      } catch (error: any) {
-        toast.error(error.message);
-        navigate(`/my-hotel/${hotelId}/room`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchRoom();
   }, [roomId, setValue]);
 
@@ -116,7 +119,7 @@ const UpdateMyRoom: React.FC = () => {
 
   const isProcessing = isSubmitting || isUploading;
 
-  if (loading) return <LoadingPage />;
+  if (!room) return <NotFoundPage />;
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">

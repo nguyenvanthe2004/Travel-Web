@@ -1,13 +1,42 @@
 import type React from "react";
+import { useEffect, useState } from "react";
+import { callGetAllLocation } from "../../services/location";
+import { toast } from "react-toastify";
+import LoadingPage from "../ui/LoadingPage";
+import { Location } from "../../types/location";
+import { CLOUDINARY_URL } from "../../constants";
+import { ArrowRight } from "lucide-react";
 
 const DestinationCard: React.FC = () => {
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchLocations = async () => {
+    setLoading(true);
+    try {
+      const response = await callGetAllLocation(1, 4);
+      setLocations(response.data.data || []);
+    } catch (error) {
+      toast.error("Failed to load locations");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchLocations();
+  }, []);
+
+  if (loading) {
+    return <LoadingPage />;
+  }
   return (
     <section className="py-12 px-6">
       <div className="max-w-[1280px] mx-auto">
         <div className="flex items-end justify-between mb-8">
           <div>
             <h3 className="text-2xl md:text-3xl font-bold text-text-main">
-              Trending Destinations
+              New Location
             </h3>
             <p className="text-text-muted mt-2 text-gray-700">
               Most searched locations by travelers this week.
@@ -19,66 +48,31 @@ const DestinationCard: React.FC = () => {
           >
             View all{" "}
             <span className="material-symbols-outlined text-lg">
-              arrow_forward
+              <ArrowRight />
             </span>
           </a>
         </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl cursor-pointer">
-            <img
-              alt="Eiffel Tower view in Paris"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              data-alt="Eiffel Tower view in Paris"
-              src="/images/location1.png"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-6">
-              <h4 className="text-white text-xl font-bold">Paris, France</h4>
-              <p className="text-white/80 text-sm mt-1">1,240 properties</p>
+          {locations.length > 0 && locations.map((location) => (
+            <div
+              key={location._id}
+              className="group relative aspect-[4/5] overflow-hidden rounded-2xl cursor-pointer"
+            >
+              <img
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                src={`${CLOUDINARY_URL}/${location.images?.[0]}`}
+                alt={location.name}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 p-6">
+                <h4 className="text-white text-xl font-bold">
+                  {location.name}
+                </h4>
+                <p className="text-white/80 text-sm mt-1">1,240 properties</p>
+              </div>
             </div>
-          </div>
-
-          <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl cursor-pointer">
-            <img
-              alt="Neon street signs in Tokyo"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              data-alt="Neon street signs in Tokyo"
-              src="/images/location2.png"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-6">
-              <h4 className="text-white text-xl font-bold">Tokyo, Japan</h4>
-              <p className="text-white/80 text-sm mt-1">980 properties</p>
-            </div>
-          </div>
-
-          <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl cursor-pointer">
-            <img
-              alt="Traditional temples in Bali"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              data-alt="Traditional temples in Bali"
-              src="/images/location3.png"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-6">
-              <h4 className="text-white text-xl font-bold">Bali, Indonesia</h4>
-              <p className="text-white/80 text-sm mt-1">2,100 properties</p>
-            </div>
-          </div>
-
-          <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl cursor-pointer">
-            <img
-              alt="Skyline view of New York City"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              data-alt="Skyline view of New York City"
-              src="/images/location4.png"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-6">
-              <h4 className="text-white text-xl font-bold">New York, USA</h4>
-              <p className="text-white/80 text-sm mt-1">1,560 properties</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>

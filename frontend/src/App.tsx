@@ -8,21 +8,23 @@ import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { callGetCurrentUser } from "./services/auth";
 import { setCurrentUser } from "./redux/slices/currentUser";
-import Profile from "./pages/home/ProfilePage";
-import DashboardPage from "./pages/admin/DashboardPage";
-import LocationPage from "./pages/admin/LocationPage";
-import HotelPage from "./pages/admin/HotelPage";
-import BookingPage from "./pages/admin/BookingPage";
-import UserPage from "./pages/admin/UserPage";
-import CreateLocation from "./pages/admin/CreateLocationPage";
-import DetailLocationPage from "./pages/admin/DetailLocationPage";
-import MyHotelPage from "./pages/home/MyHotelPage";
-import CreateMyHotelPage from "./pages/home/CreateMyHotelPage";
-import UpdateHotelPage from "./pages/home/UpdateHotelPage";
-import DetailHotelPage from "./pages/admin/DetailHotelPage";
-import MyRoomPage from "./pages/home/MyRoomPage";
-import CreateMyRoomPage from "./pages/home/CreateMyRoomPage";
-import UpdateRoomPage from "./pages/home/UpdateRoomPage";
+import Profile from "./pages/profile/ProfilePage";
+import DashboardPage from "./pages/admin/dashboard/DashboardPage";
+import LocationPage from "./pages/admin/location/LocationPage";
+import CreateLocation from "./components/admin/CreateLocation";
+import DetailLocationPage from "./pages/admin/location/DetailLocationPage";
+import MyHotelPage from "./pages/hotel/MyHotelPage";
+import CreateMyHotelPage from "./pages/hotel/CreateMyHotelPage";
+import UpdateHotelPage from "./pages/hotel/UpdateHotelPage";
+import HotelPage from "./pages/admin/hotel/HotelPage";
+import DetailHotelPage from "./pages/admin/hotel/DetailHotelPage";
+import MyRoomPage from "./pages/room/MyRoomPage";
+import CreateMyRoomPage from "./pages/room/CreateMyRoomPage";
+import UpdateRoomPage from "./pages/room/UpdateRoomPage";
+import HotelDetailPage from "./pages/hotel/DetailHotelPage";
+import BookingPage from "./pages/admin/booking/BookingPage";
+import UserPage from "./pages/admin/user/UserPage";
+import DetailRoomPage from "./pages/room/DetailRoomPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -35,6 +37,7 @@ function App() {
   useEffect(() => {
     fetchCurrentUser();
   }, [dispatch]);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -67,6 +70,10 @@ function App() {
           path="/my-hotel/:hotelId/room/update/:roomId"
           element={<UpdateRoomPage />}
         />
+        <Route path="/hotels/:hotelId">
+          <Route index element={<HotelDetailPage />} />
+          <Route path="room/:roomId" element={<DetailRoomPage />} />
+        </Route>
         <Route path="/bookings" element={<BookingPage />} />
         <Route path="/users" element={<UserPage />} />
       </Routes>

@@ -12,12 +12,15 @@ import { callGetHotelById, callUpdateHotel } from "../../services/hotel";
 import { uploadMultiple } from "../../services/file";
 import { toast } from "react-toastify";
 import LoadingPage from "../ui/LoadingPage";
+import { Hotel } from "../../types/hotel";
+import NotFoundPage from "../ui/NotFound";
 
 const UpdateMyHotel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [locations, setLocations] = useState<Location[]>([]);
+  const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -47,7 +50,7 @@ const UpdateMyHotel: React.FC = () => {
     const fetchLocations = async () => {
       setLoading(true);
       try {
-        const response = await callGetAllLocation(1, 100);
+        const response = await callGetAllLocation(1, 10);
         setLocations(response.data?.data || []);
       } catch (error) {
         toast.error("Failed to load locations");
@@ -60,29 +63,30 @@ const UpdateMyHotel: React.FC = () => {
     fetchLocations();
   }, []);
 
+  const fetchHotel = async () => {
+    if (!id) return;
+
+    setLoading(true);
+    try {
+      const { data } = await callGetHotelById(id);
+      setHotel(data);
+
+      setValue("name", data.name);
+      setValue("address", data.address);
+      setValue("description", data.description);
+      setValue("status", data.status);
+      setValue("locationId", data.locationId?._id || "");
+      setValue("images", data.images || []);
+    } catch (error: any) {
+      console.error("Fetch hotel error:", error);
+      toast.error(error?.response?.data?.message || "Failed to load hotel");
+      navigate("/my-hotel");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchHotel = async () => {
-      if (!id) return;
-
-      setLoading(true);
-      try {
-        const { data } = await callGetHotelById(id);
-
-        setValue("name", data.name);
-        setValue("address", data.address);
-        setValue("description", data.description);
-        setValue("status", data.status);
-        setValue("locationId", data.locationId?._id || "");
-        setValue("images", data.images || []);
-      } catch (error: any) {
-        console.error("Fetch hotel error:", error);
-        toast.error(error?.response?.data?.message || "Failed to load hotel");
-        navigate("/my-hotel");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchHotel();
   }, [id, setValue, navigate]);
 
@@ -137,9 +141,9 @@ const UpdateMyHotel: React.FC = () => {
 
   const isProcessing = isSubmitting || isUploading;
 
-  if (loading) {
-    <LoadingPage />
-  }
+  if (loading) return <LoadingPage />;
+
+  if (!hotel) return <NotFoundPage />;
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">

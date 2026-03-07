@@ -20,6 +20,7 @@ import {
   WavesLadder,
   Wifi,
 } from "lucide-react";
+import NotFoundPage from "../ui/NotFound";
 
 const DetailHotel: React.FC = () => {
   const { hotelId } = useParams<{ hotelId: string }>();
@@ -46,9 +47,10 @@ const DetailHotel: React.FC = () => {
 
   const images = hotel.images || [];
 
-  if (loading) {
-    return <LoadingPage />;
-  }
+  if (loading) return <LoadingPage />;
+
+  if (!hotel) return <NotFoundPage />;
+
   return (
     <div className="flex-grow w-full max-w-[1200px] mx-auto px-4 lg:px-8 py-6">
       <nav className="flex flex-wrap gap-2 items-center text-sm mb-6">

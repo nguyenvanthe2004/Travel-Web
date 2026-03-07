@@ -139,7 +139,7 @@ const MyRoom: React.FC = () => {
       fetchRooms();
       fetchCountRoomByStatus();
     } catch (error: any) {
-      toast.error(error.message);
+    toast.error(error.message);
     } finally {
       setDeleting(false);
     }

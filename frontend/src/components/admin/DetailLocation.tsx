@@ -13,11 +13,14 @@ import { LocationFormData, locationSchema } from "../../validations/location";
 import { uploadMultiple } from "../../services/file";
 import DropZone from "../ui/Dropzone";
 import LoadingPage from "../ui/LoadingPage";
+import { set } from "zod";
+import NotFoundPage from "../ui/NotFound";
 
 const DetailLocation: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [location, setLocation] = useState<Location | null>(null);
   const [loading, setLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -37,24 +40,24 @@ const DetailLocation: React.FC = () => {
 
   const watchImages = watch("images") || [];
 
-  useEffect(() => {
+  const fetchLocation = async () => {
     if (!id) return;
+    try {
+      setLoading(true);
+      const { data } = await callGetLocationById(id);
+      setLocation(data);
+      setValue("name", data.name);
+      setValue("images", data.images);
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const fetchLocation = async () => {
-      try {
-        setLoading(true);
-        const { data } = await callGetLocationById(id);
-        setValue("name", data.name);
-        setValue("images", data.images);
-      } catch (error: any) {
-        toast.error(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchLocation();
-  }, [id, setValue]);
+  }, [id]);
 
   const handleFilesChange = (files: File[]) => {
     const totalImages = watchImages.length + files.length;
@@ -99,9 +102,9 @@ const DetailLocation: React.FC = () => {
     }
   };
   const isProcessing = isSubmitting || isUploading;
-  if (loading) {
-    return <LoadingPage />;
-  }
+  if (loading) return <LoadingPage />;
+
+  if (!location) return <NotFoundPage />;
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">

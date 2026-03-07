@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Room } from "../../types/room";
 import { useNavigate, useParams } from "react-router-dom";
 import { callGetRoomById } from "../../services/room";
@@ -22,6 +22,8 @@ import {
   Users,
   Wifi,
 } from "lucide-react";
+import NotFoundPage from "../ui/NotFound";
+import { formatPrice, getNights } from "../../lib/utils";
 
 const DetailRoom: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -49,27 +51,19 @@ const DetailRoom: React.FC = () => {
 
   if (!room) return null;
   const images = room.images || [];
-  const formatPrice = (price: number): string => {
-    return `$${price?.toLocaleString("en-US") || "0"}`;
-  };
-  const getNights = () => {
-    if (!checkIn || !checkOut) return 0;
 
-    const start = new Date(checkIn);
-    const end = new Date(checkOut);
+  const nights = useMemo(() => {
+    return getNights(checkIn, checkOut) * room.price;
+  }, [checkIn, checkOut]);
 
-    const diff = end.getTime() - start.getTime();
+  const total = useMemo(() => {
+    return nights * room.price;
+  }, [nights]);
 
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
-  };
+  if (loading) return <LoadingPage />;
 
-  const nights = getNights();
-  const serviceFee = 80;
-  const total = nights * room.price + serviceFee;
+  if (!room) return <NotFoundPage />;
 
-  if (loading) {
-    return <LoadingPage />;
-  }
   return (
     <div className="mx-auto max-w-7xl px-6 py-8">
       <nav className="flex flex-wrap gap-2 items-center text-sm mb-6">
@@ -377,10 +371,6 @@ const DetailRoom: React.FC = () => {
                 <span className="font-bold">
                   {formatPrice(nights * room.price)}
                 </span>
-              </div>
-              <div className="flex justify-between text-sm px-1">
-                <span className="text-slate-500">Service fee</span>
-                <span className="font-bold">{formatPrice(serviceFee)}</span>
               </div>
               <div className="pt-4 border-t border-slate-200 :border-slate-700 flex justify-between px-1">
                 <span className="font-extrabold">Total</span>

@@ -2,7 +2,7 @@ import type React from "react";
 import HomeLayout from "../../layouts/HomeLayout";
 import DetailRoom from "../../components/home/DetailRoom";
 
-const RoomDetailPage: React.FC = () => {
+const DetailRoomPage: React.FC = () => {
   return (
     <HomeLayout>
       <main className="flex-grow flex flex-col">
@@ -11,4 +11,4 @@ const RoomDetailPage: React.FC = () => {
     </HomeLayout>
   );
 };
-export default RoomDetailPage;
+export default DetailRoomPage;

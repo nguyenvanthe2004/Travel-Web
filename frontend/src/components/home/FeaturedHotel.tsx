@@ -55,16 +55,10 @@ const FeaturedHotel: React.FC = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <button
-              onClick={() => swiperRef.current?.slidePrev()}
-              className="size-10 rounded-full flex items-center justify-center hover:bg-background-light hover:border-primary/50 transition-colors"
-            >
+            <button className="size-10 rounded-full flex items-center justify-center hover:bg-background-light hover:border-primary/50 transition-colors">
               <ArrowLeft />
             </button>
-            <button
-              onClick={() => swiperRef.current?.slideNext()}
-              className="size-10 rounded-full bg-orange-400 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-lg shadow-primary/20"
-            >
+            <button className="size-10 rounded-full bg-orange-400 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-lg shadow-primary/20">
               <ArrowRight />
             </button>
           </div>
@@ -111,12 +105,14 @@ const FeaturedHotel: React.FC = () => {
                   <p className="text-sm text-text-muted">
                     {hotel.locationId.name}
                   </p>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-lg font-bold text-text-main">
-                      {hotel.rooms?.[0]?.price?.toLocaleString() || "..."}₫
-                    </span>
-                    <span className="text-sm text-gray-400">/ night</span>
-                  </div>
+                  {hotel.rooms.length ? (
+                    <div className="flex items-baseline gap-2 mt-1">
+                      <span className="text-lg font-bold text-text-main">
+                        $ {hotel.rangePrice}
+                      </span>
+                      <span className="text-sm text-gray-400">/ night</span>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </SwiperSlide>

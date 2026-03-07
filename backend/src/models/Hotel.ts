@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
+import { IRoom } from "./Room";
 
 export enum HotelStatus {
   OPEN = "open",
@@ -14,6 +15,7 @@ export interface IHotel extends Document {
   images: string[];
   locationId: Types.ObjectId;
   userId: Types.ObjectId;
+  rooms: IRoom[];
   createdAt: Date;
   updatedAt: Date;
 }

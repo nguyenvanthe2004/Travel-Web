@@ -12,12 +12,16 @@ import { callGetHotelById, callUpdateHotel } from "../../services/hotel";
 import { uploadMultiple } from "../../services/file";
 import { toast } from "react-toastify";
 import LoadingPage from "../ui/LoadingPage";
+import { Hotel } from "../../types/hotel";
+import { set } from "zod";
+import NotFoundPage from "../ui/NotFound";
 
 const DetailHotel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [locations, setLocations] = useState<Location[]>([]);
+  const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -67,6 +71,7 @@ const DetailHotel: React.FC = () => {
       setLoading(true);
       try {
         const { data } = await callGetHotelById(id);
+        setHotel(data);
 
         setValue("name", data.name);
         setValue("address", data.address);
@@ -139,9 +144,9 @@ const DetailHotel: React.FC = () => {
 
   const isProcessing = isSubmitting || isUploading;
 
-  if (loading) {
-    <LoadingPage />;
-  }
+  if (loading) return <LoadingPage />;
+
+  if (!hotel) return <NotFoundPage />;
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">

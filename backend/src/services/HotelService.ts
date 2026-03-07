@@ -35,9 +35,25 @@ export class HotelService {
         this.hotelRepo.countAll(status),
       ]);
 
+      const normalizedHotels = hotels.map((hotel) => {
+        const minPrice = hotel.rooms.reduce((min, room) => {
+          return room.price < min ? room.price : min;
+        }, Infinity);
+
+        const maxPrice = hotel.rooms.reduce((max, room) => {
+          return room.price > max ? room.price : max;
+        }, -Infinity);
+
+        return {
+          ...hotel,
+          rangePrice:
+            minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`,
+        };
+      });
+
       return {
         totalPages: Math.ceil(total / limit),
-        data: hotels,
+        data: normalizedHotels,
       };
     } catch (error: any) {
       throw new BadRequestError(error.message);

@@ -80,9 +80,7 @@ const DetailHotel: React.FC = () => {
         setValue("locationId", data.locationId?._id || "");
         setValue("images", data.images || []);
       } catch (error: any) {
-        console.error("Fetch hotel error:", error);
-        toast.error(error?.response?.data?.message || "Failed to load hotel");
-        navigate("/hotels");
+        toast.error(error.message);
       } finally {
         setLoading(false);
       }
@@ -213,7 +211,7 @@ const DetailHotel: React.FC = () => {
               </label>
               <textarea
                 {...register("description")}
-                rows={4}
+                rows={10}
                 disabled={isProcessing}
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter hotel description..."
@@ -269,9 +267,7 @@ const DetailHotel: React.FC = () => {
                 >
                   {Object.values(HotelStatus).map((status) => (
                     <option key={status} value={status}>
-                      <span>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </span>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
                     </option>
                   ))}
                 </select>

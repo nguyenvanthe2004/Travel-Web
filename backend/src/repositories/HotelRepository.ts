@@ -13,7 +13,7 @@ export class HotelRepository {
     if (!status && !locationId) {
       return HotelModel.countDocuments();
     }
-    return HotelModel.countDocuments({status , locationId});
+    return HotelModel.countDocuments({ status, locationId });
   }
 
   async countByUser(status?: string): Promise<number> {
@@ -54,7 +54,10 @@ export class HotelRepository {
   }
 
   async findById(id: string): Promise<IHotel | null> {
-    return HotelModel.findById(id).populate("locationId", "_id name").populate("rooms").lean();
+    return HotelModel.findById(id)
+      .populate("locationId", "_id name")
+      .populate("rooms")
+      .lean();
   }
 
   async findByUser(

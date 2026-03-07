@@ -37,6 +37,7 @@ function App() {
   useEffect(() => {
     fetchCurrentUser();
   }, [dispatch]);
+
   return (
     <BrowserRouter>
       <Routes>

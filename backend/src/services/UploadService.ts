@@ -2,13 +2,12 @@ import { Service } from "typedi";
 import { BadRequestError } from "routing-controllers";
 import { Request } from "express";
 import cloudinary from "../config/cloudinary";
-import { ca } from "zod/locales";
 
 @Service()
 export class UploadService {
   async uploadSingle(req: Request) {
     try {
-      const files = req.files;
+      const files = req.files as Express.Multer.File[];
       if (!files || files.length === 0) {
         throw new BadRequestError("No image uploaded");
       }

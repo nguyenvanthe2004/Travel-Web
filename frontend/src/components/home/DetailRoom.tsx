@@ -49,14 +49,15 @@ const DetailRoom: React.FC = () => {
     fetchRoomById();
   }, [roomId]);
 
-  if (!room) return null;
-  const images = room.images || [];
+  const images = room?.images || [];
 
   const nights = useMemo(() => {
-    return getNights(checkIn, checkOut) * room.price;
+    if (!room) return 0;
+    return getNights(checkIn, checkOut);
   }, [checkIn, checkOut]);
 
   const total = useMemo(() => {
+    if (!room) return 0;
     return nights * room.price;
   }, [nights]);
 
@@ -345,6 +346,7 @@ const DetailRoom: React.FC = () => {
                     <input
                       type="date"
                       value={checkOut}
+                      min={checkIn}
                       onChange={(e) => setCheckOut(e.target.value)}
                       className="font-semibold text-sm text-slate-700 outline-none bg-transparent w-full cursor-pointer"
                     />
@@ -379,7 +381,14 @@ const DetailRoom: React.FC = () => {
                 </span>
               </div>
             </div>
-            <button className="w-full bg-orange-400 text-white font-extrabold py-4 rounded-2xl hover:bg-orange-400/90 transition-all shadow-lg shadow-orange-400/20 transform active:scale-[0.98] mb-4">
+
+            <button
+              className={`w-full text-white font-extrabold py-4 rounded-2xl  transition-all shadow-lg shadow-orange-400/20 transform active:scale-[0.98] mb-4 ${
+                !total
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-orange-400 hover:bg-orange-400/90 cursor-pointer"
+              }`}
+            >
               Reserve Now
             </button>
             <p className="text-center text-xs text-slate-400">
@@ -402,7 +411,7 @@ const DetailRoom: React.FC = () => {
               (r) =>
                 r.status === RoomStatus.AVAILABLE &&
                 r._id !== room._id && (
-                  <div className="group cursor-pointer">
+                  <div key={room._id} className="group cursor-pointer">
                     <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4">
                       <div
                         className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"

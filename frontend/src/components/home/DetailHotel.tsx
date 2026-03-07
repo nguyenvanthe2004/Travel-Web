@@ -43,9 +43,8 @@ const DetailHotel: React.FC = () => {
   useEffect(() => {
     fetchHotelById();
   }, [hotelId]);
-  if (!hotel) return null;
 
-  const images = hotel.images || [];
+  const images = hotel?.images || [];
 
   if (loading) return <LoadingPage />;
 

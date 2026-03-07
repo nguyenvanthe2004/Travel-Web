@@ -31,7 +31,7 @@ export class RoomService {
         data: rooms,
       };
     } catch (error: any) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Room not found");
     }
   }
   async getRoomById(id: string) {
@@ -42,7 +42,7 @@ export class RoomService {
       }
       return room;
     } catch (error: any) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Room not found");
     }
   }
   async findByHotel(page = 1, limit = 10, hotelId: string) {
@@ -61,7 +61,7 @@ export class RoomService {
         data: rooms,
       };
     } catch (error: any) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Room not found");
     }
   }
 

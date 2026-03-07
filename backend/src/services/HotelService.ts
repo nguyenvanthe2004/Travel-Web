@@ -61,13 +61,9 @@ export class HotelService {
   }
   async getHotelById(id: string) {
     try {
-      const hotel = await this.hotelRepo.findById(id);
-      if (!hotel) {
-        throw new BadRequestError("Hotel not found");
-      }
-      return hotel;
+      return await this.hotelRepo.findById(id);
     } catch (error: any) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Hotel not found");
     }
   }
   async findByUser(page = 1, limit = 10, user: UserProps, status?: string) {

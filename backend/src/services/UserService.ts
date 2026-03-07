@@ -40,7 +40,7 @@ export class UserService {
         data: users,
       };
     } catch (error) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to fetch users");
     }
   }
 
@@ -48,9 +48,10 @@ export class UserService {
     try {
       return this.userRepo.findOne(id);
     } catch (error) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to fetch user");
     }
   }
+
   async login(dto: LoginUserDto, res: Response) {
     try {
       const user = await this.userRepo.findByEmail(dto.email);
@@ -152,7 +153,7 @@ export class UserService {
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to sent email");
     }
   }
   async sendForgotPasswordCode(email: string) {
@@ -185,7 +186,7 @@ export class UserService {
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to sent email");
     }
   }
   async forgotPassword(email: string, code: string) {
@@ -220,7 +221,7 @@ export class UserService {
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to sent new password");
     }
   }
 
@@ -244,7 +245,7 @@ export class UserService {
         phone: data.phone,
       });
 
-      refreshToken(res, updatedUser);
+      refreshToken(res, updatedUser!);
 
       return {
         success: true,
@@ -262,7 +263,7 @@ export class UserService {
       }
 
       const updateAvatar = await this.userRepo.update(userId, { avatar });
-      refreshToken(res, updateAvatar);
+      refreshToken(res, updateAvatar!);
       return { success: true };
     } catch (error: any) {
       throw new BadRequestError(error.message);
@@ -294,7 +295,7 @@ export class UserService {
         success: true,
       };
     } catch (error: any) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to update password");
     }
   }
   async logout(res: Response) {
@@ -306,7 +307,7 @@ export class UserService {
       });
       return { message: "Logout successfully" };
     } catch (error: any) {
-      throw new BadRequestError(error.message);
+      throw new BadRequestError("Failed to logout");
     }
   }
 }

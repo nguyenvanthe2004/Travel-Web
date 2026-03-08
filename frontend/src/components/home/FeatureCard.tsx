@@ -1,3 +1,4 @@
+import { Award, Info, ShieldCheck, UserCheck } from "lucide-react";
 import type React from "react";
 
 const FeatureCard: React.FC = () => {
@@ -8,7 +9,7 @@ const FeatureCard: React.FC = () => {
           <div className="flex flex-col items-center text-center md:items-start md:text-left gap-4">
             <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-2">
               <span className="material-symbols-outlined text-3xl text-orange-400">
-                price_check
+                <Award size={40} />
               </span>
             </div>
             <h4 className="text-xl font-bold text-text-main">
@@ -23,7 +24,7 @@ const FeatureCard: React.FC = () => {
           <div className="flex flex-col items-center text-center md:items-start md:text-left gap-4">
             <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-2">
               <span className="material-symbols-outlined text-3xl text-orange-400">
-                support_agent
+                <Info size={40} />
               </span>
             </div>
             <h4 className="text-xl font-bold text-text-main">
@@ -38,7 +39,7 @@ const FeatureCard: React.FC = () => {
           <div className="flex flex-col items-center text-center md:items-start md:text-left gap-4">
             <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-2">
               <span className="material-symbols-outlined text-3xl text-orange-400">
-                verified_user
+                <ShieldCheck size={40} />
               </span>
             </div>
             <h4 className="text-xl font-bold text-text-main">

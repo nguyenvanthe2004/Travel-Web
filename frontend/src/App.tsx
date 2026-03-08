@@ -11,7 +11,6 @@ import { setCurrentUser } from "./redux/slices/currentUser";
 import Profile from "./pages/profile/ProfilePage";
 import DashboardPage from "./pages/admin/dashboard/DashboardPage";
 import LocationPage from "./pages/admin/location/LocationPage";
-import CreateLocation from "./components/admin/CreateLocation";
 import DetailLocationPage from "./pages/admin/location/DetailLocationPage";
 import MyHotelPage from "./pages/hotel/MyHotelPage";
 import CreateMyHotelPage from "./pages/hotel/CreateMyHotelPage";
@@ -25,6 +24,7 @@ import HotelDetailPage from "./pages/hotel/DetailHotelPage";
 import BookingPage from "./pages/admin/booking/BookingPage";
 import UserPage from "./pages/admin/user/UserPage";
 import DetailRoomPage from "./pages/room/DetailRoomPage";
+import CreateLocationPage from "./pages/admin/location/CreateLocationPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -46,10 +46,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/locations">
+        <Route path="/admin/dashboard" element={<DashboardPage />} />
+        <Route path="/admin/locations">
           <Route index element={<LocationPage />} />
-          <Route path="create" element={<CreateLocation />} />
+          <Route path="create" element={<CreateLocationPage />} />
           <Route path="update/:id" element={<DetailLocationPage />} />
         </Route>
         <Route path="/my-hotel">
@@ -57,7 +57,7 @@ function App() {
           <Route path="create" element={<CreateMyHotelPage />} />
           <Route path="update/:id" element={<UpdateHotelPage />} />
         </Route>
-        <Route path="/hotels">
+        <Route path="/admin/hotels">
           <Route index element={<HotelPage />} />
           <Route path="update/:id" element={<DetailHotelPage />} />
         </Route>
@@ -74,8 +74,8 @@ function App() {
           <Route index element={<HotelDetailPage />} />
           <Route path="room/:roomId" element={<DetailRoomPage />} />
         </Route>
-        <Route path="/bookings" element={<BookingPage />} />
-        <Route path="/users" element={<UserPage />} />
+        <Route path="/admin/bookings" element={<BookingPage />} />
+        <Route path="/admin/users" element={<UserPage />} />
       </Routes>
     </BrowserRouter>
   );

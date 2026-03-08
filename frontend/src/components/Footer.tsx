@@ -1,16 +1,21 @@
 import type React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Footer: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <footer className="bg-white border-t border-border-light pt-16 pb-8 px-6">
       <div className="max-w-[1280px] mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
           <div className="col-span-2 lg:col-span-2 flex flex-col gap-4 pr-8">
-            <div className="flex items-center gap-2">
+            <div
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <div className="size-6 bg-primary rounded flex items-center justify-center text-white">
                 <img src="/icons/logo.svg" alt="" />
               </div>
-              <h4 className="text-lg font-bold text-text-main">Vista Stays</h4>
+              <h4 className="text-lg font-bold text-text-main">TravelStay</h4>
             </div>
             <p className="text-sm text-text-muted leading-relaxed max-w-xs text-gray-600">
               Your trusted companion for finding the perfect stay. From cozy

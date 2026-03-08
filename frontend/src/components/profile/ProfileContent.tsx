@@ -125,7 +125,11 @@ const ProfileContent: React.FC = () => {
               <div className="relative group">
                 <div className="size-24 sm:size-28 rounded-full border-4 border-[#f4ede7] overflow-hidden bg-cover bg-center">
                   <img
-                    src={`${CLOUDINARY_URL}${avatar}`}
+                   src={
+                      avatar ?
+                      `${CLOUDINARY_URL}${avatar}` :
+                      "public/images/avatar.png"
+                    }
                     alt=""
                     className="w-full h-full object-cover"
                   />

@@ -133,7 +133,7 @@ const HotelList: React.FC = () => {
       render: (hotel: Hotel) => (
         <div className="flex items-center justify-end gap-1">
           <button
-            onClick={() => navigate(`/hotels/update/${hotel._id}`)}
+            onClick={() => navigate(`/admin/hotels/update/${hotel._id}`)}
             className="p-2.5 text-slate-400 hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/10 rounded-lg"
           >
             <span className="material-symbols-outlined text-[22px]">
@@ -157,7 +157,7 @@ const HotelList: React.FC = () => {
   ];
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
+    <div className="w-full px-4 sm:px-6 lg:px-12 sm:pt-24 lg:pt-8 pb-4 sm:pb-8">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
         <div className="space-y-1">

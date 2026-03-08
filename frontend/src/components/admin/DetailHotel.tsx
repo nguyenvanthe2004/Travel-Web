@@ -148,7 +148,7 @@ const DetailHotel: React.FC = () => {
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
-      <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-8 max-w-7xl mx-auto">
+      <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-8">
         <div className="mb-10">
           <h2 className="text-3xl font-extrabold text-slate-900">
             Update Hotel
@@ -309,7 +309,7 @@ const DetailHotel: React.FC = () => {
           <div className="flex justify-end gap-4">
             <button
               type="button"
-              onClick={() => navigate("/my-hotel")}
+              onClick={() => navigate("/admin/hotels")}
               disabled={isProcessing}
               className="px-8 py-3 border border-slate-300 rounded-xl hover:bg-slate-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >

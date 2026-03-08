@@ -4,7 +4,7 @@ import { logout } from "../../redux/slices/currentUser";
 import { useDispatch } from "react-redux";
 import { callLogout } from "../../services/auth";
 import { useState } from "react";
-import { Hotel, LogOut, Menu, Settings, User, X } from "lucide-react";
+import { Hotel, LogOut, Menu, Settings, ShieldCheck, User, X } from "lucide-react";
 import { toastError } from "../../lib/toast";
 
 const menuItems = [
@@ -80,18 +80,18 @@ const SideBar: React.FC = () => {
         `}
       >
         <div>
-          <div className="px-6 mb-8 flex items-center gap-2">
-            <div
-              onClick={() => {
-                navigate("/");
-                setIsOpen(false);
-              }}
-              className="bg-primary size-7 rounded-lg flex items-center justify-center text-white cursor-pointer"
-            >
+          <div
+            onClick={() => {
+              navigate("/");
+              setIsOpen(false);
+            }}
+            className="px-6 mb-8 flex items-center gap-2 cursor-pointer"
+          >
+            <div className="bg-primary size-7 rounded-lg flex items-center justify-center text-white ">
               <img src="/icons/logo.svg" alt="" />
             </div>
             <span className="text-lg font-extrabold tracking-tight text-[#1c140d]">
-              Vista Stays
+              TravelStay
             </span>
           </div>
           <div className="px-3 space-y-1">
@@ -118,8 +118,8 @@ const SideBar: React.FC = () => {
         <div className="px-3">
           <div className="bg-[#fff4e6] p-4 rounded-xl mb-4 border border-[#e8dbce]">
             <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined text-primary text-base">
-                verified
+              <span className="material-symbols-outlined text-3xl text-orange-400">
+                <ShieldCheck />
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-[#9c7349]">
                 Premium Tier

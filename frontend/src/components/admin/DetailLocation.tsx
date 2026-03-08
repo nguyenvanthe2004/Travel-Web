@@ -108,7 +108,7 @@ const DetailLocation: React.FC = () => {
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
-      <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
+      <div className="w-full px-4 sm:px-6 lg:px-12 sm:pt-24 lg:pt-8 pb-4 sm:pb-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8 lg:mb-10">
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
@@ -161,7 +161,7 @@ const DetailLocation: React.FC = () => {
           <div className="mt-6 sm:mt-8 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4">
             <button
               type="button"
-              onClick={() => navigate("/locations")}
+              onClick={() => navigate("/admin/locations")}
               className="px-6 sm:px-8 py-2.5 sm:py-3 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg sm:rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all"
             >
               Cancel

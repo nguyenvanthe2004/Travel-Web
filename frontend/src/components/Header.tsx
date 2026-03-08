@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Menu, X, User, LogOut, Hotel } from "lucide-react";
+import { Menu, X, User, LogOut, Hotel, UserStar } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { RootState } from "../redux/store";
@@ -44,25 +44,25 @@ const Header: React.FC = () => {
     <>
       <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200">
         <div className="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div onClick={() => navigate("/")} className="size-8 bg-primary rounded flex items-center justify-center text-white cursor-pointer">
+          <div
+            onClick={() => navigate("/")}
+            className="flex items-center gap-3 cursor-pointer"
+          >
+            <div className="size-8 bg-primary rounded flex items-center justify-center text-white">
               <img src="/icons/logo.svg" alt="" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900">Vista Stays</h1>
+            <h1 className="text-xl font-bold text-gray-900">TravelStay</h1>
           </div>
 
           <div className="hidden lg:flex items-center gap-6">
             <nav className="flex gap-6">
               <a href="#" className="text-sm font-medium hover:text-orange-400">
-                Destinations
+                My Booking
               </a>
-              <a href="#" className="text-sm font-medium hover:text-orange-400">
-                Deals
-              </a>
-              <a href="#" className="text-sm font-medium hover:text-orange-400">
-                My Trips
-              </a>
-              <a href="#" className="text-sm font-medium hover:text-orange-400">
+              <a
+                onClick={() => navigate("/my-hotel")}
+                className="text-sm font-medium hover:text-orange-400 cursor-pointer"
+              >
                 My Hotels
               </a>
             </nav>
@@ -76,7 +76,14 @@ const Header: React.FC = () => {
                   className="size-10 rounded-full border-4 border-[#f4ede7] overflow-hidden bg-cover bg-center cursor-pointer"
                   aria-label="User menu"
                 >
-                  <img src={`${CLOUDINARY_URL}${user.avatar}`} alt="" />
+                  <img
+                    src={
+                      user.avatar
+                        ? `${CLOUDINARY_URL}${user.avatar}`
+                        : "public/images/avatar.png"
+                    }
+                    alt=""
+                  />
                 </button>
 
                 {isDropdownOpen && (
@@ -88,17 +95,18 @@ const Header: React.FC = () => {
                       <p className="text-xs text-gray-500 mt-0.5">
                         {user.email}
                       </p>
-                      {user.role === UserRole.ADMIN && (
-                        <span
-                          onClick={() => navigate("/dashboard")}
-                          className="cursor-pointer inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-600 rounded"
-                        >
-                          Admin
-                        </span>
-                      )}
                     </div>
 
                     <div className="py-1">
+                      {user.role === UserRole.ADMIN && (
+                        <a
+                          onClick={() => navigate("admin/dashboard")}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
+                        >
+                          <UserStar size={16} />
+                          <span>Admin</span>
+                        </a>
+                      )}
                       <a
                         onClick={() => navigate("/profile")}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
@@ -218,7 +226,7 @@ const Header: React.FC = () => {
                       src={
                         user?.avatar
                           ? `${CLOUDINARY_URL}${user.avatar}`
-                          : "/images/avatar.png"
+                          : "public/images/avatar.png"
                       }
                       alt=""
                       className="w-full h-full object-cover"
@@ -231,17 +239,18 @@ const Header: React.FC = () => {
                     <p className="text-xs text-gray-500 truncate">
                       {user.email}
                     </p>
-                    {user.role === UserRole.ADMIN && (
-                      <span
-                        onClick={() => navigate("/dashboard")}
-                        className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-600 rounded"
-                      >
-                        Admin
-                      </span>
-                    )}
                   </div>
                 </div>
 
+                <a
+                  onClick={() => {
+                    navigate("admin/dashboard");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
+                >
+                  {user.role === UserRole.ADMIN && <span>Admin</span>}
+                </a>
                 <a
                   onClick={() => {
                     navigate("/profile");

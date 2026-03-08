@@ -4,7 +4,7 @@ import type React from "react";
 const Dashboard: React.FC = () => {
   return (
     <div className="flex-1 bg-slate-50 min-h-screen">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pt-20 lg:pt-8 space-y-6 sm:space-y-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:pt-8 space-y-6 sm:space-y-8">
         {/* Header & Stats Cards */}
         <div>
           <h2 className="text-xl sm:text-2xl font-extrabold mb-4 sm:mb-6 tracking-tight">

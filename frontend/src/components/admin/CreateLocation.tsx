@@ -55,7 +55,7 @@ const CreateLocation: React.FC = () => {
 
   return (
     <main className="flex-1 overflow-y-auto bg-slate-50">
-      <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
+      <div className="w-full px-4 sm:px-6 lg:px-12 sm:pt-24 lg:pt-8 pb-4 sm:pb-8">
         <div className="mb-10">
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
             Add New Location
@@ -106,7 +106,7 @@ const CreateLocation: React.FC = () => {
           <div className="mt-8 flex items-center justify-end gap-4">
             <button
               type="button"
-              onClick={() => navigate("/locations")}
+              onClick={() => navigate("/admin/locations")}
               className="px-8 py-3 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all"
             >
               Cancel

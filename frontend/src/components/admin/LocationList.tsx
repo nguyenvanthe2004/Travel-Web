@@ -85,7 +85,7 @@ const LocationList: React.FC = () => {
       render: (row: Location) => (
         <div className="flex justify-end gap-1">
           <button
-            onClick={() => navigate(`/locations/update/${row._id}`)}
+            onClick={() => navigate(`/admin/locations/update/${row._id}`)}
             className="p-2.5 text-slate-400 hover:text-[#0F8FA0] hover:bg-[#0F8FA0]/10 rounded-lg"
           >
             <span className="material-symbols-outlined text-[22px]">
@@ -111,7 +111,7 @@ const LocationList: React.FC = () => {
 
   return (
     <div className="flex-1 overflow-y-auto bg-slate-50">
-      <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
+      <div className="w-full px-4 sm:px-6 lg:px-12 sm:pt-24 lg:pt-8 pb-4 sm:pb-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
           <div className="space-y-1">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
@@ -122,7 +122,7 @@ const LocationList: React.FC = () => {
             </p>
           </div>
           <button
-            onClick={() => navigate("/locations/create")}
+            onClick={() => navigate("/admin/locations/create")}
             className="flex items-center gap-2 px-5 py-2.5 bg-[#0F8FA0] text-white text-sm font-bold rounded-lg hover:bg-[#0E7A88]"
           >
             <span className="material-symbols-outlined text-[20px]">

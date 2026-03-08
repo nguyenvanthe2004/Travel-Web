@@ -1,42 +1,55 @@
-import { BadgeQuestionMark, Bed, CalendarCheck, Hotel, LayoutDashboard, LogOut, MapPin, Settings, User } from "lucide-react";
+import {
+  BadgeQuestionMark,
+  Bed,
+  CalendarCheck,
+  Hotel,
+  LayoutDashboard,
+  LogOut,
+  MapPin,
+  Settings,
+  User,
+} from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { RootState } from "../../redux/store";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router";
 import { CLOUDINARY_URL } from "../../constants";
 import NavItem from "../NavItem";
+import { callLogout } from "../../services/auth";
+import { logout } from "../../redux/slices/currentUser";
+import { toastError } from "../../lib/toast";
 
 export const NAV_ITEMS = [
   {
     key: "dashboard",
     label: "Dashboard",
     icon: <LayoutDashboard />,
-    path: "/dashboard",
+    path: "/admin/dashboard",
   },
   {
     key: "locations",
     label: "Locations",
     icon: <MapPin />,
-    path: "/locations",
+    path: "/admin/locations",
   },
   {
     key: "hotels",
     label: "Hotels",
     icon: <Bed />,
-    path: "/hotels",
+    path: "/admin/hotels",
   },
   {
     key: "bookings",
     label: "Bookings",
     icon: <CalendarCheck />,
-    path: "/bookings",
+    path: "/admin/bookings",
   },
   {
     key: "users",
     label: "Users",
     icon: <User />,
-    path: "/users",
+    path: "/admin/users",
   },
 ];
 
@@ -58,23 +71,36 @@ export const SYSTEM_ITEMS = [
 const SideBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const user = useSelector((state: RootState) => state.auth.currentUser);
+
+  const handleLogout = async () => {
+    try {
+      dispatch(logout());
+      await callLogout();
+      navigate("/login");
+    } catch (error: any) {
+      toastError(error.message);
+    }
+  };
 
   return (
     <>
       {/* Mobile Top Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-50">
-        <div className="flex items-center gap-2">
-          <div className="size-8 bg-white rounded-lg flex items-center justify-center border-2 border-[#0F8FA0]">
-            <Hotel size={16} className="text-[#0F8FA0]" />
+        <Link to={"/admin/dashboard"}>
+          <div className="flex items-center gap-2">
+            <div className="size-8 bg-white rounded-lg flex items-center justify-center border-2 border-[#0F8FA0]">
+              <Hotel size={16} className="text-[#0F8FA0]" />
+            </div>
+            <div>
+              <h1 className="text-base font-extrabold tracking-tight leading-none">
+                StayManager
+              </h1>
+            </div>
           </div>
-          <div>
-            <h1 className="text-base font-extrabold tracking-tight leading-none">
-              StayManager
-            </h1>
-          </div>
-        </div>
+        </Link>
 
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -105,19 +131,21 @@ const SideBar: React.FC = () => {
           top-16 lg:top-0
         `}
       >
+        <Link to={"/admin/dashboard"}>
+        
         <div className="hidden lg:flex p-6 items-center gap-3">
           <div className="size-9 bg-white rounded-lg flex items-center justify-center border-2 border-[#0F8FA0]">
             <Hotel size={20} className="text-[#0F8FA0]" />
           </div>
           <div>
-            <h1 className="text-lg font-extrabold tracking-tight leading-none">
-              StayManager
+            <h1 className="text-lg font-extrabold tracking-tight leading-none mb-1">
+              TravelStay
             </h1>
             <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
               Admin Portal
             </p>
           </div>
-        </div>
+        </div></Link>
 
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => (
@@ -148,18 +176,20 @@ const SideBar: React.FC = () => {
             <div
               className="size-10 rounded-full bg-cover bg-center ring-2 ring-[#0F8FA0]"
               style={{
-                backgroundImage: `url(${CLOUDINARY_URL}${user?.avatar})`,
+                backgroundImage:
+                  `url(${CLOUDINARY_URL}${user.avatar})` ||
+                  "public/images/avatar.png",
               }}
             ></div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold truncate">{user?.fullName}</p>
-              <p className="text-xs text-slate-500 truncate">{user?.role}</p>
+              <p className="text-sm font-bold truncate">{user.fullName}</p>
+              <p className="text-xs text-slate-500 truncate">{user.role}</p>
             </div>
             <button
-              onClick={() => navigate("/login")}
-              className="text-slate-400 hover:text-slate-600"
+              onClick={handleLogout}
+              className="text-slate-400 hover:text-slate-600 cursor-pointer"
             >
-             <LogOut />
+              <LogOut />
             </button>
           </div>
         </div>

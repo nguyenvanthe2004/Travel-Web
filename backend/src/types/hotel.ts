@@ -26,3 +26,4 @@ export type HotelQuery = {
   userId: string;
   status?: string;
 };
+

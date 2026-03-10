@@ -11,7 +11,7 @@ export class LocationRepository {
     if(!limit) {
       return LocationModel.find().lean();
     }
-    return LocationModel.find().skip(skip).limit(limit).lean<ILocation[]>();
+    return LocationModel.find().skip(skip).limit(limit).populate("hotels").lean<ILocation[]>();
   }
 
   findOne(id: string) {

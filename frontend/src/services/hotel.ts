@@ -35,6 +35,25 @@ export const callGetMyHotel = async (
 export const callGetHotelById = async (id: string) => {
   return await instance.get(`/hotels/${id}`);
 };
+export const callGetHotelSearch = async (
+  page = 1,
+  limit = 10,
+  locationName?: string,
+  guests?: number,
+  minPrice?: number,
+  maxPrice?: number,
+) => {
+  return instance.get("/hotels/search", {
+    params: {
+      page,
+      limit,
+      locationName,
+      guests,
+      minPrice,
+      maxPrice
+    },
+  });
+};
 export const callCreateHotel = async (data: HotelFormData) => {
   return await instance.post("/hotels", data);
 };

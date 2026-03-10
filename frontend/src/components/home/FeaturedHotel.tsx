@@ -108,7 +108,7 @@ const FeaturedHotel: React.FC = () => {
                   {hotel.rooms.length ? (
                     <div className="flex items-baseline gap-2 mt-1">
                       <span className="text-lg font-bold text-text-main">
-                        $ {hotel.rangePrice}
+                        ${hotel.rangePrice}
                       </span>
                       <span className="text-sm text-gray-400">/ night</span>
                     </div>

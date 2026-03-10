@@ -25,6 +25,7 @@ import BookingPage from "./pages/admin/booking/BookingPage";
 import UserPage from "./pages/admin/user/UserPage";
 import DetailRoomPage from "./pages/room/DetailRoomPage";
 import CreateLocationPage from "./pages/admin/location/CreateLocationPage";
+import SearchResultPage from "./pages/home/SearchResultPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -45,6 +46,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/search" element={<SearchResultPage />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin/dashboard" element={<DashboardPage />} />
         <Route path="/admin/locations">

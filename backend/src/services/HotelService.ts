@@ -168,4 +168,50 @@ export class HotelService {
       })),
     );
   }
+  async searchHotel(
+    page = 1,
+    limit = 10,
+    locationName?: string,
+    guests?: number,
+    minPrice?: number,
+    maxPrice?: number,
+  ) {
+    try {
+      page = Math.max(1, Number(page));
+      limit = Math.max(1, Number(limit));
+
+      const skip = (page - 1) * limit;
+
+      const hotels = await this.hotelRepo.findHotels(
+        skip,
+        limit,
+        locationName,
+        guests,
+        minPrice,
+        maxPrice,
+      );
+
+      const normalizedHotels = hotels.map((hotel) => {
+        const min = hotel.rooms.reduce(
+          (m: number, r: { price: number }) => (r.price < m ? r.price : m),
+          Infinity,
+        );
+        const max = hotel.rooms.reduce(
+          (m: number, r: { price: number }) => (r.price > m ? r.price : m),
+          -Infinity,
+        );
+
+        return {
+          ...hotel,
+          rangePrice: min === max ? min : `${min} - ${max}`,
+        };
+      });
+
+      return {
+        data: normalizedHotels,
+      };
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
+  }
 }

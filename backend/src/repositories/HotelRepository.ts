@@ -80,6 +80,79 @@ export class HotelRepository {
       .populate("rooms")
       .lean<IHotel[]>();
   }
+  async findHotels(
+    skip: number,
+    limit: number,
+    locationName?: string,
+    guests?: number,
+    minPrice?: number,
+    maxPrice?: number,
+  ) {
+    const pipeline = [];
+
+    pipeline.push({
+      $lookup: {
+        from: "locations",
+        localField: "locationId",
+        foreignField: "_id",
+        as: "location",
+      },
+    });
+
+    pipeline.push({
+      $unwind: "$location",
+    });
+
+    if (locationName) {
+      pipeline.push({
+        $match: {
+          "location.name": { $regex: locationName, $options: "i" },
+        },
+      });
+    }
+
+    pipeline.push({
+      $lookup: {
+        from: "rooms",
+        localField: "_id",
+        foreignField: "hotelId",
+        as: "rooms",
+      },
+    });
+
+    if (guests) {
+      pipeline.push({
+        $match: {
+          rooms: {
+            $elemMatch: {
+              maxGuests: { $gte: Number(guests) },
+            },
+          },
+        },
+      });
+    }
+    if (minPrice || maxPrice) {
+      pipeline.push({
+        $match: {
+          rooms: {
+            $elemMatch: {
+              price: {
+                $gte: Number(minPrice ?? 0),
+                $lte: Number(maxPrice ?? 1000),
+              },
+            },
+          },
+        },
+      });
+    }
+
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limit });
+
+    const hotels = await HotelModel.aggregate(pipeline);
+
+    return hotels;
+  }
 
   async create(data: CreateHotelInput, userId: string): Promise<IHotel> {
     const hotel = new HotelModel({ ...data, userId });

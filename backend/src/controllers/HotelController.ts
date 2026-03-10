@@ -48,6 +48,24 @@ export class HotelController {
   ) {
     return await this.hotelService.findByUser(page, limit, user, status);
   }
+  @Get("/search")
+  async findSearchHotel(
+    @QueryParam("page") page: number,
+    @QueryParam("limit") limit?: number,
+    @QueryParam("locationName") locationName?: string,
+    @QueryParam("guests") guests?: number,
+    @QueryParam("minPrice") minPrice?: number,
+    @QueryParam("maxPrice") maxPrice?: number,
+  ) {
+    return await this.hotelService.searchHotel(
+      page,
+      limit,
+      locationName,
+      guests,
+      minPrice,
+      maxPrice,
+    );
+  }
   @Public()
   @Get("/:id")
   async findHotelById(@Param("id") id: string) {

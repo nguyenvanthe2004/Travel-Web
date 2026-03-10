@@ -129,7 +129,7 @@ const DetailHotel: React.FC = () => {
       await callUpdateHotel(id, finalData);
 
       toast.success("Hotel updated successfully!");
-      navigate("/my-hotel");
+      navigate("/admin/hotels");
     } catch (error: any) {
       console.error("Update hotel error:", error);
       toast.error(

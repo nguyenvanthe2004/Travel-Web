@@ -11,3 +11,8 @@ export const getNights = (checkIn: string, checkOut: string) => {
 
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
+
+export const getMinPrice = (price: any) => {
+  if (typeof price === "number") return price;
+  return Number(price.split("-")[0].trim());
+};

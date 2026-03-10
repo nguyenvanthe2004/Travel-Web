@@ -46,7 +46,7 @@ const CreateLocation: React.FC = () => {
       };
       await callCreateLocation(locationData);
       toast.success("Location created successfully!");
-      navigate("/locations");
+      navigate("/admin/locations");
     } catch (error: any) {
       toast.error(error.message || "Something went wrong");
     }

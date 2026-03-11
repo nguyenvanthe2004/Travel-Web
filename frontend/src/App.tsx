@@ -25,7 +25,7 @@ import BookingPage from "./pages/admin/booking/BookingPage";
 import UserPage from "./pages/admin/user/UserPage";
 import DetailRoomPage from "./pages/room/DetailRoomPage";
 import CreateLocationPage from "./pages/admin/location/CreateLocationPage";
-import SearchResultPage from "./pages/home/SearchResultPage";
+import SearchResultPage from "./pages/result/SearchResultPage";
 
 function App() {
   const dispatch = useDispatch();

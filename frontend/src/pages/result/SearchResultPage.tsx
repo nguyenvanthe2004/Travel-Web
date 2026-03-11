@@ -1,6 +1,6 @@
 import type React from "react";
 import HomeLayout from "../../layouts/HomeLayout";
-import SearchResult from "../../components/home/SearchResult";
+import SearchResult from "../../components/result/SearchResult";
 
 const SearchResultPage: React.FC = () => {
   return (

@@ -12,10 +12,6 @@ const SearchBar: React.FC = () => {
   const [checkOut, setCheckOut] = useState("");
 
   const handleSearch = () => {
-    if (!locationName.trim() || !checkIn || !checkOut || guests <= 0) {
-      toastError("Please enter location, date and number of guests");
-      return;
-    }
     navigate(
       `/search?locationName=${locationName}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`,
     );
@@ -70,41 +66,6 @@ const SearchBar: React.FC = () => {
                     />
                   </div>
                 </label>
-              </div>
-
-              <div className="flex-1 px-4 py-3 lg:py-0 relative group border-l">
-                <div className="flex items-center gap-3">
-                  {/* Icon */}
-                  <span className="text-orange-500">
-                    <Calendar size={20} />
-                  </span>
-
-                  {/* Content */}
-                  <div className="flex flex-col flex-1">
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                      Check-in — Check-out
-                    </span>
-
-                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-                      <input
-                        type="date"
-                        value={checkIn}
-                        onChange={(e) => setCheckIn(e.target.value)}
-                        className="outline-none bg-transparent cursor-pointer"
-                      />
-
-                      <span className="text-gray-400">—</span>
-
-                      <input
-                        type="date"
-                        value={checkOut}
-                        min={checkIn}
-                        onChange={(e) => setCheckOut(e.target.value)}
-                        className="outline-none bg-transparent cursor-pointer"
-                      />
-                    </div>
-                  </div>
-                </div>
               </div>
 
               <div className="flex-1 px-4 py-2 lg:py-0 relative group">

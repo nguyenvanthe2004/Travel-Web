@@ -1,12 +1,13 @@
 import { Service } from "typedi";
 import { Types } from "mongoose";
-import { HotelModel, IHotel, HotelStatus } from "../models/Hotel";
+import { HotelModel, IHotel, HotelStatus, SortValue } from "../models/Hotel";
 import {
   CreateHotelInput,
   HotelFindFilter,
   HotelQuery,
   UpdateHotelInput,
 } from "../types/hotel";
+import { PipelineStage } from "mongoose";
 @Service()
 export class HotelRepository {
   countAll(status?: string, locationId?: string) {
@@ -87,8 +88,9 @@ export class HotelRepository {
     guests?: number,
     minPrice?: number,
     maxPrice?: number,
+    sort?: string,
   ) {
-    const pipeline = [];
+    const pipeline: PipelineStage[] = [];
 
     pipeline.push({
       $lookup: {
@@ -144,6 +146,22 @@ export class HotelRepository {
           },
         },
       });
+    }
+    pipeline.push({
+      $addFields: {
+        minRoomPrice: { $min: "$rooms.price" },
+      },
+    });
+    if (sort === SortValue.PRICE_ASC) {
+      pipeline.push({ $sort: { minRoomPrice: 1 } });
+    }
+
+    if (sort === SortValue.PRICE_DESC) {
+      pipeline.push({ $sort: { minRoomPrice: -1 } });
+    }
+
+    if (sort === SortValue.RECOMMENDED) {
+      pipeline.push({ $sort: { createdAt: -1 } });
     }
 
     pipeline.push({ $skip: skip });

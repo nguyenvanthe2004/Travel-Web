@@ -5,11 +5,17 @@ import { callGetHotelSearch } from "../../services/hotel";
 import { toastError } from "../../lib/toast";
 import { Hotel } from "../../types/hotel";
 import LoadingPage from "../ui/LoadingPage";
-import { CLOUDINARY_URL, HotelStatus } from "../../constants";
+import { Range } from "react-range";
+import { useDebounce } from "use-debounce";
+import {
+  CLOUDINARY_URL,
+  SortValue,
+  HotelStatus,
+  PRICE_MAP,
+} from "../../constants";
 import {
   BedDouble,
   CalendarDays,
-  ChevronDown,
   ChevronRight,
   Heart,
   MapPin,
@@ -17,42 +23,40 @@ import {
   Star,
   Users,
 } from "lucide-react";
-import { getMinPrice } from "../../lib/utils";
+import Pagination from "../ui/Pagination";
+
+const STEP = 50;
+const MIN = 0;
+const MAX = 1000;
 
 const SearchResult: React.FC = () => {
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [params] = useSearchParams();
-  const locationName = params.get("locationName");
+  const locationName = params.get("locationName") || "";
   const guests = Number(params.get("guests"));
   const checkIn = params.get("checkIn");
   const checkOut = params.get("checkOut");
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(false);
-  const [priceRange, setPriceRange] = useState("all");
-  const PRICE_MAP: Record<string, { min: number; max: number }> = {
-    "0-100": { min: 0, max: 100 },
-    "100-300": { min: 100, max: 300 },
-    "300-500": { min: 300, max: 500 },
-    "500+": { min: 500, max: 1000 },
-    all: { min: 0, max: 1000 },
-  };
-
-  const { min: minPrice, max: maxPrice } = PRICE_MAP[priceRange];
-  const [sort, setSort] = useState("recommended");
+  const [priceRange, setPriceRange] = useState([100, 500]);
+  const [debouncedPrice] = useDebounce(priceRange, 500);
+  const [sort, setSort] = useState(SortValue.RECOMMENDED);
 
   const fetchHotels = async () => {
-    if (!locationName) return;
     try {
       setLoading(true);
       const res = await callGetHotelSearch(
-        1,
-        4,
+        page,
+        5,
         locationName,
         guests,
-        minPrice,
-        maxPrice,
+        debouncedPrice[0],
+        debouncedPrice[1],
+        sort,
       );
-
+      setTotalPages(res.data.totalPages);
       setHotels(res.data.data);
     } catch (error: any) {
       toastError(error.message);
@@ -63,19 +67,7 @@ const SearchResult: React.FC = () => {
 
   useEffect(() => {
     fetchHotels();
-  }, [locationName, guests, priceRange]);
-
-  const sortedHotels = useMemo(() => {
-    return [...hotels].sort((a, b) => {
-      if (sort === "price_asc")
-        return getMinPrice(a.rangePrice) - getMinPrice(b.rangePrice);
-
-      if (sort === "price_desc")
-        return getMinPrice(b.rangePrice) - getMinPrice(a.rangePrice);
-
-      return 0;
-    });
-  }, [hotels, sort]);
+  }, [page, debouncedPrice, sort]);
 
   if (loading) {
     return <LoadingPage />;
@@ -142,22 +134,56 @@ const SearchResult: React.FC = () => {
       <div className="flex-grow max-w-[1280px] mx-auto w-full px-4 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <aside className="hidden lg:block lg:col-span-3 space-y-8">
-            <div className="space-y-4 pb-6 m-2">
-              <h3 className="text-base font-semibold text-gray-800:text-white">
+            <div className="space-y-4 pb-6 border-b border-[#e8dbce]">
+              <h3 className="text-base font-bold text-[#1c140d]">
                 Your budget (per night)
               </h3>
 
-              <select
-                value={priceRange}
-                onChange={(e) => setPriceRange(e.target.value)}
-                className="w-full rounded-lg p-2"
-              >
-                <option value="all">All prices</option>
-                <option value="0-100">$0 - $100</option>
-                <option value="100-300">$100 - $300</option>
-                <option value="300-500">$300 - $500</option>
-                <option value="500+">$500+</option>
-              </select>
+              <div className="pt-6 px-2">
+                <Range
+                  step={STEP}
+                  min={MIN}
+                  max={MAX}
+                  values={priceRange}
+                  onChange={(values) => {
+                    setPriceRange(values);
+                    setPage(1);
+                  }}
+                  renderTrack={({ props, children }) => (
+                    <div
+                      {...props}
+                      className="relative h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full"
+                    >
+                      <div
+                        className="absolute h-full bg-orange-500 rounded-full"
+                        style={{
+                          width: `${((priceRange[1] - priceRange[0]) / MAX) * 100}%`,
+                          left: `${(priceRange[0] / MAX) * 100}%`,
+                        }}
+                      />
+                      {children}
+                    </div>
+                  )}
+                  renderThumb={({ props }) => (
+                    <div
+                      {...props}
+                      className="w-5 h-5 bg-white border-2 border-orange-500 rounded-full shadow cursor-pointer"
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-between items-center text-xl font-medium text-[#1c140d]:text-gray-300 pt-2">
+                <span className="px-3 py-1 bg-white:bg-[#2a2018] rounded-lg">
+                  ${priceRange[0]}
+                </span>
+
+                <span className="text-gray-400">-</span>
+
+                <span className="px-3 py-1 bg-white:bg-[#2a2018] rounded-lg">
+                  ${priceRange[1]}+
+                </span>
+              </div>
             </div>
             <div className="space-y-3 pb-6">
               <h3 className="text-base font-bold text-[#1c140d]:text-white">
@@ -218,17 +244,19 @@ const SearchResult: React.FC = () => {
 
                 <select
                   value={sort}
-                  onChange={(e) => setSort(e.target.value)}
+                  onChange={(e) => setSort(e.target.value as SortValue)}
                   className="bg-white:bg-[#2a2018] text-[#1c140d]:text-white text-sm font-semibold rounded-lg focus:ring-orange-400 focus:border-orange-400 py-2 px-3 pr-8"
                 >
-                  <option value="recommended">Recommended</option>
-                  <option value="price_asc">Price (Low to High)</option>
-                  <option value="price_desc">Price (High to Low)</option>
+                  {Object.values(SortValue).map((value) => (
+                    <option key={value} value={value}>
+                      {value.charAt(0).toUpperCase() + value.slice(1)}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
             <div className="flex flex-col gap-6">
-              {sortedHotels.length === 0 ? (
+              {hotels.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
                   <span className="material-symbols-outlined text-6xl text-gray-400 mb-4">
                     <SearchX />
@@ -244,12 +272,12 @@ const SearchResult: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                sortedHotels.map((hotel) => {
+                hotels.map((hotel) => {
                   if (hotel.status !== HotelStatus.OPEN) return;
                   return (
                     <div
                       key={hotel._id}
-                      className="flex flex-col md:flex-row bg-white:bg-[#2a2018] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
+                      className="flex flex-col w-240 md:flex-row bg-white:bg-[#2a2018] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
                     >
                       <div className="relative md:w-72 h-48 md:h-auto shrink-0 overflow-hidden">
                         <div
@@ -296,7 +324,7 @@ const SearchResult: React.FC = () => {
                                   <MapPin />
                                 </span>
                                 <span className="truncate">
-                                  {hotel.address}, {hotel.locationId.name}
+                                  {hotel.address}, {locationName}
                                 </span>
                               </div>
                             </div>
@@ -354,16 +382,11 @@ const SearchResult: React.FC = () => {
                 })
               )}
 
-              {hotels.length > 0 && (
-                <div className="flex justify-center mt-8">
-                  <button className="flex items-center gap-2 px-6 py-3 rounded-xl hover:bg-gray-50:hover:bg-[#2a2018] font-bold text-[#1c140d]:text-white transition-colors">
-                    Show more results
-                    <span className="material-symbols-outlined">
-                      <ChevronDown />
-                    </span>
-                  </button>
-                </div>
-              )}
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
             </div>
           </div>
         </div>

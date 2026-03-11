@@ -18,7 +18,6 @@ import { CLOUDINARY_URL, UserRole } from "../constants";
 import { logout } from "../redux/slices/currentUser";
 import { callLogout } from "../services/auth";
 import { toastError } from "../lib/toast";
-import Modal from "./ui/Modal";
 
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,6 +29,7 @@ const Header: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -41,7 +41,13 @@ const Header: React.FC = () => {
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setIsDropdownOpen(false);
+        setIsOpen(false);
+      }
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
       }
     };
 
@@ -49,7 +55,6 @@ const Header: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Lock body scroll when mobile search is open
   useEffect(() => {
     if (isMobileSearchOpen) {
       document.body.style.overflow = "hidden";
@@ -62,11 +67,6 @@ const Header: React.FC = () => {
   }, [isMobileSearchOpen]);
 
   const handleSearch = () => {
-    if (!locationName.trim() || !checkIn || !checkOut || guests <= 0) {
-          toastError("Please enter location, date and number of guests");
-          return;
-        }
-
     navigate(
       `/search?locationName=${locationName}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`,
     );
@@ -116,7 +116,11 @@ const Header: React.FC = () => {
             </div>
 
             {isOpen && (
-              <div className="absolute top-full mt-4 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50 animate-fade-in">
+              
+              <div
+                ref={modalRef}
+                className="absolute top-full mt-4 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50 animate-fade-in"
+              >
                 <div className="flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -133,37 +137,6 @@ const Header: React.FC = () => {
                         onChange={(e) => setLocationName(e.target.value)}
                         className="w-full outline-none text-sm"
                       />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                      Dates
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center border border-gray-200 rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-orange-400">
-                        <span className="text-gray-400 mr-2">
-                          <Calendar size={16} />
-                        </span>
-                        <input
-                          type="date"
-                          value={checkIn}
-                          onChange={(e) => setCheckIn(e.target.value)}
-                          className="w-full outline-none text-sm bg-transparent"
-                        />
-                      </div>
-                      <div className="flex items-center border border-gray-200 rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-orange-400">
-                        <span className="text-gray-400 mr-2">
-                          <Calendar size={16} />
-                        </span>
-                        <input
-                          type="date"
-                          min={checkIn}
-                          value={checkOut}
-                          onChange={(e) => setCheckOut(e.target.value)}
-                          className="w-full outline-none text-sm bg-transparent"
-                        />
-                      </div>
                     </div>
                   </div>
 
@@ -334,24 +307,20 @@ const Header: React.FC = () => {
             : "opacity-0 pointer-events-none"
         }`}
       >
-        {/* Backdrop */}
         <div
           className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           onClick={() => setIsMobileSearchOpen(false)}
         />
 
-        {/* Panel slides up from bottom */}
         <div
           className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl transition-transform duration-300 ease-out ${
             isMobileSearchOpen ? "translate-y-0" : "translate-y-full"
           }`}
         >
-          {/* Handle bar */}
           <div className="flex justify-center pt-3 pb-1">
             <div className="w-10 h-1 bg-gray-300 rounded-full" />
           </div>
 
-          {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h2 className="text-lg font-bold text-gray-900">Search Hotel</h2>
             <button
@@ -388,40 +357,6 @@ const Header: React.FC = () => {
                     <X size={14} />
                   </button>
                 )}
-              </div>
-            </div>
-
-            {/* Dates */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
-                Dates
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-gray-500 pl-1">Check-in</span>
-                  <div className="flex items-center gap-2 border-2 border-gray-200 rounded-2xl px-4 py-3 focus-within:border-orange-400 transition-colors bg-gray-50">
-                    <Calendar size={16} className="text-orange-400 flex-shrink-0" />
-                    <input
-                      type="date"
-                      value={checkIn}
-                      onChange={(e) => setCheckIn(e.target.value)}
-                      className="w-full outline-none text-sm bg-transparent text-gray-800"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-gray-500 pl-1">Check-out</span>
-                  <div className="flex items-center gap-2 border-2 border-gray-200 rounded-2xl px-4 py-3 focus-within:border-orange-400 transition-colors bg-gray-50">
-                    <Calendar size={16} className="text-orange-400 flex-shrink-0" />
-                    <input
-                      type="date"
-                      min={checkIn}
-                      value={checkOut}
-                      onChange={(e) => setCheckOut(e.target.value)}
-                      className="w-full outline-none text-sm bg-transparent text-gray-800"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
 

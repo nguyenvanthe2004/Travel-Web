@@ -7,6 +7,12 @@ export enum HotelStatus {
   RENOVATION = "renovation",
 }
 
+export enum SortValue {
+  RECOMMENDED = "recommended",
+  PRICE_ASC = "price_asc",
+  PRICE_DESC = "price_desc",
+}
+
 export interface IHotel extends Document {
   name: string;
   address: string;

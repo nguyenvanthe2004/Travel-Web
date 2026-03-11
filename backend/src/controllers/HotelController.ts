@@ -17,6 +17,7 @@ import { HotelService } from "../services/HotelService";
 import { CreateHotelDto, UpdateHotelDto } from "../dtos/HotelDto";
 import { Public } from "../decorators/public";
 import { UserProps } from "../types/auth";
+import { SortValue } from "../models/Hotel";
 
 @Service()
 @JsonController("/hotels")
@@ -47,6 +48,26 @@ export class HotelController {
     @QueryParam("status") status?: string,
   ) {
     return await this.hotelService.findByUser(page, limit, user, status);
+  }
+  @Get("/search")
+  async findSearchHotel(
+    @QueryParam("page") page: number,
+    @QueryParam("limit") limit?: number,
+    @QueryParam("locationName") locationName?: string,
+    @QueryParam("guests") guests?: number,
+    @QueryParam("minPrice") minPrice?: number,
+    @QueryParam("maxPrice") maxPrice?: number,
+    @QueryParam("sort") sort?: string,
+  ) {
+    return await this.hotelService.searchHotel(
+      page,
+      limit,
+      locationName,
+      guests,
+      minPrice,
+      maxPrice,
+      sort
+    );
   }
   @Public()
   @Get("/:id")

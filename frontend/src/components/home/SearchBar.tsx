@@ -1,7 +1,18 @@
 import { Calendar, MapPin, Search, Users } from "lucide-react";
 import type React from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toastError } from "../../lib/toast";
 
 const SearchBar: React.FC = () => {
+  const navigate = useNavigate();
+  const [locationName, setLocationName] = useState("");
+  const [guests, setGuests] = useState(1);
+
+  const handleSearch = () => {
+    navigate(`/search?locationName=${locationName}&guests=${guests}`);
+  };
+
   return (
     <section className="relative pt-12 pb-32 px-6 lg:px-0">
       <div className="max-w-[1280px] mx-auto relative z-10">
@@ -30,7 +41,12 @@ const SearchBar: React.FC = () => {
           </div>
 
           <div className="relative z-20 mt-12 w-full max-w-5xl">
-            <div className="bg-white rounded-full p-2 lg:p-3 shadow-2xl flex flex-col lg:flex-row items-stretch lg:items-center gap-2 lg:gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-100 ring-1 ring-black/5">
+            <div
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+              className="bg-white rounded-full p-2 lg:p-3 shadow-2xl flex flex-col lg:flex-row items-stretch lg:items-center gap-2 lg:gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-100 ring-1 ring-black/5"
+            >
               <div className="flex-1 px-4 py-2 lg:py-0 relative group">
                 <label className="flex items-center gap-3 cursor-text w-full">
                   <span className="material-symbols-outlined text-orange-500">
@@ -42,27 +58,13 @@ const SearchBar: React.FC = () => {
                     </span>
                     <input
                       className=" p-0 text-text-main placeholder-gray-400 border-0
-    outline-none
-    focus:outline-none focus:ring-0 focus:border-0 focus:ring-0 text-base font-semibold bg-transparent w-full"
+                      outline-none
+                      focus:outline-none focus:ring-0 focus:border-0 focus:ring-0 text-base font-semibold bg-transparent w-full text-center"
                       placeholder="Search destinations"
                       type="text"
+                      value={locationName}
+                      onChange={(e) => setLocationName(e.target.value)}
                     />
-                  </div>
-                </label>
-              </div>
-
-              <div className="flex-1 px-4 py-2 lg:py-0 relative group">
-                <label className="flex items-center gap-3 cursor-pointer w-full">
-                  <span className="material-symbols-outlined text-orange-500">
-                    <Calendar />
-                  </span>
-                  <div className="flex flex-col flex-1">
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                      Check-in — Check-out
-                    </span>
-                    <div className="text-base font-semibold text-text-main truncate">
-                      Add dates
-                    </div>
                   </div>
                 </label>
               </div>
@@ -76,15 +78,24 @@ const SearchBar: React.FC = () => {
                     <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                       Guests
                     </span>
-                    <div className="text-base font-semibold text-text-main truncate">
-                      2 adults, 1 room
-                    </div>
+                    <input
+                      className=" p-0 text-text-main placeholder-gray-400 border-0
+                      outline-none
+                      focus:outline-none focus:ring-0 focus:border-0 focus:ring-0 text-base font-semibold bg-transparent w-full text-center"
+                      placeholder=""
+                      type="number"
+                      value={guests}
+                      onChange={(e) => setGuests(Number(e.target.value))}
+                    />
                   </div>
                 </label>
               </div>
 
               <div className="p-1">
-                <button className="w-full lg:w-auto h-14 px-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]">
+                <button
+                  onClick={handleSearch}
+                  className="w-full lg:w-auto h-14 px-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                >
                   <span className="material-symbols-outlined">
                     <Search />
                   </span>

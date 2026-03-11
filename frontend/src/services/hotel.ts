@@ -1,4 +1,4 @@
-import { HotelStatus } from "../constants";
+import { HotelStatus, SortValue } from "../constants";
 import { HotelFormData } from "../validations/hotel";
 import instance from "./req";
 
@@ -34,6 +34,27 @@ export const callGetMyHotel = async (
 
 export const callGetHotelById = async (id: string) => {
   return await instance.get(`/hotels/${id}`);
+};
+export const callGetHotelSearch = async (
+  page = 1,
+  limit = 10,
+  locationName?: string,
+  guests?: number,
+  minPrice?: number,
+  maxPrice?: number,
+  sort?: SortValue
+) => {
+  return instance.get("/hotels/search", {
+    params: {
+      page,
+      limit,
+      locationName,
+      guests,
+      minPrice,
+      maxPrice,
+      sort
+    },
+  });
 };
 export const callCreateHotel = async (data: HotelFormData) => {
   return await instance.post("/hotels", data);

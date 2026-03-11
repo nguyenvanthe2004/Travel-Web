@@ -5,7 +5,7 @@ import {
   ForbiddenError,
   NotFoundError,
 } from "routing-controllers";
-import { HotelStatus } from "../models/Hotel";
+import { HotelStatus, SortValue } from "../models/Hotel";
 import { UserProps } from "../types/auth";
 import { CreateHotelDto, UpdateHotelDto } from "../dtos/HotelDto";
 import { UserRepository } from "../repositories/UserRepository";
@@ -167,5 +167,51 @@ export class HotelService {
         total: await this.hotelRepo.countByStatus(status, userId),
       })),
     );
+  }
+  async searchHotel(
+    page = 1,
+    limit = 5,
+    locationName?: string,
+    guests?: number,
+    minPrice?: number,
+    maxPrice?: number,
+    sort?: string
+  ) {
+    try {
+      const skip = (page - 1) * limit;
+
+      const hotels = await this.hotelRepo.findHotels(
+        skip,
+        limit,
+        locationName,
+        guests,
+        minPrice,
+        maxPrice,
+        sort
+      );
+
+      const normalizedHotels = hotels.map((hotel) => {
+        const min = hotel.rooms.reduce(
+          (m: number, r: { price: number }) => (r.price < m ? r.price : m),
+          Infinity,
+        );
+        const max = hotel.rooms.reduce(
+          (m: number, r: { price: number }) => (r.price > m ? r.price : m),
+          -Infinity,
+        );
+
+        return {
+          ...hotel,
+          rangePrice: min === max ? min : `${min} - ${max}`,
+        };
+      });
+
+      return {
+        totalPages: Math.ceil(hotels.length / limit),
+        data: normalizedHotels,
+      };
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
   }
 }

@@ -23,5 +23,13 @@ const LocationSchema = new Schema<ILocation>(
     timestamps: true,
   }
 );
+LocationSchema.virtual("hotels", {
+  ref: "Hotel",
+  localField: "_id",
+  foreignField: "locationId",
+});
+
+LocationSchema.set("toObject", { virtuals: true });
+LocationSchema.set("toJSON", { virtuals: true });
 
 export const LocationModel = model<ILocation>("Location", LocationSchema);

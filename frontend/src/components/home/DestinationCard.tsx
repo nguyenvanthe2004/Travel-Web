@@ -6,10 +6,12 @@ import LoadingPage from "../ui/LoadingPage";
 import { Location } from "../../types/location";
 import { CLOUDINARY_URL } from "../../constants";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const DestinationCard: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const fetchLocations = async () => {
     setLoading(true);
@@ -54,25 +56,31 @@ const DestinationCard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {locations.length > 0 && locations.map((location) => (
-            <div
-              key={location._id}
-              className="group relative aspect-[4/5] overflow-hidden rounded-2xl cursor-pointer"
-            >
-              <img
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                src={`${CLOUDINARY_URL}/${location.images?.[0]}`}
-                alt={location.name}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-              <div className="absolute bottom-0 left-0 p-6">
-                <h4 className="text-white text-xl font-bold">
-                  {location.name}
-                </h4>
-                <p className="text-white/80 text-sm mt-1">1,240 properties</p>
+          {locations.length > 0 &&
+            locations.map((location) => (
+              <div
+                key={location._id}
+                className="group relative aspect-[4/5] overflow-hidden rounded-2xl cursor-pointer"
+                onClick={() =>
+                  navigate(`/search?locationName=${location.name}`)
+                }
+              >
+                <img
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  src={`${CLOUDINARY_URL}/${location.images?.[0]}`}
+                  alt={location.name}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 p-6">
+                  <h4 className="text-white text-xl font-bold">
+                    {location.name}
+                  </h4>
+                  <p className="text-white/80 text-sm mt-1">
+                    {location?.hotels?.length} properties
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </section>

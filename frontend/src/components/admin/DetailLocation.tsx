@@ -96,7 +96,7 @@ const DetailLocation: React.FC = () => {
 
       await callUpdateLocation(id, finalData);
       toast.success("Location updated successfully!");
-      navigate("/locations");
+      navigate("/admin/locations");
     } catch (error: any) {
       toast.error(error.message || "Update failed");
     }

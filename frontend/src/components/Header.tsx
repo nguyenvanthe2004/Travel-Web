@@ -22,8 +22,6 @@ import { toastError } from "../lib/toast";
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [locationName, setLocationName] = useState("");
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(1);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
@@ -41,7 +39,7 @@ const Header: React.FC = () => {
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
+        setIsDropdownOpen(false);
       }
       if (
         modalRef.current &&
@@ -67,9 +65,7 @@ const Header: React.FC = () => {
   }, [isMobileSearchOpen]);
 
   const handleSearch = () => {
-    navigate(
-      `/search?locationName=${locationName}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`,
-    );
+    navigate(`/search?locationName=${locationName}&guests=${guests}`);
     setIsOpen(false);
     setIsMobileSearchOpen(false);
   };
@@ -116,12 +112,17 @@ const Header: React.FC = () => {
             </div>
 
             {isOpen && (
-              
               <div
                 ref={modalRef}
                 className="absolute top-full mt-4 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50 animate-fade-in"
               >
-                <div className="flex flex-col gap-5">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSearch();
+                  }}
+                  className="flex flex-col gap-5"
+                >
                   <div className="flex flex-col gap-2">
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       Destination
@@ -161,20 +162,22 @@ const Header: React.FC = () => {
 
                   <div className="flex justify-between items-center pt-3">
                     <button
+                      type="button"
                       onClick={() => setIsOpen(false)}
                       className="text-sm text-gray-500 hover:text-gray-800 font-medium"
                     >
                       Cancel
                     </button>
+
                     <button
-                      onClick={handleSearch}
+                      type="submit"
                       className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
                     >
                       <Search size={16} />
                       Search
                     </button>
                   </div>
-                </div>
+                </form>
               </div>
             )}
           </div>
@@ -334,7 +337,6 @@ const Header: React.FC = () => {
 
           {/* Search Form */}
           <div className="px-5 py-5 flex flex-col gap-4 pb-8">
-            {/* Location */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
                 Destination

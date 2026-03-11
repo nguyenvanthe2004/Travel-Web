@@ -8,6 +8,7 @@ import {
   UpdateHotelInput,
 } from "../types/hotel";
 import { PipelineStage } from "mongoose";
+import { buildVietnameseRegex } from "../utils/helper";
 @Service()
 export class HotelRepository {
   countAll(status?: string, locationId?: string) {
@@ -97,18 +98,23 @@ export class HotelRepository {
         from: "locations",
         localField: "locationId",
         foreignField: "_id",
-        as: "location",
+        as: "locationId",
       },
     });
 
     pipeline.push({
-      $unwind: "$location",
+      $unwind: "$locationId",
     });
 
     if (locationName) {
+      const regex = buildVietnameseRegex(locationName);
+
       pipeline.push({
         $match: {
-          "location.name": { $regex: locationName, $options: "i" },
+          "locationId.name": {
+            $regex: regex,
+            $options: "i",
+          },
         },
       });
     }
@@ -152,16 +158,17 @@ export class HotelRepository {
         minRoomPrice: { $min: "$rooms.price" },
       },
     });
-    if (sort === SortValue.PRICE_ASC) {
-      pipeline.push({ $sort: { minRoomPrice: 1 } });
-    }
+    switch (sort) {
+      case SortValue.PRICE_ASC:
+        pipeline.push({ $sort: { minRoomPrice: 1 } });
+        break;
 
-    if (sort === SortValue.PRICE_DESC) {
-      pipeline.push({ $sort: { minRoomPrice: -1 } });
-    }
+      case SortValue.PRICE_DESC:
+        pipeline.push({ $sort: { minRoomPrice: -1 } });
+        break;
 
-    if (sort === SortValue.RECOMMENDED) {
-      pipeline.push({ $sort: { createdAt: -1 } });
+      default:
+        pipeline.push({ $sort: { createdAt: -1 } });
     }
 
     pipeline.push({ $skip: skip });

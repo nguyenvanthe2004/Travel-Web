@@ -1,4 +1,5 @@
 import { HotelStatus } from "../constants";
+import { Location } from "./location";
 import { Room } from "./room";
 
 export interface Hotel {

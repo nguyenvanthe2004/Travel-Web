@@ -30,6 +30,24 @@ export function generateForgotPass(length = 6) {
   return code;
 }
 
+export function buildVietnameseRegex(str: string) {
+  const map: Record<string, string> = {
+    a: "[aàáạảãâầấậẩẫăằắặẳẵ]",
+    e: "[eèéẹẻẽêềếệểễ]",
+    i: "[iìíịỉĩ]",
+    o: "[oòóọỏõôồốộổỗơờớợởỡ]",
+    u: "[uùúụủũưừứựửữ]",
+    y: "[yỳýỵỷỹ]",
+    d: "[dđ]",
+  };
+
+  return str
+    .toLowerCase()
+    .split("")
+    .map((c) => map[c] || c)
+    .join("");
+}
+
 export const refreshToken = (res: Response, user: IUser) => {
   const token = jwt.sign(
     {

@@ -7,15 +7,9 @@ import { Hotel } from "../../types/hotel";
 import LoadingPage from "../ui/LoadingPage";
 import { Range } from "react-range";
 import { useDebounce } from "use-debounce";
-import {
-  CLOUDINARY_URL,
-  SortValue,
-  HotelStatus,
-  PRICE_MAP,
-} from "../../constants";
+import { CLOUDINARY_URL, SortValue, HotelStatus } from "../../constants";
 import {
   BedDouble,
-  CalendarDays,
   ChevronRight,
   Heart,
   MapPin,
@@ -36,8 +30,6 @@ const SearchResult: React.FC = () => {
   const [params] = useSearchParams();
   const locationName = params.get("locationName") || "";
   const guests = Number(params.get("guests"));
-  const checkIn = params.get("checkIn");
-  const checkOut = params.get("checkOut");
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(false);
   const [priceRange, setPriceRange] = useState([100, 500]);
@@ -93,23 +85,6 @@ const SearchResult: React.FC = () => {
                 />
               </div>
             </div>
-            {checkIn && checkOut && (
-              <div className="flex-1 w-full flex items-center gap-3 px-4 py-2">
-                <span className="material-symbols-outlined text-[#9c7349]">
-                  <CalendarDays />
-                </span>
-                <div className="flex flex-col w-full">
-                  <label className="text-xs font-semibold text-[#9c7349] uppercase tracking-wider">
-                    Dates
-                  </label>
-                  <input
-                    className="w-full bg-transparent border-none p-0 text-[#1c140d]:text-white font-semibold focus:ring-0"
-                    value={`${checkIn} -- ${checkOut}`}
-                    readOnly
-                  />
-                </div>
-              </div>
-            )}
             {guests > 0 && (
               <div className="flex-1 w-full flex items-center gap-3 px-4 py-2">
                 <span className="material-symbols-outlined text-[#9c7349]">
@@ -149,27 +124,37 @@ const SearchResult: React.FC = () => {
                     setPriceRange(values);
                     setPage(1);
                   }}
-                  renderTrack={({ props, children }) => (
-                    <div
-                      {...props}
-                      className="relative h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full"
-                    >
+                  renderTrack={({ props, children }) => {
+                    const { key, ...rest } = props as any;
+
+                    return (
                       <div
-                        className="absolute h-full bg-orange-500 rounded-full"
-                        style={{
-                          width: `${((priceRange[1] - priceRange[0]) / MAX) * 100}%`,
-                          left: `${(priceRange[0] / MAX) * 100}%`,
-                        }}
+                        key={key}
+                        {...rest}
+                        className="relative h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full"
+                      >
+                        <div
+                          className="absolute h-full bg-orange-500 rounded-full"
+                          style={{
+                            width: `${((priceRange[1] - priceRange[0]) / MAX) * 100}%`,
+                            left: `${(priceRange[0] / MAX) * 100}%`,
+                          }}
+                        />
+                        {children}
+                      </div>
+                    );
+                  }}
+                  renderThumb={({ props }) => {
+                    const { key, ...rest } = props;
+
+                    return (
+                      <div
+                        key={key}
+                        {...rest}
+                        className="w-5 h-5 bg-white border-2 border-orange-500 rounded-full shadow cursor-pointer"
                       />
-                      {children}
-                    </div>
-                  )}
-                  renderThumb={({ props }) => (
-                    <div
-                      {...props}
-                      className="w-5 h-5 bg-white border-2 border-orange-500 rounded-full shadow cursor-pointer"
-                    />
-                  )}
+                    );
+                  }}
                 />
               </div>
 
@@ -324,7 +309,7 @@ const SearchResult: React.FC = () => {
                                   <MapPin />
                                 </span>
                                 <span className="truncate">
-                                  {hotel.address}, {locationName}
+                                  {hotel.address}, {hotel.locationId.name}
                                 </span>
                               </div>
                             </div>
@@ -343,8 +328,7 @@ const SearchResult: React.FC = () => {
                             <div className="flex items-center gap-2 mb-1">
                               <div className="flex flex-wrap gap-2 mt-2">
                                 <span className="px-2 py-0.5 transition-colors/10 text-white bg-green-400/90 transition-colors text-xs font-bold rounded">
-                                  {hotel.status.toLocaleLowerCase() ===
-                                    "open" && "Open"}
+                                  {hotel.status.toUpperCase()}
                                 </span>
                               </div>
                             </div>

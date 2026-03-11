@@ -9,7 +9,7 @@ export enum HotelStatus {
 
 export enum SortValue {
   RECOMMENDED = "recommended",
-  PRICE_ASC = " price_asc",
+  PRICE_ASC = "price_asc",
   PRICE_DESC = "price_desc",
 }
 

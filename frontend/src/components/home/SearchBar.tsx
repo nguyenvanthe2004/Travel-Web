@@ -8,13 +8,9 @@ const SearchBar: React.FC = () => {
   const navigate = useNavigate();
   const [locationName, setLocationName] = useState("");
   const [guests, setGuests] = useState(1);
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
 
   const handleSearch = () => {
-    navigate(
-      `/search?locationName=${locationName}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`,
-    );
+    navigate(`/search?locationName=${locationName}&guests=${guests}`);
   };
 
   return (
@@ -45,7 +41,12 @@ const SearchBar: React.FC = () => {
           </div>
 
           <div className="relative z-20 mt-12 w-full max-w-5xl">
-            <div className="bg-white rounded-full p-2 lg:p-3 shadow-2xl flex flex-col lg:flex-row items-stretch lg:items-center gap-2 lg:gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-100 ring-1 ring-black/5">
+            <div
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+              className="bg-white rounded-full p-2 lg:p-3 shadow-2xl flex flex-col lg:flex-row items-stretch lg:items-center gap-2 lg:gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-100 ring-1 ring-black/5"
+            >
               <div className="flex-1 px-4 py-2 lg:py-0 relative group">
                 <label className="flex items-center gap-3 cursor-text w-full">
                   <span className="material-symbols-outlined text-orange-500">

@@ -14,7 +14,7 @@ const Newsletter: React.FC = () => {
         </div>
         <div className="w-full max-w-lg flex flex-col sm:flex-row gap-3">
           <input
-            className="flex-1 rounded-3xl h-14 px-6 bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+            className="flex-1 rounded-3xl h-14 p-[15px] sm:px-6 bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
             placeholder="Your email address"
             type="email"
           />

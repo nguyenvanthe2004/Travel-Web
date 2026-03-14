@@ -32,9 +32,7 @@ const MyBooking: React.FC = () => {
   const fetchMyBooking = async () => {
     try {
       setLoading(true);
-      console.log("STATUS FILTER:", statusFilter);
       const res = await callGetMyBookings(page, 5, statusFilter);
-      console.log(res.data.data);
       setBookings(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error: any) {
@@ -180,19 +178,21 @@ const MyBooking: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex gap-3 w-full sm:w-auto">
-                        <button
-                          onClick={() => {
-                            setCancelId(booking._id);
-                            open();
-                          }}
-                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 h-10 px-6 rounded-xl 
+                        {booking.status === BookingStatus.PENDING && (
+                          <button
+                            onClick={() => {
+                              setCancelId(booking._id);
+                              open();
+                            }}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 h-10 px-6 rounded-xl 
                           bg-red-50 text-red-600 border border-red-200 
                           hover:bg-red-600 hover:text-white hover:border-red-600
                           text-sm font-semibold shadow-sm hover:shadow-md 
                           transition-all duration-200 active:scale-95"
-                        >
-                          Cancel Booking
-                        </button>
+                          >
+                            Cancel Booking
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

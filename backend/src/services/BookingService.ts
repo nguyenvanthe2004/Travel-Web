@@ -74,6 +74,30 @@ export class BookingService {
     }
   }
 
+  async findByOwner(page = 1, limit = 10, user: UserProps, status?: string) {
+    try {
+      const userId = String(user.userId);
+
+      page = Math.max(1, Number(page));
+      limit = Math.max(1, Number(limit));
+
+      const skip = (page - 1) * limit;
+
+      const [bookings, total] = await Promise.all([
+        this.BookingRepo.findByOwner(skip, limit, userId, status),
+        this.BookingRepo.countByOwner(userId, status),
+      ]);
+
+      return {
+        totalPages: Math.ceil(total / limit),
+        total,
+        data: bookings,
+      };
+    } catch (error: any) {
+      throw new BadRequestError(error.message || "Booking not found");
+    }
+  }
+
   async create(dto: CreateBookingDto, user: UserProps) {
     try {
       const room = await this.RoomRepo.findById(dto.roomId);

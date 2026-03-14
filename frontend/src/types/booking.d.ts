@@ -20,6 +20,9 @@ export interface Booking {
       locationId: {
         name: string;
       };
+      userId: {
+        _id: string
+      }
     };
   };
   nights: number;

@@ -54,14 +54,6 @@ const FeaturedHotel: React.FC = () => {
               Top rated stays for your next vacation.
             </p>
           </div>
-          <div className="flex gap-2">
-            <button className="size-10 rounded-full flex items-center justify-center hover:bg-background-light hover:border-primary/50 transition-colors">
-              <ArrowLeft />
-            </button>
-            <button className="size-10 rounded-full bg-orange-400 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-lg shadow-primary/20">
-              <ArrowRight />
-            </button>
-          </div>
         </div>
 
         <Swiper

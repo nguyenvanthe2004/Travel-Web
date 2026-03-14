@@ -79,16 +79,6 @@ const BookingList: React.FC = () => {
 
   const bookingColumns = [
     {
-      key: "code",
-      title: "Booking ID",
-      render: (booking: Booking) => (
-        <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
-          {`BK-${booking._id.slice(-5)}`}
-        </span>
-      ),
-    },
-
-    {
       key: "guest",
       title: "Guest",
       render: (booking: Booking) => (

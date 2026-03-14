@@ -24,8 +24,22 @@ export const callGetBookingById = async (id: string) => {
   return instance.get(`/bookings/${id}`);
 };
 
-export const callGetMyBookings = async (page: number, limit: number, status?: string) => {
+export const callGetMyBookings = async (
+  page: number,
+  limit: number,
+  status?: string,
+) => {
   return instance.get(`/bookings/my-booking`, {
+    params: { page, limit, status },
+  });
+};
+
+export const callGetBookingsOwner = async (
+  page: number,
+  limit: number,
+  status?: string,
+) => {
+  return instance.get(`/bookings/booking-manager`, {
     params: { page, limit, status },
   });
 };

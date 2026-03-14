@@ -87,22 +87,78 @@ export class BookingRepository {
         populate: {
           path: "hotelId",
           select: "name address locationId",
-          populate: {
-            path: "locationId",
-            select: "name",
-          },
+          populate: [
+            { path: "locationId", select: "name" },
+            {
+              path: "userId",
+              select: "_id fullName",
+            },
+          ],
         },
       })
       .lean();
   }
 
-  async countByUser(status?: string): Promise<number> {
-      const query: BookingFindFilter = {};
-      if (status) {
-        query.status = status;
-      }
-      return BookingModel.countDocuments(query);
+  async findByOwner(
+    skip: number,
+    limit: number,
+    ownerId: string,
+    status?: string,
+  ): Promise<IBooking[]> {
+    const query: any = {};
+
+    if (status) {
+      query.status = status;
     }
+
+    const bookings = await BookingModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "roomId",
+        select: "name price images hotelId",
+        populate: {
+          path: "hotelId",
+          select: "name address locationId userId",
+          match: { userId: ownerId },
+          populate: [
+            { path: "locationId", select: "name" },
+            { path: "userId", select: "_id fullName" },
+          ],
+        },
+      })
+      .lean();
+
+    return bookings.filter((b: any) => b.roomId?.hotelId);
+  }
+
+  async countByUser(status?: string): Promise<number> {
+    const query: BookingFindFilter = {};
+    if (status) {
+      query.status = status;
+    }
+    return BookingModel.countDocuments(query);
+  }
+  async countByOwner(ownerId: string, status?: string): Promise<number> {
+    const query: any = {};
+
+    if (status) {
+      query.status = status;
+    }
+
+    const bookings = await BookingModel.find(query)
+      .populate({
+        path: "roomId",
+        populate: {
+          path: "hotelId",
+          match: { userId: ownerId },
+        },
+      })
+      .lean();
+
+    return bookings.filter((b: any) => b.roomId?.hotelId).length;
+  }
 
   async countByStatus(status: BookingStatus, userId?: string): Promise<number> {
     const query: BookingFindFilter = { status };

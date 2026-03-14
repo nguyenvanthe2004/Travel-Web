@@ -153,7 +153,7 @@ const MyRoom: React.FC = () => {
     <div className="flex-1 overflow-y-auto bg-[#fafafa] lg:ml-0">
       <div className="flex-1">
         <div className="max-w-[1200px] mx-auto px-6 py-8 md:py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
             <nav className="flex items-center space-x-2 text-sm text-gray-600 :text-gray-400 mb-6">
               <a
                 className="hover:text-[#1B8398] :hover:text-blue-400 flex items-center gap-1 transition-colors"

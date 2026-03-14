@@ -30,6 +30,8 @@ import BookingPage from "./pages/admin/booking/BookingPage";
 import UserPage from "./pages/admin/user/UserPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage ";
 import DetailBookingPage from "./pages/admin/booking/DetailBookingPage";
+import BookingManagerPage from "./pages/booking/BookingManagerPage";
+import UpdateBookingPage from "./pages/booking/UpdateBookingPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -100,6 +102,10 @@ function App() {
         <Route path="/admin/bookings">
           <Route index element={<BookingPage />} />
           <Route path="update/:id" element={<DetailBookingPage />} />
+        </Route>
+        <Route path="/booking-manager">
+          <Route index element={<BookingManagerPage />} />
+          <Route path="update/:id" element={<UpdateBookingPage />} />
         </Route>
         <Route path="/admin/users" element={<UserPage />} />
       </Routes>

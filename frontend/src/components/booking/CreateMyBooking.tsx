@@ -26,7 +26,6 @@ const CreateMyBooking: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [request, setRequest] = useState("");
-
   const user = useSelector((state: RootState) => state.auth.currentUser);
 
   const { room, checkIn, checkOut, guest, nights, total } =
@@ -43,7 +42,7 @@ const CreateMyBooking: React.FC = () => {
         request,
         total,
       });
-      toastSuccess("Create Booking Successfully!")
+      toastSuccess("Create Booking Successfully!");
       navigate("/my-booking");
     } catch (error: any) {
       toastError(error.message);
@@ -150,19 +149,6 @@ const CreateMyBooking: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <input
-                  className="rounded text-orange-400 focus:ring-orange-400 border-gray-300 bg-gray-50:bg-[#1f1610]:border-gray-600 size-4"
-                  id="booking-others"
-                  type="checkbox"
-                />
-                <label
-                  className="text-sm text-gray-700:text-gray-300 select-none"
-                  htmlFor="booking-others"
-                >
-                  I am booking for someone else
-                </label>
-              </div>
             </section>
             <section className="bg-white:bg-[#2a2018] rounded-xl shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
@@ -199,82 +185,10 @@ const CreateMyBooking: React.FC = () => {
                   <span className="material-symbols-outlined">
                     <CreditCard />
                   </span>
-                  Credit Card
-                </button>
-                <button className="flex items-center gap-2 px-6 py-3 rounded-lg bg-gray-50:bg-[#1f1610] border-2 border-transparent text-gray-600:text-gray-400 hover:bg-gray-100:hover:bg-[#342a22] font-medium whitespace-nowrap transition-colors">
-                  <span className="material-symbols-outlined">
-                    <Wallet />
-                  </span>
-                  PayPal
-                </button>
-                <button className="flex items-center gap-2 px-6 py-3 rounded-lg bg-gray-50:bg-[#1f1610] border-2 border-transparent text-gray-600:text-gray-400 hover:bg-gray-100:hover:bg-[#342a22] font-medium whitespace-nowrap transition-colors">
-                  <span className="material-symbols-outlined">
-                    <DollarSign />
-                  </span>
-                  Apple Pay
+                  QR CODE
                 </button>
               </div>
               <div className="space-y-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-gray-700:text-gray-300">
-                    Name on Card
-                  </label>
-                  <div className="relative">
-                    <input
-                      className="w-full rounded-xl px-4 py-3 text-sm text-[#1c140d] outline-none transition-all duration-200"
-                      placeholder="0123456789"
-                      type="text"
-                    />
-                    <span className="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-gray-400">
-                      <IdCard />
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-gray-700:text-gray-300">
-                    Card Number
-                  </label>
-                  <div className="relative">
-                    <input
-                      className="w-full rounded-xl px-4 py-3 text-sm text-[#1c140d] outline-none transition-all duration-200"
-                      placeholder="0000 0000 0000 0000"
-                      type="text"
-                    />
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 flex gap-2 opacity-50">
-                      <span className="material-symbols-outlined text-gray-600">
-                        <BookText />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium text-gray-700:text-gray-300">
-                      Expiry Date
-                    </label>
-                    <input
-                      className="w-full rounded-xl px-4 py-3 text-sm text-[#1c140d] outline-none transition-all duration-200"
-                      placeholder="MM/YY"
-                      type="text"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium text-gray-700:text-gray-300 flex justify-between">
-                      CVV
-                      <span
-                        className="material-symbols-outlined text-gray-400 text-sm cursor-help"
-                        title="3 digits on back of card"
-                      >
-                        <MessageCircleQuestionMark />
-                      </span>
-                    </label>
-                    <input
-                      className="w-full rounded-xl px-4 py-3 text-sm text-[#1c140d] outline-none transition-all duration-200"
-                      placeholder="123"
-                      type="text"
-                    />
-                  </div>
-                </div>
                 <div className="flex items-center gap-2 mt-2 p-3 bg-green-50:bg-green-900/20 rounded-lg text-green-700:text-green-300 text-sm">
                   <span className="material-symbols-outlined icon-fill">
                     <LockKeyhole />
@@ -283,7 +197,10 @@ const CreateMyBooking: React.FC = () => {
                 </div>
               </div>
             </section>
-            <button onClick={handelBookingSubmit} className="w-full bg-orange-400 hover:bg-orange-600 text-white text-lg font-bold py-4 rounded-xl shadow-lg shadow-orange-200:shadow-none transition-all mt-4 flex justify-center items-center gap-2">
+            <button
+              onClick={handelBookingSubmit}
+              className="w-full bg-orange-400 hover:bg-orange-600 text-white text-lg font-bold py-4 rounded-xl shadow-lg shadow-orange-200:shadow-none transition-all mt-4 flex justify-center items-center gap-2"
+            >
               Complete Booking
               <span className="material-symbols-outlined">
                 <ArrowRight />
@@ -321,7 +238,7 @@ const CreateMyBooking: React.FC = () => {
                   {RoomStatus.AVAILABLE.toUpperCase()}
                 </div>
               </div>
-              <div className="pt-5">
+              <div className="pt-5 px-2 py-5">
                 <h3 className="text-xl font-bold text-[#1c140d]:text-white leading-tight mb-1">
                   {room.name}
                 </h3>

@@ -36,7 +36,7 @@ export class BookingController {
   }
 
   @Get("/my-booking")
-  async getCurrentBooking(
+  async findCurrentBooking(
     @QueryParam("page") page: number,
     @QueryParam("limit") limit: number,
     @CurrentUser() user: UserProps,
@@ -44,8 +44,17 @@ export class BookingController {
   ) {
     return await this.bookingService.findByUser(page, limit, user, status);
   }
+  @Get("/booking-manager")
+  async findBookingOwner(
+    @QueryParam("page") page: number,
+    @QueryParam("limit") limit: number,
+    @CurrentUser() user: UserProps,
+    @QueryParam("status") status?: string,
+  ) {
+    return await this.bookingService.findByOwner(page, limit, user, status);
+  }
   @Get("/:id")
-  async getBookingById(@Param("id") id: string) {
+  async findBookingById(@Param("id") id: string) {
     return await this.bookingService.getBookingById(id);
   }
 

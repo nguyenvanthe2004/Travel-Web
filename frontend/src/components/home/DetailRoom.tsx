@@ -62,6 +62,8 @@ const DetailRoom: React.FC = () => {
     return nights * room.price;
   }, [nights]);
 
+  const today = new Date().toISOString().split("T")[0];
+
   if (loading) return <LoadingPage />;
 
   if (!room) return <NotFoundPage />;
@@ -336,6 +338,7 @@ const DetailRoom: React.FC = () => {
                     <input
                       type="date"
                       value={checkIn}
+                      min={today}
                       onChange={(e) => setCheckIn(e.target.value)}
                       className="font-semibold text-sm text-slate-700 outline-none bg-transparent w-full cursor-pointer"
                     />

@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { callGetHotelSearch } from "../../services/hotel";
 import { toastError } from "../../lib/toast";
 import { Hotel } from "../../types/hotel";
@@ -22,6 +22,12 @@ import Pagination from "../ui/Pagination";
 const STEP = 50;
 const MIN = 0;
 const MAX = 1000;
+
+export const SortLabel: Record<SortValue, string> = {
+  [SortValue.RECOMMENDED]: "Recommended",
+  [SortValue.PRICE_ASC]: "Price: Low → High",
+  [SortValue.PRICE_DESC]: "Price: High → Low",
+};
 
 const SearchResult: React.FC = () => {
   const navigate = useNavigate();
@@ -66,43 +72,40 @@ const SearchResult: React.FC = () => {
   }
   return (
     <div>
-      <div className="bg-white shadow-sm py-3 md:py-4">
-        <div className="max-w-[1280px] mx-auto px-4 lg:px-8">
-          <div className="flex flex-row gap-2 items-center bg-gray-50 p-2 rounded-2xl shadow-sm">
-            <div className="flex-1 flex items-center gap-2 px-3 py-1.5">
-              <BedDouble size={18} className="text-[#9c7349] shrink-0" />
-              <div className="flex flex-col min-w-0">
-                <label className="text-[10px] font-semibold text-[#9c7349] uppercase tracking-wider">
-                  Destination
-                </label>
-                <input
-                  className="w-full bg-transparent border-none p-0 text-[#1c140d] font-semibold text-sm focus:ring-0 placeholder:text-gray-400 truncate"
-                  type="text"
-                  value={locationName || ""}
-                  readOnly
-                />
-              </div>
-            </div>
-
-            {guests > 0 && (
-              <>
-                <div className="w-px h-8 bg-gray-200 shrink-0" />
-                <div className="flex items-center gap-2 px-3 py-1.5 shrink-0">
-                  <Users size={18} className="text-[#9c7349] shrink-0" />
-                  <div className="flex flex-col">
-                    <label className="text-[10px] font-semibold text-[#9c7349] uppercase tracking-wider">
-                      Guests
-                    </label>
-                    <span className="text-[#1c140d] font-semibold text-sm">
-                      {guests}
-                    </span>
-                  </div>
+      {!(locationName === "" || !locationName && guests === 1) && (
+        <div className="bg-white shadow-sm py-3 md:py-4">
+          <div className="max-w-[1280px] mx-auto px-4 lg:px-8">
+            <div className="flex flex-row gap-2 items-center bg-gray-50 p-2 rounded-2xl shadow-sm">
+              <div className="flex-1 flex items-center gap-2 px-3 py-1.5">
+                <BedDouble size={18} className="text-[#9c7349] shrink-0" />
+                <div className="flex flex-col min-w-0">
+                  <label className="text-[10px] font-semibold text-[#9c7349] uppercase tracking-wider">
+                    Destination
+                  </label>
+                  <h3>{locationName}</h3>
                 </div>
-              </>
-            )}
+              </div>
+
+              {guests > 0 && (
+                <>
+                  <div className="w-px h-8 bg-gray-200 shrink-0" />
+                  <div className="flex items-center gap-2 px-3 py-1.5 shrink-0">
+                    <Users size={18} className="text-[#9c7349] shrink-0" />
+                    <div className="flex flex-col">
+                      <label className="text-[10px] font-semibold text-[#9c7349] uppercase tracking-wider">
+                        Guests
+                      </label>
+                      <span className="text-[#1c140d] font-semibold text-sm">
+                        {guests}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="max-w-[1280px] mx-auto w-full px-4 lg:px-8 py-4 md:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
@@ -201,28 +204,28 @@ const SearchResult: React.FC = () => {
 
           <div className="col-span-1 lg:col-span-9 flex flex-col gap-4 md:gap-6">
             <div className="flex flex-col gap-2">
-              <div className="flex flex-wrap gap-1.5 text-sm">
-                <a className="text-[#9c7349] hover:underline" href="/">
-                  Home
-                </a>
-                <span className="text-[#9c7349]">/</span>
-                <span className="text-[#1c140d] font-medium">
-                  {locationName}
-                </span>
-              </div>
+              {!(locationName === "") && (
+                <div className="flex flex-wrap gap-1.5 text-sm">
+                  <Link to={"/"} className="text-[#9c7349] hover:underline">
+                    Home
+                  </Link>
+                  <span className="text-[#1c140d] font-medium">
+                    / {locationName}
+                  </span>
+                </div>
+              )}
 
               <div className="flex items-center justify-between gap-3">
                 <h1 className="text-lg md:text-2xl font-bold text-[#1c140d] leading-tight">
-                  <span className="hidden sm:inline">
-                    {locationName || "Location"}:{" "}
-                  </span>
-                  <span>{hotels.length} properties found</span>
+                  <span className="hidden sm:inline">{locationName || ""}</span>
+                  <span> {hotels.length} Properties Found</span>
                 </h1>
 
                 <div className="flex items-center gap-2 shrink-0">
                   <label className="hidden sm:block text-sm font-medium text-[#9c7349] whitespace-nowrap">
                     Sort by:
                   </label>
+
                   <select
                     value={sort}
                     onChange={(e) => setSort(e.target.value as SortValue)}
@@ -230,7 +233,7 @@ const SearchResult: React.FC = () => {
                   >
                     {Object.values(SortValue).map((value) => (
                       <option key={value} value={value}>
-                        {value.charAt(0).toUpperCase() + value.slice(1)}
+                        {SortLabel[value]}
                       </option>
                     ))}
                   </select>
@@ -272,7 +275,7 @@ const SearchResult: React.FC = () => {
                       <div className="flex-1 flex flex-col p-4 md:p-5 gap-3">
                         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-1">
                           <div className="flex-1 flex flex-col gap-2 min-w-0">
-                            <div>
+                            <div className="w-100">
                               <div className="flex items-start gap-2 flex-wrap">
                                 <h3 className="text-base md:text-lg font-bold text-[#1c140d] leading-tight group-hover:text-orange-400 transition-colors">
                                   {hotel.name}

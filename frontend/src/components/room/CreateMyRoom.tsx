@@ -78,7 +78,7 @@ const CreateMyRoom: React.FC = () => {
   }
 
   return (
-    <main className="flex-1 overflow-y-auto bg-slate-50">
+    <main className="flex-1 max-w-[1800px] overflow-y-auto bg-slate-50">
       <div className="w-full px-4 sm:px-6 lg:px-12 pt-20 sm:pt-24 lg:pt-8 pb-8 max-w-7xl mx-auto">
         <div className="mb-10">
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">

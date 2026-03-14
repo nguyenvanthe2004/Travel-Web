@@ -14,8 +14,14 @@ export const getNights = (checkIn: string, checkOut: string) => {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 };
 
-export const statusStyles: Record<BookingStatus, string> = {
-  pending: "bg-amber-100 text-amber-700",
-  confirmed: "bg-green-100 text-green-700",
-  cancelled: "bg-red-100 text-red-700",
+export const statusStyles = {
+  confirmed: "bg-emerald-50 text-emerald-600 border-emerald-200",
+  pending:   "bg-amber-50 text-amber-600 border-amber-200",
+  cancelled: "bg-red-50 text-red-400 border-red-200",
+};
+
+export const accentBarStyles = {
+  confirmed: "bg-emerald-400",
+  pending:   "bg-amber-400",
+  cancelled: "bg-red-400",
 };

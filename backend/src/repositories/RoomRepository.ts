@@ -39,11 +39,17 @@ export class RoomRepository {
     return RoomModel.findById(id)
       .populate({
         path: "hotelId",
-        select: "name locationId rooms",
-        populate: {
-          path: "rooms",
-          select: "name price images description status",
-        },
+        select: "name address locationId rooms",
+        populate: [
+          {
+            path: "rooms",
+            select: "name price images description status",
+          },
+          {
+            path: "locationId",
+            select: "name",
+          },
+        ],
       })
       .lean();
   }

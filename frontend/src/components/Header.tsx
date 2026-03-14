@@ -185,7 +185,7 @@ const Header: React.FC = () => {
           {/* Desktop Nav & User */}
           <div className="hidden lg:flex items-center gap-6">
             <nav className="flex gap-6">
-              <a href="#" className="text-sm font-medium hover:text-orange-400">
+              <a onClick={() => navigate("/my-booking")} className="text-sm font-medium hover:text-orange-400 cursor-pointer">
                 My Booking
               </a>
               <a
@@ -229,7 +229,7 @@ const Header: React.FC = () => {
                     <div className="py-1">
                       {user.role === UserRole.ADMIN && (
                         <a
-                          onClick={() => navigate("admin/dashboard")}
+                          onClick={() => navigate("/admin/dashboard")}
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
                         >
                           <UserStar size={16} />
@@ -437,14 +437,14 @@ const Header: React.FC = () => {
             {/* Navigation */}
             <nav className="space-y-1">
               <a
-                href="#"
-                className="block text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => navigate("/my-booking")}
+                className="block text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50 px-4 py-3 rounded-lg transition-colors cursor-pointer"
               >
                 My Bookings
               </a>
               <a
-                href="/my-hotel"
-                className="block text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50 px-4 py-3 rounded-lg transition-colors"
+                onClick={() => navigate("/my-hotel")}
+                className="block text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50 px-4 py-3 rounded-lg transition-colors cursor-poiter"
               >
                 My Hotels
               </a>
@@ -478,7 +478,7 @@ const Header: React.FC = () => {
                 {user.role === UserRole.ADMIN && (
                   <a
                     onClick={() => {
-                      navigate("admin/dashboard");
+                      navigate("/admin/dashboard");
                       setIsMobileMenuOpen(false);
                     }}
                     className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"

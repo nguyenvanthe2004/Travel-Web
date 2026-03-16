@@ -21,7 +21,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
   title = "Delete item",
   description = "Are you sure you want to delete this item? This action cannot be undone.",
   confirmText = "Delete",
-  cancelText = "Back",
+  cancelText = "Cancel",
   loading = false,
 }) => {
   return (

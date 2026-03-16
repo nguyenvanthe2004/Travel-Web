@@ -54,8 +54,6 @@ export class BookingService {
   async findByUser(page = 1, limit = 10, user: UserProps, status?: string) {
     try {
       const userId = String(user.userId);
-      page = Math.max(1, Number(page));
-      limit = Math.max(1, Number(limit));
 
       const skip = (page - 1) * limit;
 
@@ -77,9 +75,6 @@ export class BookingService {
   async findByOwner(page = 1, limit = 10, user: UserProps, status?: string) {
     try {
       const userId = String(user.userId);
-
-      page = Math.max(1, Number(page));
-      limit = Math.max(1, Number(limit));
 
       const skip = (page - 1) * limit;
 
@@ -125,7 +120,11 @@ export class BookingService {
         throw new NotFoundError("Booking not found");
       }
 
-      return this.BookingRepo.update(bookingId, data);
+      await this.BookingRepo.update(bookingId, data);
+
+      return {
+        success: true,
+      };
     } catch (error: any) {
       throw new BadRequestError(error.message);
     }
@@ -165,13 +164,17 @@ export class BookingService {
         throw new NotFoundError("Booking not found");
       }
 
-      if (booking.userId._id.toString() !== String(user.userId)) {
+      if (String(booking.userId._id) !== String(user.userId)) {
         throw new BadRequestError(
           "You are not authorized to delete this booking",
         );
       }
 
-      return this.BookingRepo.delete(bookingId);
+      await this.BookingRepo.delete(bookingId);
+
+      return {
+        success: true,
+      };
     } catch (error: any) {
       throw new BadRequestError(error.message);
     }

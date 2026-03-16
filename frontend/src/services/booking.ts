@@ -3,10 +3,9 @@ import { CreateBookingDto, UpdateBookingDto } from "../types/booking";
 import instance from "./req";
 
 export const callCountBookingStatus = async (userId?: string) => {
-  const res = await instance.get(`/bookings/count/status`, {
+  return await instance.get(`/bookings/count/status`, {
     params: { userId },
   });
-  return res.data;
 };
 
 export const callGetAllBookings = async (

@@ -217,7 +217,6 @@ const Header: React.FC = () => {
                         ? `${CLOUDINARY_URL}${user.avatar}`
                         : "public/images/avatar.png"
                     }
-                    alt=""
                   />
                 </button>
 
@@ -446,7 +445,6 @@ const Header: React.FC = () => {
                     ? `${CLOUDINARY_URL}${user.avatar}`
                     : "public/images/avatar.png"
                 }
-                alt=""
                 className="w-full h-full object-cover"
               />
             </div>

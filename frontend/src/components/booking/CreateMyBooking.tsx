@@ -3,28 +3,27 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { CLOUDINARY_URL, RoomStatus } from "../../constants";
 import {
   ArrowRight,
-  BookText,
   CalendarCheck,
   ChevronRight,
   ConciergeBell,
   CreditCard,
-  DollarSign,
-  IdCard,
   LockKeyhole,
   MapPin,
-  MessageCircleQuestionMark,
   User,
-  Wallet,
 } from "lucide-react";
 import { formatPrice } from "../../lib/utils";
 import { toastError, toastSuccess } from "../../lib/toast";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { callCreateBooking } from "../../services/booking";
+import dayjs from "dayjs";
 
 const CreateMyBooking: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [request, setRequest] = useState("");
   const user = useSelector((state: RootState) => state.auth.currentUser);
 
@@ -33,11 +32,12 @@ const CreateMyBooking: React.FC = () => {
 
   const handelBookingSubmit = async () => {
     try {
+      setLoading(true);
       const res = await callCreateBooking({
         roomId: room._id,
         nights,
-        checkIn,
-        checkOut,
+        checkIn: new Date(checkIn),
+        checkOut: new Date(checkOut),
         guest,
         request,
         total,
@@ -46,6 +46,8 @@ const CreateMyBooking: React.FC = () => {
       navigate("/my-booking");
     } catch (error: any) {
       toastError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,8 +115,8 @@ const CreateMyBooking: React.FC = () => {
                     className="w-full rounded-xl px-4 py-3 text-sm text-[#1c140d] outline-none transition-all duration-200"
                     placeholder="e.g. John"
                     type="text"
-                    value={user.fullName}
-                    readOnly
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
                   />
                 </div>
               </div>
@@ -143,8 +145,8 @@ const CreateMyBooking: React.FC = () => {
                       className="w-full rounded-xl px-4 py-3 text-sm text-[#1c140d] outline-none transition-all duration-200"
                       placeholder="0123456789"
                       type="text"
-                      value={user.phone}
-                      readOnly
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                     />
                   </div>
                 </div>
@@ -219,59 +221,90 @@ const CreateMyBooking: React.FC = () => {
             </p>
           </div>
           <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-6 sticky top-24">
-            <div className="bg-white:bg-[#2a2018] rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.05)] overflow-hidden">
-              <div className="relative h-48 w-full">
+            <div className="group relative bg-white w-[380px] rounded-2xl shadow-md border border-orange-100 mx-auto">
+              {/* Image Section */}
+              <div className="relative h-52 w-full overflow-hidden">
                 <div
-                  className="w-full h-full bg-center bg-no-repeat bg-cover"
-                  data-alt="Luxury pool view at Grand Hyatt Bali at sunset"
+                  className="w-full h-full bg-center bg-no-repeat bg-cover scale-100 group-hover:scale-105 transition-transform duration-700"
                   style={{
                     backgroundImage: `url(${CLOUDINARY_URL}${room.images})`,
                   }}
-                ></div>
-                <div className="absolute top-3 left-3 bg-white/90:bg-black/70 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1">
-                  <span className="material-symbols-outlined icon-fill text-yellow-500 text-sm">
-                    star
-                  </span>
-                  5.0
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+                {/* Rating badge */}
+                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-sm">
+                  <svg
+                    className="w-3.5 h-3.5 text-amber-400 fill-amber-400"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  <span className="text-stone-800">5.0</span>
                 </div>
-                <div className="absolute bottom-3 right-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+
+                {/* Status badge */}
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-emerald-500 text-white px-3 py-1 rounded-full text-[11px] font-bold tracking-wide shadow-md">
+                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                   {RoomStatus.AVAILABLE.toUpperCase()}
                 </div>
+
+                {/* Room name on image */}
+                <div className="absolute bottom-0 left-0 right-0 px-4 pb-3">
+                  <h3 className="text-white text-lg font-bold leading-tight drop-shadow-md">
+                    {room.name}
+                  </h3>
+                </div>
               </div>
-              <div className="pt-5 px-2 py-5">
-                <h3 className="text-xl font-bold text-[#1c140d]:text-white leading-tight mb-1">
-                  {room.name}
-                </h3>
-                <p className="text-gray-500:text-gray-400 text-sm mb-4 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm">
-                    <MapPin />
+
+              {/* Body */}
+              <div className="px-4 py-4 space-y-4">
+                {/* Location */}
+                <div className="flex items-center gap-1.5 text-stone-500 text-sm">
+                  <MapPin className="w-4 h-4 shrink-0 text-amber-500" />
+                  <span className="truncate">
+                    {room.hotelId.address}, {room.hotelId.locationId.name}
                   </span>
-                  {room.hotelId.address}, {room.hotelId.locationId.name}
-                </p>
-                <hr className="border-gray-100:border-gray-700 my-4" />
-                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                  <div>
-                    <p className="text-gray-500:text-gray-400 text-xs uppercase font-bold tracking-wider">
+                </div>
+
+                <div className="h-px bg-stone-100" />
+
+                {/* Check-in / Check-out */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-stone-50 rounded-xl px-3 py-2.5">
+                    <p className="text-[10px] uppercase font-bold tracking-widest text-stone-400 mb-1">
                       Check-in
                     </p>
-                    <p className="font-medium">{checkIn}</p>
-                    <p className="text-xs text-gray-400">After 8:00 PM</p>
+                    <p className="text-sm font-semibold text-stone-800">
+                      {dayjs(checkIn).format("DD MMM YYYY")}
+                    </p>
+                    <p className="text-[11px] text-stone-400 mt-0.5">
+                      After 8:00 PM
+                    </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-gray-500:text-gray-400 text-xs uppercase font-bold tracking-wider">
+
+                  <div className="bg-stone-50 rounded-xl px-3 py-2.5 text-right">
+                    <p className="text-[10px] uppercase font-bold tracking-widest text-stone-400 mb-1">
                       Check-out
                     </p>
-                    <p className="font-medium">{checkOut}</p>
-                    <p className="text-xs text-gray-400">Before 12:00 AM</p>
+                    <p className="text-sm font-semibold text-stone-800">
+                      {dayjs(checkOut).format("DD MMM YYYY")}
+                    </p>
+                    <p className="text-[11px] text-stone-400 mt-0.5">
+                      Before 12:00 AM
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 bg-gray-50:bg-[#1f1610] rounded-lg">
-                  <span className="material-symbols-outlined text-gray-400 mt-0.5">
-                    <User />
-                  </span>
+
+                {/* Guest */}
+                <div className="flex items-center gap-2.5 bg-amber-50 rounded-xl px-3 py-2.5">
+                  <div className="bg-amber-100 p-1.5 rounded-lg">
+                    <User className="w-4 h-4 text-amber-600" />
+                  </div>
                   <div>
-                    <p className="text-l text-gray-500:text-gray-400">
-                      {guest} Guest
+                    <p className="text-xs text-stone-400">Guests</p>
+                    <p className="text-sm font-semibold text-stone-700">
+                      {guest} {guest > 1 ? "Guests" : "Guest"}
                     </p>
                   </div>
                 </div>

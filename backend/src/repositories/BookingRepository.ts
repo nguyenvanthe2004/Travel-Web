@@ -4,6 +4,7 @@ import {
   UpdateBookingInput,
   BookingFindFilter,
   BookingQuery,
+  BookingWithPopulate,
 } from "../types/booking";
 import { IBooking, BookingModel, BookingStatus } from "../models/Booking";
 
@@ -104,8 +105,8 @@ export class BookingRepository {
     limit: number,
     ownerId: string,
     status?: string,
-  ): Promise<IBooking[]> {
-    const query: any = {};
+  ): Promise<BookingWithPopulate[]> {
+    const query: BookingQuery = { userId: ownerId };
 
     if (status) {
       query.status = status;
@@ -128,9 +129,9 @@ export class BookingRepository {
           ],
         },
       })
-      .lean();
+      .lean<BookingWithPopulate[]>();
 
-    return bookings.filter((b: any) => b.roomId?.hotelId);
+    return bookings.filter((b) => b.roomId?.hotelId);
   }
 
   async countByUser(status?: string): Promise<number> {

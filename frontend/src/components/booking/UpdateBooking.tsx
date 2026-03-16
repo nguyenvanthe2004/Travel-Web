@@ -8,6 +8,7 @@ import LoadingPage from "../ui/LoadingPage";
 import NotFoundPage from "../ui/NotFound";
 import { formatPrice, statusStyles } from "../../lib/utils";
 import { toastError, toastSuccess } from "../../lib/toast";
+import dayjs from "dayjs";
 
 const UpdateBooking: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -145,7 +146,7 @@ const UpdateBooking: React.FC = () => {
               <p className="text-sm text-gray-400 mb-1">Check In</p>
               <p className="font-semibold text-gray-800 flex items-center gap-2">
                 <Calendar size={16} />
-                {booking.checkIn}
+                {dayjs(booking.checkIn).format("DD MMM YYYY")}
               </p>
             </div>
 
@@ -153,7 +154,7 @@ const UpdateBooking: React.FC = () => {
               <p className="text-sm text-gray-400 mb-1">Check Out</p>
               <p className="font-semibold text-gray-800 flex items-center gap-2">
                 <Calendar size={16} />
-                {booking.checkOut}
+                {dayjs(booking.checkOut).format("DD MMM YYYY")}
               </p>
             </div>
 

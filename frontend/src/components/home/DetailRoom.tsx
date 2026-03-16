@@ -53,9 +53,10 @@ const DetailRoom: React.FC = () => {
   const images = room?.images || [];
 
   const nights = useMemo(() => {
-    if (!room) return 0;
-    return getNights(checkIn, checkOut);
-  }, [checkIn, checkOut]);
+  if (!checkIn || !checkOut) return 0;
+
+  return getNights(new Date(checkIn), new Date(checkOut));
+}, [checkIn, checkOut]);
 
   const total = useMemo(() => {
     if (!room) return 0;

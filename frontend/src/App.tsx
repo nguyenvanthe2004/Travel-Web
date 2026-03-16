@@ -35,19 +35,15 @@ import UpdateBookingPage from "./pages/booking/UpdateBookingPage";
 
 function App() {
   const dispatch = useDispatch();
-
-  const fetchCurrentUser = useCallback(async () => {
+  const fetchCurrentUser = async () => {
     try {
       const res = await callGetCurrentUser();
       dispatch(setCurrentUser(res.data));
-    } catch (error) {
-      console.log("User not logged in");
-    }
-  }, [dispatch]);
-
+    } catch {}
+  };
   useEffect(() => {
     fetchCurrentUser();
-  }, [fetchCurrentUser]);
+  }, [dispatch]);
 
   return (
     <BrowserRouter>

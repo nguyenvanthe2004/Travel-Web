@@ -4,6 +4,7 @@ import {
   IsString,
   IsOptional,
   IsEnum,
+  IsDateString,
 } from "class-validator";
 import { BookingStatus } from "../models/Booking";
 
@@ -14,11 +15,11 @@ export class CreateBookingDto {
   @IsNumber()
   nights: number;
 
-  @IsString()
-  checkIn: string;
+  @IsDateString()
+  checkIn: Date;
 
-  @IsString()
-  checkOut: string;
+  @IsDateString()
+  checkOut: Date;
 
   @IsNumber()
   guest: number;

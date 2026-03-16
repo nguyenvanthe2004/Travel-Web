@@ -4,21 +4,19 @@ import { RootState } from "../../redux/store";
 import { callCancelBooking, callGetMyBookings } from "../../services/booking";
 import { Booking } from "../../types/booking";
 import Pagination from "../ui/Pagination";
-import { BookingStatus, CLOUDINARY_URL } from "../../constants";
+import { BookingStatus, CLOUDINARY_URL, LIMIT } from "../../constants";
 import { Calendar, UsersRound } from "lucide-react";
 import { useModal } from "../../hooks/useModal";
 import { toastError, toastSuccess } from "../../lib/toast";
 import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
 import { formatPrice, statusStyles } from "../../lib/utils";
 import LoadingPage from "../ui/LoadingPage";
+import dayjs from "dayjs";
 
 const MyBooking: React.FC = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [statusFilter, setStatusFilter] = useState<BookingStatus>(
-    BookingStatus.PENDING,
-  );
   const [totalPages, setTotalPages] = useState(1);
   const [activeStatus, setActiveStatus] = useState<BookingStatus>(
     BookingStatus.PENDING,
@@ -32,7 +30,7 @@ const MyBooking: React.FC = () => {
   const fetchMyBooking = async () => {
     try {
       setLoading(true);
-      const res = await callGetMyBookings(page, 5, statusFilter);
+      const res = await callGetMyBookings(page, LIMIT, activeStatus);
       setBookings(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error: any) {
@@ -60,7 +58,7 @@ const MyBooking: React.FC = () => {
 
   useEffect(() => {
     fetchMyBooking();
-  }, [page, statusFilter]);
+  }, [page, activeStatus]);
 
   if (loading) {
     return <LoadingPage />;
@@ -87,12 +85,11 @@ const MyBooking: React.FC = () => {
                   key={status}
                   onClick={() => {
                     setActiveStatus(status);
-                    setStatusFilter(status);
                     setPage(1);
                   }}
                   className={`flex flex-col items-center justify-center pb-2 px-1 min-w-[80px] transition-colors
                   ${
-                    activeStatus && statusFilter === status
+                    activeStatus === status
                       ? "border-b border-orange-400 text-[#1c140d] font-bold"
                       : "text-black hover:text-orange-400"
                   }`}
@@ -156,9 +153,10 @@ const MyBooking: React.FC = () => {
                           <span className="material-symbols-outlined text-[18px] text-[#9c7349]:text-gray-400">
                             <Calendar />
                           </span>
-                          <span className="font-medium">
-                            {booking.checkIn} - {booking.checkOut}
-                          </span>
+                            <span className="font-medium">
+                              {dayjs(booking.checkIn).format("DD MMM YYYY")} -{" "}
+                              {dayjs(booking.checkOut).format("DD MMM YYYY")}
+                            </span>
                         </div>
                         <div className="flex items-center gap-1.5 bg-background-light:bg-white/5 px-2 py-1 rounded">
                           <span className="material-symbols-outlined text-[18px] text-[#9c7349]:text-gray-400">
@@ -215,6 +213,7 @@ const MyBooking: React.FC = () => {
         title="Cancel Item"
         description="Are you sure you want to cancel this item? This action cannot be undone."
         confirmText="Cancel"
+        cancelText="Back"
       />
     </div>
   );

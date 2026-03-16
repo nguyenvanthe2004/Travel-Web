@@ -1,11 +1,11 @@
-import { BookingStatus } from "../models/Booking";
+import { BookingStatus, IBooking } from "../models/Booking";
 
 export interface CreateBookingInput {
   userId: string;
   roomId: string;
   nights: number;
-  checkIn: string;
-  checkOut: string;
+  checkIn: Date;
+  checkOut: Date;
   guest: number;
   request?: string;
   total: number;
@@ -25,4 +25,24 @@ export type BookingFindFilter = {
 export type BookingQuery = {
   userId: string;
   status?: string;
+};
+
+export type BookingWithPopulate = Omit<IBooking, "roomId"> & {
+  roomId: {
+    _id: string;
+    name: string;
+    price: number;
+    images: string[];
+    hotelId: {
+      _id: string;
+      name: string;
+      address: string;
+      locationId: {
+        name: string;
+      };
+      userId: {
+        _id: string
+      }
+    };
+  };
 };

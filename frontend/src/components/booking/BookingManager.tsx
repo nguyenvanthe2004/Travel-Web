@@ -6,7 +6,7 @@ import {
 } from "../../services/booking";
 import { Booking } from "../../types/booking";
 import Pagination from "../ui/Pagination";
-import { BookingStatus, CLOUDINARY_URL } from "../../constants";
+import { BookingStatus, CLOUDINARY_URL, LIMIT } from "../../constants";
 import { Calendar, Eye, MapPin, Moon, Trash2, UsersRound } from "lucide-react";
 import { useModal } from "../../hooks/useModal";
 import { toastError, toastSuccess } from "../../lib/toast";
@@ -14,14 +14,12 @@ import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
 import { accentBarStyles, formatPrice, statusStyles } from "../../lib/utils";
 import LoadingPage from "../ui/LoadingPage";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 
 const BookingManager: React.FC = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [statusFilter, setStatusFilter] = useState<BookingStatus>(
-    BookingStatus.PENDING,
-  );
   const [totalPages, setTotalPages] = useState(1);
   const [activeStatus, setActiveStatus] = useState<BookingStatus>(
     BookingStatus.PENDING,
@@ -35,7 +33,7 @@ const BookingManager: React.FC = () => {
     try {
       setLoading(true);
 
-      const res = await callGetBookingsOwner(page, 5, statusFilter);
+      const res = await callGetBookingsOwner(page, LIMIT, activeStatus);
 
       setBookings(res.data.data);
       setTotalPages(res.data.totalPages);
@@ -64,7 +62,7 @@ const BookingManager: React.FC = () => {
 
   useEffect(() => {
     fetchBookingOwner();
-  }, [page, statusFilter]);
+  }, [page, activeStatus]);
 
   if (loading) {
     return <LoadingPage />;
@@ -90,12 +88,11 @@ const BookingManager: React.FC = () => {
                 key={status}
                 onClick={() => {
                   setActiveStatus(status);
-                  setStatusFilter(status);
                   setPage(1);
                 }}
                 className={`flex flex-col items-center justify-center pb-2 px-1 min-w-[80px] transition-colors
                   ${
-                    activeStatus && statusFilter === status
+                    activeStatus === status
                       ? "border-b border-orange-400 text-[#1c140d] font-bold"
                       : "text-black hover:text-orange-400"
                   }`}
@@ -159,9 +156,9 @@ const BookingManager: React.FC = () => {
                       <div className="flex items-center gap-1.5">
                         <Calendar size={13} className="text-gray-400" />
                         <span>
-                          {booking.checkIn}
+                          {dayjs(booking.checkIn).format("DD MMM YYYY")}
                           <span className="mx-1 text-gray-300">→</span>
-                          {booking.checkOut}
+                          {dayjs(booking.checkOut).format("DD MMM YYYY")}
                         </span>
                       </div>
 

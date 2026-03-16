@@ -29,3 +29,5 @@ export enum SortValue {
   PRICE_ASC = "price_asc",
   PRICE_DESC = "price_desc",
 }
+
+export const LIMIT = 10;

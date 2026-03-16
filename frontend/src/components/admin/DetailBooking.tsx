@@ -8,6 +8,7 @@ import LoadingPage from "../ui/LoadingPage";
 import NotFoundPage from "../ui/NotFound";
 import { formatPrice, statusStyles } from "../../lib/utils";
 import { toastError, toastSuccess } from "../../lib/toast";
+import dayjs from "dayjs";
 
 const DetailBooking: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,6 +46,19 @@ const DetailBooking: React.FC = () => {
     fetchBooking();
   }, [id]);
 
+  const getStatusClass = (status: BookingStatus) => {
+    switch (status) {
+      case BookingStatus.PENDING:
+        return "text-amber-700";
+      case BookingStatus.CONFIRMED:
+        return "text-green-700";
+      case BookingStatus.CANCELLED:
+        return "text-red-700";
+      default:
+        return "";
+    }
+  };
+
   if (loading) return <LoadingPage />;
 
   if (!booking) return <NotFoundPage />;
@@ -65,30 +79,16 @@ const DetailBooking: React.FC = () => {
           {/* Booking ID */}
           <div className="flex justify-between items-center pb-4">
             <div>
-              <p className="text-sm text-gray-400">Booking ID</p>
-              <p className="text-lg font-bold text-gray-900">
-                BK-{booking._id.slice(-5)}
-              </p>
             </div>
 
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as BookingStatus)}
-              className={`px-3 py-1 bg-white rounded-full text-xs outline-none ${statusStyles[status]}`}
+              className={`px-3 uppercase py-1 bg-white rounded-full text-xs outline-none ${statusStyles[status]}`}
             >
               {Object.values(BookingStatus).map((s) => (
-                <option
-                  key={s}
-                  value={s}
-                  className={
-                    s === BookingStatus.PENDING
-                      ? "text-amber-700"
-                      : s === BookingStatus.CONFIRMED
-                        ? "text-green-700"
-                        : "text-red-700"
-                  }
-                >
-                  {s.toUpperCase()}
+                <option key={s} value={s} className={getStatusClass(s)}>
+                  {s}
                 </option>
               ))}
             </select>
@@ -99,7 +99,11 @@ const DetailBooking: React.FC = () => {
             <div
               className="w-14 h-14 rounded-full bg-cover bg-center"
               style={{
-                backgroundImage: `url(${CLOUDINARY_URL}${booking.userId.avatar})`,
+                backgroundImage: `url(${
+                  booking.userId?.avatar
+                    ? CLOUDINARY_URL + booking.userId.avatar
+                    : "/images/avatar.png"
+                })`,
               }}
             />
 
@@ -145,7 +149,7 @@ const DetailBooking: React.FC = () => {
               <p className="text-sm text-gray-400 mb-1">Check In</p>
               <p className="font-semibold flex items-center gap-2">
                 <Calendar size={16} />
-                {booking.checkIn}
+                {dayjs(booking.checkIn).format("DD MMM YYYY")}
               </p>
             </div>
 
@@ -153,7 +157,7 @@ const DetailBooking: React.FC = () => {
               <p className="text-sm text-gray-400 mb-1">Check Out</p>
               <p className="font-semibold flex items-center gap-2">
                 <Calendar size={16} />
-                {booking.checkOut}
+                {dayjs(booking.checkOut).format("DD MMM YYYY")}
               </p>
             </div>
 

@@ -11,8 +11,8 @@ export interface IBooking extends Document {
   roomId: Types.ObjectId;
   nights: number;
   status: BookingStatus;
-  checkIn: string;
-  checkOut: string;
+  checkIn: Date;
+  checkOut: Date;
   guest: number;
   request: string;
   total: number
@@ -37,11 +37,11 @@ const BookingSchema = new Schema<IBooking>(
       required: true,
     },
     checkIn: {
-        type: String,
+        type: Date,
         required: true,
     },
     checkOut: {
-        type: String,
+        type: Date,
         required: true,
     },
     status: {

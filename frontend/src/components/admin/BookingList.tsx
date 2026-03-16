@@ -14,14 +14,15 @@ import { formatPrice } from "../../lib/utils";
 import { useModal } from "../../hooks/useModal";
 import { useNavigate } from "react-router-dom";
 import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
+import dayjs from "dayjs";
 
 const BookingList: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<string | undefined>();
-  const [countStatus, setCountStatus] = React.useState<any>(null);
+  const [activeStatus, setActiveStatus] = useState<BookingStatus | undefined>();
+  const [countStatus, setCountStatus] = React.useState<FindBookingStatus[]>([]);
   const [deleteId, setDeleteId] = useState("");
   const [deleting, setDeleting] = useState(false);
 
@@ -32,7 +33,7 @@ const BookingList: React.FC = () => {
     try {
       setLoading(true);
 
-      const res = await callGetAllBookings(page, 10, statusFilter);
+      const res = await callGetAllBookings(page, 10, activeStatus);
 
       setBookings(res.data.data);
       setTotalPages(res.data.totalPages);
@@ -45,7 +46,7 @@ const BookingList: React.FC = () => {
   const fetchCount = async () => {
     try {
       const res = await callCountBookingStatus();
-      setCountStatus(res);
+      setCountStatus(res.data);
     } catch (error: any) {
       toastError(error.message);
     }
@@ -59,7 +60,7 @@ const BookingList: React.FC = () => {
       }
     };
     fetchData();
-  }, [page, statusFilter]);
+  }, [page, activeStatus]);
 
   const handleDeleteHotel = async () => {
     if (!deleteId) return;
@@ -87,7 +88,11 @@ const BookingList: React.FC = () => {
           <div
             className="w-9 h-9 rounded-full bg-cover bg-center flex-shrink-0"
             style={{
-              backgroundImage: `url(${CLOUDINARY_URL}${booking.userId.avatar})`,
+              backgroundImage: `url(${
+                booking.userId?.avatar
+                  ? CLOUDINARY_URL + booking.userId.avatar
+                  : "/images/avatar.png"
+              })`,
             }}
           />{" "}
           <div className="min-w-0">
@@ -110,10 +115,10 @@ const BookingList: React.FC = () => {
       render: (booking: Booking) => (
         <>
           <p className="text-sm font-medium text-gray-700 whitespace-nowrap">
-            {booking.roomId?.hotelId?.name}
+            {booking.roomId.hotelId.name}
           </p>
           <p className="text-xs text-gray-400 whitespace-nowrap">
-            {booking.roomId?.name}
+            {booking.roomId.name}
           </p>
         </>
       ),
@@ -125,7 +130,8 @@ const BookingList: React.FC = () => {
       render: (booking: Booking) => (
         <>
           <p className="text-sm font-medium text-gray-700 whitespace-nowrap">
-            {booking.checkIn} - {booking.checkOut}
+            {dayjs(booking.checkIn).format("DD MMM YYYY")} -{" "}
+            {dayjs(booking.checkOut).format("DD MMM YYYY")}{" "}
           </p>
           <p className="text-xs text-gray-400">{booking.nights} Nights</p>
         </>
@@ -137,7 +143,7 @@ const BookingList: React.FC = () => {
       title: "Status",
       render: (booking: Booking) => (
         <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold whitespace-nowrap ${
+          className={`inline-flex uppercase items-center px-2.5 py-0.5 rounded text-xs font-semibold whitespace-nowrap ${
             {
               confirmed: "bg-green-50 text-green-700",
               pending: "bg-amber-50 text-amber-700",
@@ -145,7 +151,7 @@ const BookingList: React.FC = () => {
             }[booking.status]
           }`}
         >
-          {booking.status.toUpperCase()}
+          {booking.status}
         </span>
       ),
     },
@@ -230,8 +236,9 @@ const BookingList: React.FC = () => {
             </span>
           </div>
           <div className="text-2xl sm:text-3xl font-bold text-gray-900 :text-white">
-            {countStatus?.find(
-              (item: FindBookingStatus) => item.status === "pending",
+            {countStatus.find(
+              (item: FindBookingStatus) =>
+                item.status === BookingStatus.PENDING,
             )?.total ?? 0}
           </div>
           <p className="text-xs text-gray-400 mt-4">
@@ -263,11 +270,11 @@ const BookingList: React.FC = () => {
           <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 sm:mb-0 scrollbar-hide">
             <div
               onClick={() => {
-                setStatusFilter(undefined);
+                setActiveStatus(undefined);
                 setPage(1);
               }}
               className={`flex px-3 sm:px-4 pb-2 whitespace-nowrap cursor-pointer border-b-2 ${
-                !statusFilter
+                !activeStatus
                   ? "border-teal-500 text-gray-900 font-semibold"
                   : "border-transparent text-gray-400 hover:text-teal-500"
               }`}
@@ -279,11 +286,11 @@ const BookingList: React.FC = () => {
               <div
                 key={status}
                 onClick={() => {
-                  setStatusFilter(status);
+                  setActiveStatus(status);
                   setPage(1);
                 }}
                 className={`flex px-3 sm:px-4 pb-2 whitespace-nowrap cursor-pointer border-b-2 transition-colors ${
-                  statusFilter === status
+                  activeStatus === status
                     ? "border-teal-500 text-gray-900 font-semibold"
                     : "border-transparent text-gray-400 hover:text-teal-500"
                 }`}

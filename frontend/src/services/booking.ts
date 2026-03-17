@@ -11,7 +11,7 @@ export const callCountBookingStatus = async (userId?: string) => {
 export const callGetAllBookings = async (
   page = 1,
   limit = 10,
-  status?: string,
+  status?: string | null,
   userId?: string,
 ) => {
   return instance.get("/bookings", {

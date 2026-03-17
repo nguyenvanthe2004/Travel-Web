@@ -6,6 +6,7 @@ import { BookingStatus } from "../models/Booking";
 import { CreateBookingDto, UpdateBookingDto } from "../dtos/BookingDto";
 import { UserProps } from "../types/auth";
 import { UserRepository } from "../repositories/UserRepository";
+import { LIMIT } from "../utils/helper";
 
 @Service()
 export class BookingService {
@@ -15,11 +16,8 @@ export class BookingService {
     private readonly userRepo: UserRepository,
   ) {}
 
-  async findAll(page = 1, limit?: number, status?: string, userId?: string) {
+  async findAll(page = 1, limit = LIMIT, status?: BookingStatus, userId?: string) {
     try {
-      page = Math.max(1, Number(page));
-      limit = Math.max(1, Number(limit));
-
       const skip = (page - 1) * limit;
 
       const [bookings, total] = await Promise.all([
@@ -51,9 +49,9 @@ export class BookingService {
     }
   }
 
-  async findByUser(page = 1, limit = 10, user: UserProps, status?: string) {
+  async findByUser(page = 1, limit = LIMIT, user: UserProps, status?: BookingStatus) {
     try {
-      const userId = String(user.userId);
+      const userId = user.userId;
 
       const skip = (page - 1) * limit;
 
@@ -72,9 +70,9 @@ export class BookingService {
     }
   }
 
-  async findByOwner(page = 1, limit = 10, user: UserProps, status?: string) {
+  async findByOwner(page = 1, limit = LIMIT, user: UserProps, status?: BookingStatus) {
     try {
-      const userId = String(user.userId);
+      const userId = user.userId;
 
       const skip = (page - 1) * limit;
 
@@ -132,21 +130,18 @@ export class BookingService {
 
   async cancel(bookingId: string, user: UserProps) {
     try {
-      const userId = String(user.userId);
-      const existedUser = await this.userRepo.findOne(userId);
-      if (!existedUser) {
-        throw new BadRequestError("User not found");
-      }
+      const userId = user.userId;
       const booking = await this.BookingRepo.findById(bookingId);
 
       if (!booking) {
         throw new NotFoundError("Booking not found");
       }
-      if (booking.userId._id.toString() !== userId) {
+      if (String(booking.userId._id) !== userId && String(booking.roomId.hotelId.userId._id) !== userId) {
         throw new BadRequestError(
           "You are not authorized to cancel this booking",
         );
       }
+
 
       return this.BookingRepo.update(bookingId, {
         status: BookingStatus.CANCELLED,
@@ -164,7 +159,7 @@ export class BookingService {
         throw new NotFoundError("Booking not found");
       }
 
-      if (String(booking.userId._id) !== String(user.userId)) {
+      if (String(booking.roomId.hotelId.userId._id) !== String(user.userId)) {
         throw new BadRequestError(
           "You are not authorized to delete this booking",
         );

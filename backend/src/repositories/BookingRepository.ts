@@ -10,7 +10,7 @@ import { IBooking, BookingModel, BookingStatus } from "../models/Booking";
 
 @Service()
 export class BookingRepository {
-  countAll(status?: string) {
+  countAll(status?: BookingStatus) {
     if (!status) {
       return BookingModel.countDocuments();
     }
@@ -20,7 +20,7 @@ export class BookingRepository {
   async findAll(
     skip: number,
     limit: number,
-    status?: string,
+    status?: BookingStatus,
     userId?: string,
   ): Promise<IBooking[]> {
     const query: BookingFindFilter = {};
@@ -49,29 +49,29 @@ export class BookingRepository {
       .lean<IBooking[]>();
   }
 
-  async findById(id: string): Promise<IBooking | null> {
+  async findById(id: string): Promise<BookingWithPopulate | null> {
     return BookingModel.findById(id)
       .populate({
         path: "roomId",
         select: "name price images description hotelId",
         populate: {
           path: "hotelId",
-          select: "name address locationId",
-          populate: {
-            path: "locationId",
-            select: "name",
-          },
+          select: "name address locationId userId",
+          populate: [
+            { path: "locationId", select: "name" },
+            { path: "userId", select: "_id fullName" },
+          ],
         },
       })
       .populate("userId", "fullName email avatar")
-      .lean();
+      .lean<BookingWithPopulate>();
   }
 
   async findByUser(
     skip: number,
     limit: number,
     userId: string,
-    status?: string,
+    status?: BookingStatus,
   ): Promise<IBooking[]> {
     const query: BookingQuery = { userId };
 
@@ -104,7 +104,7 @@ export class BookingRepository {
     skip: number,
     limit: number,
     ownerId: string,
-    status?: string,
+    status?: BookingStatus,
   ): Promise<BookingWithPopulate[]> {
     const query: BookingQuery = { userId: ownerId };
 

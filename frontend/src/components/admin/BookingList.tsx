@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Booking, FindBookingStatus } from "../../types/booking";
-import { BookingStatus, CLOUDINARY_URL } from "../../constants";
+import { BookingStatus, CLOUDINARY_URL, LIMIT } from "../../constants";
 import { Download, Eye, Funnel, List, Pencil, Trash } from "lucide-react";
 import CustomTable from "../ui/CustomTable";
 import Pagination from "../ui/Pagination";
@@ -21,7 +21,7 @@ const BookingList: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [activeStatus, setActiveStatus] = useState<BookingStatus | undefined>();
+  const [activeStatus, setActiveStatus] = useState<BookingStatus | null>(null);
   const [countStatus, setCountStatus] = React.useState<FindBookingStatus[]>([]);
   const [deleteId, setDeleteId] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -33,7 +33,7 @@ const BookingList: React.FC = () => {
     try {
       setLoading(true);
 
-      const res = await callGetAllBookings(page, 10, activeStatus);
+      const res = await callGetAllBookings(page, LIMIT, activeStatus);
 
       setBookings(res.data.data);
       setTotalPages(res.data.totalPages);
@@ -270,7 +270,7 @@ const BookingList: React.FC = () => {
           <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 sm:mb-0 scrollbar-hide">
             <div
               onClick={() => {
-                setActiveStatus(undefined);
+                setActiveStatus(null);
                 setPage(1);
               }}
               className={`flex px-3 sm:px-4 pb-2 whitespace-nowrap cursor-pointer border-b-2 ${

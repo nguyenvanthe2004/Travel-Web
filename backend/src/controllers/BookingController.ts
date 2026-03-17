@@ -14,6 +14,7 @@ import { Service } from "typedi";
 import { BookingService } from "../services/BookingService";
 import { CreateBookingDto, UpdateBookingDto } from "../dtos/BookingDto";
 import { UserProps } from "../types/auth";
+import { BookingStatus } from "../models/Booking";
 
 @Service()
 @JsonController("/bookings")
@@ -32,7 +33,7 @@ export class BookingController {
     @QueryParam("status") status?: string,
     @QueryParam("userId") userId?: string,
   ) {
-    return await this.bookingService.findAll(page, limit, status, userId);
+    return await this.bookingService.findAll(page, limit, status as BookingStatus, userId);
   }
 
   @Get("/my-booking")
@@ -42,7 +43,7 @@ export class BookingController {
     @CurrentUser() user: UserProps,
     @QueryParam("status") status?: string,
   ) {
-    return await this.bookingService.findByUser(+page, +limit, user, status);
+    return await this.bookingService.findByUser(+page, +limit, user, status as BookingStatus);
   }
   @Get("/booking-manager")
   async findBookingOwner(
@@ -51,7 +52,7 @@ export class BookingController {
     @CurrentUser() user: UserProps,
     @QueryParam("status") status?: string,
   ) {
-    return await this.bookingService.findByOwner(+page, +limit, user, status);
+    return await this.bookingService.findByOwner(+page, +limit, user, status as BookingStatus);
   }
   @Get("/:id")
   async findBookingById(@Param("id") id: string) {

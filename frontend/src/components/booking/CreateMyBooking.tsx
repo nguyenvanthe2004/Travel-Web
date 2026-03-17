@@ -35,6 +35,7 @@ const CreateMyBooking: React.FC = () => {
       setLoading(true);
       const res = await callCreateBooking({
         roomId: room._id,
+        info: `${fullName} - ${phone}`,
         nights,
         checkIn: new Date(checkIn),
         checkOut: new Date(checkOut),

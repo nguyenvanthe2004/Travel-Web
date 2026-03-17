@@ -6,7 +6,7 @@ import { callGetBookingById, callUpdateBooking } from "../../services/booking";
 import { BookingStatus, CLOUDINARY_URL } from "../../constants";
 import LoadingPage from "../ui/LoadingPage";
 import NotFoundPage from "../ui/NotFound";
-import { formatPrice, statusStyles } from "../../lib/utils";
+import { formatPrice, getStatusClass, statusStyles } from "../../lib/utils";
 import { toastError, toastSuccess } from "../../lib/toast";
 import dayjs from "dayjs";
 
@@ -45,19 +45,6 @@ const DetailBooking: React.FC = () => {
   useEffect(() => {
     fetchBooking();
   }, [id]);
-
-  const getStatusClass = (status: BookingStatus) => {
-    switch (status) {
-      case BookingStatus.PENDING:
-        return "text-amber-700";
-      case BookingStatus.CONFIRMED:
-        return "text-green-700";
-      case BookingStatus.CANCELLED:
-        return "text-red-700";
-      default:
-        return "";
-    }
-  };
 
   if (loading) return <LoadingPage />;
 

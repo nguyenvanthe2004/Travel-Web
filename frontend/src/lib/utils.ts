@@ -1,3 +1,4 @@
+import { BookingStatus } from "../constants";
 
 export const formatPrice = (price: number): string => {
   return `$${price?.toLocaleString("en-US") || "0"}`;
@@ -21,3 +22,16 @@ export const accentBarStyles = {
   pending: "bg-amber-400",
   cancelled: "bg-red-400",
 };
+
+export const getStatusClass = (status: BookingStatus) => {
+    switch (status) {
+      case BookingStatus.PENDING:
+        return "text-amber-700";
+      case BookingStatus.CONFIRMED:
+        return "text-green-700";
+      case BookingStatus.CANCELLED:
+        return "text-red-700";
+      default:
+        return "";
+    }
+  };

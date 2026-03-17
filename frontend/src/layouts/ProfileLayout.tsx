@@ -9,10 +9,12 @@ interface Props {
 const ProfileLayout: React.FC<Props> = ({ children }) => {
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen text-[#1c140d] dark:text-[#fcfaf8]">
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex h-screen">
         <SideBar />
-        {children}
-        <Outlet />
+        <div className="w-full h-screen overflow-y-auto">
+          {children}
+          <Outlet />
+        </div>
       </div>
     </div>
   );

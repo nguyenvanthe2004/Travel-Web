@@ -3,6 +3,7 @@ import { BookingStatus, IBooking } from "../models/Booking";
 export interface CreateBookingInput {
   userId: string;
   roomId: string;
+  info: string;
   nights: number;
   checkIn: Date;
   checkOut: Date;

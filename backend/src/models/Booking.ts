@@ -9,6 +9,7 @@ export enum BookingStatus {
 export interface IBooking extends Document {
   userId: Types.ObjectId;
   roomId: Types.ObjectId;
+  info: string;
   nights: number;
   status: BookingStatus;
   checkIn: Date;
@@ -30,6 +31,10 @@ const BookingSchema = new Schema<IBooking>(
     roomId: {
       type: Schema.Types.ObjectId,
       ref: "Room",
+      required: true,
+    },
+    info: {
+      type: String,
       required: true,
     },
     nights: {

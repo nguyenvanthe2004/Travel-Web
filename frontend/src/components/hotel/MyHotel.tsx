@@ -18,6 +18,7 @@ import LoadingPage from "../ui/LoadingPage";
 import Pagination from "../ui/Pagination";
 import { toastError } from "../../lib/toast";
 import { HotelStatusBadge } from "../ui/HotelStatusBadge";
+import NotFoundPage from "../ui/NotFound";
 
 type CountByStatus = {
   open: number;
@@ -190,25 +191,28 @@ const MyHotel: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {hotels.map((hotel) => (
-              <div
-                key={hotel._id}
-                className="relative bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg transition-all group"
-              >
-                {" "}
-                <div className="relative h-48 overflow-hidden">
-                  <div
-                    className="w-full h-full bg-center bg-no-repeat bg-cover group-hover:scale-105 transition-transform duration-500"
-                    style={{
-                      backgroundImage: `url(${CLOUDINARY_URL}/${hotel.images[0]})`,
-                    }}
-                  />
-                  <button
-                    onClick={() => {
-                      setDeleteId(hotel._id);
-                      open();
-                    }}
-                    className="
+            {hotels.length === 0 ? (
+              <NotFoundPage />
+            ) : (
+              hotels.map((hotel) => (
+                <div
+                  key={hotel._id}
+                  className="relative bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg transition-all group"
+                >
+                  {" "}
+                  <div className="relative h-48 overflow-hidden">
+                    <div
+                      className="w-full h-full bg-center bg-no-repeat bg-cover group-hover:scale-105 transition-transform duration-500"
+                      style={{
+                        backgroundImage: `url(${CLOUDINARY_URL}/${hotel.images[0]})`,
+                      }}
+                    />
+                    <button
+                      onClick={() => {
+                        setDeleteId(hotel._id);
+                        open();
+                      }}
+                      className="
                       absolute top-3 right-3 z-10
                       p-2 rounded-lg
                       bg-white/80 backdrop-blur
@@ -216,67 +220,70 @@ const MyHotel: React.FC = () => {
                       opacity-0 group-hover:opacity-100
                       transition-all
                     "
-                  >
-                    <Trash className="w-4 h-4" />
-                  </button>
+                    >
+                      <Trash className="w-4 h-4" />
+                    </button>
 
-                  <HotelStatusBadge status={hotel.status} />
-                </div>
-                <div className="p-5">
-                  <div className="mb-4">
-                    <h4 className="text-lg font-bold text-slate-900 mb-1">
-                      {hotel.name}
-                    </h4>
-                    <p className="text-slate-500 text-sm flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {hotel.address} - {hotel.locationId?.name}
-                    </p>
+                    <HotelStatusBadge status={hotel.status} />
                   </div>
+                  <div className="p-5">
+                    <div className="mb-4">
+                      <h4 className="text-lg font-bold text-slate-900 mb-1">
+                        {hotel.name}
+                      </h4>
+                      <p className="text-slate-500 text-sm flex items-center gap-1">
+                        <MapPin className="w-4 h-4" />
+                        {hotel.address} - {hotel.locationId?.name}
+                      </p>
+                    </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                    <div>
-                      <span className="text-xs font-bold text-slate-400 uppercase">
-                        Rooms
-                      </span>
-                      <div className="text-sm font-bold text-slate-700">
-                        {hotel.rooms?.length || 0}
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                      <div>
+                        <span className="text-xs font-bold text-slate-400 uppercase">
+                          Rooms
+                        </span>
+                        <div className="text-sm font-bold text-slate-700">
+                          {hotel.rooms?.length || 0}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
+                        <button
+                          onClick={() =>
+                            navigate(`/my-hotel/update/${hotel._id}`)
+                          }
+                          className="
+                        flex items-center gap-1
+                        bg-slate-100 hover:bg-orange-500 hover:text-white
+                        text-slate-700
+                        px-4 py-2 rounded-lg
+                        font-bold text-xs transition-all
+                      "
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            navigate(`/my-hotel/${hotel._id}/room`)
+                          }
+                          className="
+                        flex items-center gap-1
+                        bg-slate-100 hover:bg-orange-500 hover:text-white
+                        text-slate-700
+                        px-4 py-2 rounded-lg
+                        font-bold text-xs transition-all
+                      "
+                        >
+                          Manage
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
-                      <button
-                        onClick={() =>
-                          navigate(`/my-hotel/update/${hotel._id}`)
-                        }
-                        className="
-                        flex items-center gap-1
-                        bg-slate-100 hover:bg-orange-500 hover:text-white
-                        text-slate-700
-                        px-4 py-2 rounded-lg
-                        font-bold text-xs transition-all
-                      "
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        onClick={() => navigate(`/my-hotel/${hotel._id}/room`)}
-                        className="
-                        flex items-center gap-1
-                        bg-slate-100 hover:bg-orange-500 hover:text-white
-                        text-slate-700
-                        px-4 py-2 rounded-lg
-                        font-bold text-xs transition-all
-                      "
-                      >
-                        Manage
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           <Pagination

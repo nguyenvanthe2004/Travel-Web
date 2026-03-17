@@ -6,7 +6,7 @@ import { callGetBookingById, callUpdateBooking } from "../../services/booking";
 import { BookingStatus, CLOUDINARY_URL } from "../../constants";
 import LoadingPage from "../ui/LoadingPage";
 import NotFoundPage from "../ui/NotFound";
-import { formatPrice, statusStyles } from "../../lib/utils";
+import { formatPrice, getStatusClass, statusStyles } from "../../lib/utils";
 import { toastError, toastSuccess } from "../../lib/toast";
 import dayjs from "dayjs";
 
@@ -67,29 +67,17 @@ const UpdateBooking: React.FC = () => {
           <div className="flex justify-between items-center pb-4">
             <div>
               <p className="text-sm text-gray-400">Booking ID</p>
-              <p className="text-lg font-bold text-gray-900">
-                {booking._id}
-              </p>
+              <p className="text-lg font-bold text-gray-900">{booking._id}</p>
             </div>
 
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as BookingStatus)}
-              className={`px-3 py-1 bg-white rounded-full text-xs outline-none ${statusStyles[status]}`}
+              className={`px-3 uppercase py-1 bg-white rounded-full text-xs outline-none ${statusStyles[status]}`}
             >
               {Object.values(BookingStatus).map((s) => (
-                <option
-                  key={s}
-                  value={s}
-                  className={
-                    s === BookingStatus.PENDING
-                      ? "text-amber-700"
-                      : s === BookingStatus.CONFIRMED
-                        ? "text-green-700"
-                        : "text-red-700"
-                  }
-                >
-                  {s.toUpperCase()}
+                <option key={s} value={s} className={getStatusClass(s)}>
+                  {s}
                 </option>
               ))}
             </select>
@@ -160,7 +148,9 @@ const UpdateBooking: React.FC = () => {
 
             <div>
               <p className="text-sm text-gray-400 mb-1">Nights</p>
-              <p className="font-semibold text-gray-800">{booking.nights} Nights</p>
+              <p className="font-semibold text-gray-800">
+                {booking.nights} Nights
+              </p>
             </div>
           </div>
 

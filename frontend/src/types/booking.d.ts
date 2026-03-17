@@ -25,6 +25,7 @@ export interface Booking {
       }
     };
   };
+  info: string;
   nights: number;
   checkIn: Date;
   checkOut: Date;
@@ -35,6 +36,7 @@ export interface Booking {
 }
 export interface CreateBookingDto {
   roomId: string;
+  info: string;
   nights: number;
   checkIn: Date;
   checkOut: Date;

@@ -48,7 +48,7 @@ const SideBar: React.FC = () => {
   };
 
   return (
-    <>
+    <div className="flex h-screen overflow-hidden">
       {/* Mobile Menu Button */}
       <button
         onClick={toggleSidebar}
@@ -143,7 +143,7 @@ const SideBar: React.FC = () => {
           </div>
         </div>
       </aside>
-    </>
+    </div>
   );
 };
 

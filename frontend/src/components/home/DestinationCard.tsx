@@ -6,7 +6,7 @@ import LoadingPage from "../ui/LoadingPage";
 import { Location } from "../../types/location";
 import { CLOUDINARY_URL } from "../../constants";
 import { ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const DestinationCard: React.FC = () => {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -44,15 +44,14 @@ const DestinationCard: React.FC = () => {
               Most searched locations by travelers this week.
             </p>
           </div>
-          <a
+          <Link to={"/search"}
             className="hidden md:flex items-center gap-1 text-orange-400 font-bold hover:gap-2 transition-all"
-            href="#"
           >
             View all{" "}
             <span className="material-symbols-outlined text-lg">
               <ArrowRight />
             </span>
-          </a>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">

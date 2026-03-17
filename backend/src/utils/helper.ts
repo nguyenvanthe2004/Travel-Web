@@ -70,3 +70,5 @@ export const refreshToken = (res: Response, user: IUser) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
+
+export const LIMIT = 10;

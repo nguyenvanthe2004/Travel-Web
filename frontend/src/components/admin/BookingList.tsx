@@ -1,74 +1,110 @@
-import React from "react";
-import { Booking } from "../../types/booking";
-import { BookingStatus } from "../../constants";
-import { Download, Eye, Funnel, List } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Booking, FindBookingStatus } from "../../types/booking";
+import { BookingStatus, CLOUDINARY_URL, LIMIT } from "../../constants";
+import { Download, Eye, Funnel, List, Pencil, Trash } from "lucide-react";
 import CustomTable from "../ui/CustomTable";
 import Pagination from "../ui/Pagination";
+import {
+  callCountBookingStatus,
+  callDeleteBooking,
+  callGetAllBookings,
+} from "../../services/booking";
+import { toastError, toastSuccess } from "../../lib/toast";
+import { formatPrice } from "../../lib/utils";
+import { useModal } from "../../hooks/useModal";
+import { useNavigate } from "react-router-dom";
+import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
+import dayjs from "dayjs";
 
 const BookingList: React.FC = () => {
-  const [page, setPage] = React.useState(1);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [activeStatus, setActiveStatus] = useState<BookingStatus | null>(null);
+  const [countStatus, setCountStatus] = React.useState<FindBookingStatus[]>([]);
+  const [deleteId, setDeleteId] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
-  const fakeBookings: Booking[] = [
-    {
-      _id: "1",
-      bookingCode: "#BK-9821",
-      guest: {
-        name: "Sarah Johnson",
-        email: "sarah.j@email.com",
-        avatar:
-          "https://lh3.googleusercontent.com/aida-public/AB6AXuDuGgi3dqmjdM5l11SF4LvI3bPtGo7wsKY41_1OT8VpkwdUDOMnfOLGGeQPP3sy_o5edE4p40UPErVlriAqeQibqerPN1A9yvAr8mY2daQHw7F_ALijmPoS_YFeo4OnKsgHMCjayQNb7NxG0pzYSrXoVLeijIAEY7y2djFx6krL5th2l2Kw4f2WRqllNLo2F7IX6SRkjh-y9aKCo9cemPnoqr_qsVikEDxo_6dtUk2R0t78VNUYynCRCXk-BBlq5ldZDKnWi67Gl9g",
-      },
-      hotel: "Grand Azure Resort",
-      room: "Deluxe Sea View, Rm 402",
-      period: "Oct 12 - Oct 15",
-      nights: 3,
-      status: BookingStatus.CONFIRMED,
-      total: 840,
-    },
-    {
-      _id: "2",
-      bookingCode: "#BK-9819",
-      guest: {
-        name: "Michael Chen",
-        email: "m.chen@outlook.com",
-        avatar:
-          "https://lh3.googleusercontent.com/aida-public/AB6AXuAtIZbQKsYS7TZbu16Jf13LcFh37papXW4-ie30nzebSkMp7AGbJlTVat-1UaiAO9fhBEmDw8wNF3USZ7JLfi1y5IQWbi094RHUzy_OmumQaldP95Ijb0ulFMAT7GCuqFr_R-9zUqJaVWrRDb1DG_ZidUPDKN3PPlO5NU7h30byo-JKm4eY44KkYj3AIc1-k_ipjbzVoalxx3qq8_fPXlTOhkyempbx1CALo5DO9tl9iuaOm1kFjrRTKKKhz1ziWxheNoIDw-mfL8Q",
-      },
-      hotel: "City Palace Hotel",
-      room: "Business Suite, Rm 1012",
-      period: "Oct 14 - Oct 16",
-      nights: 2,
-      status: BookingStatus.PENDING,
-      total: 1250,
-    },
-  ];
+  const { isOpen, open, close } = useModal();
+  const navigate = useNavigate();
+
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+
+      const res = await callGetAllBookings(page, LIMIT, activeStatus);
+
+      setBookings(res.data.data);
+      setTotalPages(res.data.totalPages);
+    } catch (error: any) {
+      toastError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchCount = async () => {
+    try {
+      const res = await callCountBookingStatus();
+      setCountStatus(res.data);
+    } catch (error: any) {
+      toastError(error.message);
+    }
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await Promise.all([fetchBookings(), fetchCount()]);
+      } catch (error: any) {
+        toastError(error.message);
+      }
+    };
+    fetchData();
+  }, [page, activeStatus]);
+
+  const handleDeleteHotel = async () => {
+    if (!deleteId) return;
+    try {
+      setDeleting(true);
+      await callDeleteBooking(deleteId);
+      setDeleteId("");
+      close();
+      toastSuccess("Hotel deleted successfully!");
+      fetchBookings();
+    } catch (error: any) {
+      toastError(error.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const bookingColumns = [
     {
-      key: "code",
-      title: "Booking ID",
-      render: (row: Booking) => (
-        <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
-          {row.bookingCode}
-        </span>
-      ),
-    },
-
-    {
       key: "guest",
       title: "Guest",
-      render: (row: Booking) => (
+      render: (booking: Booking) => (
         <div className="flex items-center gap-3 min-w-[220px]">
+          {" "}
           <div
             className="w-9 h-9 rounded-full bg-cover bg-center flex-shrink-0"
-            style={{ backgroundImage: `url(${row.guest.avatar})` }}
-          />
+            style={{
+              backgroundImage: `url(${
+                booking.userId?.avatar
+                  ? CLOUDINARY_URL + booking.userId.avatar
+                  : "/images/avatar.png"
+              })`,
+            }}
+          />{" "}
           <div className="min-w-0">
+            {" "}
             <p className="text-sm font-semibold text-gray-900 truncate">
-              {row.guest.name}
-            </p>
-            <p className="text-xs text-gray-400 truncate">{row.guest.email}</p>
-          </div>
+              {" "}
+              {booking.userId.fullName}{" "}
+            </p>{" "}
+            <p className="text-xs text-gray-400 truncate">
+              {booking.userId.email}
+            </p>{" "}
+          </div>{" "}
         </div>
       ),
     },
@@ -76,12 +112,14 @@ const BookingList: React.FC = () => {
     {
       key: "hotel",
       title: "Hotel / Room",
-      render: (row: Booking) => (
+      render: (booking: Booking) => (
         <>
           <p className="text-sm font-medium text-gray-700 whitespace-nowrap">
-            {row.hotel}
+            {booking.roomId.hotelId.name}
           </p>
-          <p className="text-xs text-gray-400 whitespace-nowrap">{row.room}</p>
+          <p className="text-xs text-gray-400 whitespace-nowrap">
+            {booking.roomId.name}
+          </p>
         </>
       ),
     },
@@ -89,12 +127,13 @@ const BookingList: React.FC = () => {
     {
       key: "period",
       title: "Stay Period",
-      render: (row: Booking) => (
+      render: (booking: Booking) => (
         <>
           <p className="text-sm font-medium text-gray-700 whitespace-nowrap">
-            {row.period}
+            {dayjs(booking.checkIn).format("DD MMM YYYY")} -{" "}
+            {dayjs(booking.checkOut).format("DD MMM YYYY")}{" "}
           </p>
-          <p className="text-xs text-gray-400">{row.nights} Nights</p>
+          <p className="text-xs text-gray-400">{booking.nights} Nights</p>
         </>
       ),
     },
@@ -102,17 +141,17 @@ const BookingList: React.FC = () => {
     {
       key: "status",
       title: "Status",
-      render: (row: Booking) => (
+      render: (booking: Booking) => (
         <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold whitespace-nowrap ${
+          className={`inline-flex uppercase items-center px-2.5 py-0.5 rounded text-xs font-semibold whitespace-nowrap ${
             {
               confirmed: "bg-green-50 text-green-700",
               pending: "bg-amber-50 text-amber-700",
               cancelled: "bg-red-50 text-red-700",
-            }[row.status]
+            }[booking.status]
           }`}
         >
-          {row.status}
+          {booking.status}
         </span>
       ),
     },
@@ -120,9 +159,9 @@ const BookingList: React.FC = () => {
     {
       key: "total",
       title: "Total",
-      render: (row: Booking) => (
+      render: (booking: Booking) => (
         <span className="font-semibold text-gray-900 whitespace-nowrap">
-          ${row.total.toLocaleString()}
+          {formatPrice(booking.total)}
         </span>
       ),
     },
@@ -132,15 +171,23 @@ const BookingList: React.FC = () => {
       title: "Actions",
       headerClassName: "text-right",
       cellClassName: "text-right",
-      render: () => (
+      render: (booking: Booking) => (
         <div className="flex items-center justify-end gap-2">
-          <button className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-            <span className="material-symbols-outlined text-xl">
-              <Eye />
-            </span>
+          <button
+            onClick={() => navigate(`/admin/bookings/update/${booking._id}`)}
+            className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+          >
+            <Pencil size={18} />
           </button>
-          <button className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-            <span className="material-symbols-outlined text-xl"><List /></span>
+
+          <button
+            onClick={() => {
+              setDeleteId(booking._id);
+              open();
+            }}
+            className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+          >
+            <Trash size={18} />
           </button>
         </div>
       ),
@@ -171,7 +218,7 @@ const BookingList: React.FC = () => {
             </span>
           </div>
           <div className="text-2xl sm:text-3xl font-bold text-gray-900 :text-white">
-            1,284
+            {bookings.length}
           </div>
           <div className="mt-4 h-1.5 w-full bg-gray-100 :bg-gray-800 rounded-full overflow-hidden">
             <div className="bg-teal-500 h-full w-[70%]"></div>
@@ -189,10 +236,13 @@ const BookingList: React.FC = () => {
             </span>
           </div>
           <div className="text-2xl sm:text-3xl font-bold text-gray-900 :text-white">
-            42
+            {countStatus.find(
+              (item: FindBookingStatus) =>
+                item.status === BookingStatus.PENDING,
+            )?.total ?? 0}
           </div>
           <p className="text-xs text-gray-400 mt-4">
-            8 urgent requests need attention
+            Urgent requests need attention
           </p>
         </div>
 
@@ -205,7 +255,9 @@ const BookingList: React.FC = () => {
             <span className="text-red-500 text-xs font-semibold">-2.1%</span>
           </div>
           <div className="text-2xl sm:text-3xl font-bold text-gray-900 :text-white">
-            $128,400
+            {formatPrice(
+              bookings?.reduce((sum, booking) => sum + booking.total, 0) ?? 0,
+            )}
           </div>
           <p className="text-xs text-gray-400 mt-4">
             Current month vs last month
@@ -213,30 +265,41 @@ const BookingList: React.FC = () => {
         </div>
       </div>
 
-      {/* Table Container */}
       <div className="bg-white :bg-gray-900 rounded-xl shadow-sm border border-gray-200 :border-gray-800 overflow-hidden">
-        {/* Table Header with Tabs and Actions */}
         <div className="p-3 sm:p-4 border-b border-gray-200 :border-gray-800">
-          {/* Tabs - Scrollable on mobile */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 sm:mb-0 scrollbar-hide">
-            <div className="flex border-b-2 border-teal-500 px-3 sm:px-4 pb-2 whitespace-nowrap">
-              <span className="text-sm font-semibold text-gray-900 :text-white">
-                All Bookings
-              </span>
+            <div
+              onClick={() => {
+                setActiveStatus(null);
+                setPage(1);
+              }}
+              className={`flex px-3 sm:px-4 pb-2 whitespace-nowrap cursor-pointer border-b-2 ${
+                !activeStatus
+                  ? "border-teal-500 text-gray-900 font-semibold"
+                  : "border-transparent text-gray-400 hover:text-teal-500"
+              }`}
+            >
+              <span className="text-sm">All Bookings</span>
             </div>
-            <div className="flex px-3 sm:px-4 pb-2 whitespace-nowrap">
-              <span className="text-sm font-medium text-gray-400 cursor-pointer hover:text-teal-500 transition-colors">
-                Confirmed
-              </span>
-            </div>
-            <div className="flex px-3 sm:px-4 pb-2 whitespace-nowrap">
-              <span className="text-sm font-medium text-gray-400 cursor-pointer hover:text-teal-500 transition-colors">
-                Pending
-              </span>
-            </div>
+
+            {Object.values(BookingStatus).map((status) => (
+              <div
+                key={status}
+                onClick={() => {
+                  setActiveStatus(status);
+                  setPage(1);
+                }}
+                className={`flex px-3 sm:px-4 pb-2 whitespace-nowrap cursor-pointer border-b-2 transition-colors ${
+                  activeStatus === status
+                    ? "border-teal-500 text-gray-900 font-semibold"
+                    : "border-transparent text-gray-400 hover:text-teal-500"
+                }`}
+              >
+                <span className="text-sm capitalize">{status}</span>
+              </div>
+            ))}
           </div>
 
-          {/* Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3 mt-3 sm:mt-0">
             <button className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 border border-gray-200 :border-gray-700 rounded-lg text-xs sm:text-sm font-medium text-gray-600 :text-gray-300 hover:bg-gray-50 :hover:bg-gray-800 transition-colors flex-1 sm:flex-initial justify-center">
               <span className="material-symbols-outlined text-base sm:text-lg">
@@ -254,17 +317,22 @@ const BookingList: React.FC = () => {
         </div>
 
         <CustomTable
-          data={fakeBookings}
-          loading={false}
-          className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+          data={bookings}
+          loading={loading}
           columns={bookingColumns}
         />
-        <Pagination
-          currentPage={page}
-          totalPages={128}
-          onPageChange={setPage}
-        />
       </div>
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
+      <ConfirmDeleteModal
+        isOpen={isOpen}
+        onClose={close}
+        onConfirm={handleDeleteHotel}
+        loading={deleting}
+      />
     </main>
   );
 };

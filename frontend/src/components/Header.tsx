@@ -10,9 +10,10 @@ import {
   Users,
   Calendar,
   Search,
+  BookCheck,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { RootState } from "../redux/store";
 import { CLOUDINARY_URL, UserRole } from "../constants";
 import { logout } from "../redux/slices/currentUser";
@@ -183,17 +184,22 @@ const Header: React.FC = () => {
           </div>
 
           {/* Desktop Nav & User */}
-          <div className="hidden lg:flex items-center gap-6">
-            <nav className="flex gap-6">
-              <a href="#" className="text-sm font-medium hover:text-orange-400">
-                My Booking
-              </a>
-              <a
-                onClick={() => navigate("/my-hotel")}
-                className="text-sm font-medium hover:text-orange-400 cursor-pointer"
+          <div className="hidden lg:flex items-center gap-3">
+            <nav className="flex gap-3">
+              <Link
+                to={"/my-booking"}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
               >
-                My Hotels
-              </a>
+                <BookCheck size={20} />
+                <span className="mt-1">My Bookings</span>
+              </Link>
+              <Link
+                to={"/my-hotel"}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
+              >
+                <Hotel size={20} />
+                <span className="mt-1">My Hotels</span>
+              </Link>
             </nav>
 
             <div className="h-6 w-px bg-gray-200"></div>
@@ -211,7 +217,6 @@ const Header: React.FC = () => {
                         ? `${CLOUDINARY_URL}${user.avatar}`
                         : "public/images/avatar.png"
                     }
-                    alt=""
                   />
                 </button>
 
@@ -229,7 +234,7 @@ const Header: React.FC = () => {
                     <div className="py-1">
                       {user.role === UserRole.ADMIN && (
                         <a
-                          onClick={() => navigate("admin/dashboard")}
+                          onClick={() => navigate("/admin/dashboard")}
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
                         >
                           <UserStar size={16} />
@@ -432,53 +437,51 @@ const Header: React.FC = () => {
               <h2 className="text-lg font-bold text-gray-900">TravelStay</h2>
             </div>
           </div>
+          <div className="flex items-center gap-3 pb-3 px-4 mt-3">
+            <div className="size-12 rounded-full border-4 border-orange-100 overflow-hidden bg-cover bg-center flex-shrink-0">
+              <img
+                src={
+                  user?.avatar
+                    ? `${CLOUDINARY_URL}${user.avatar}`
+                    : "public/images/avatar.png"
+                }
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm text-gray-900 truncate">
+                {user.fullName}
+              </p>
+              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+            </div>
+          </div>
 
-          <div className="px-6 py-6 space-y-6">
+          <div className="px-6 py-6 space-y-6 border-t border-gray-200">
             {/* Navigation */}
             <nav className="space-y-1">
-              <a
-                href="#"
-                className="block text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50 px-4 py-3 rounded-lg transition-colors"
+              <Link
+                to={"/my-booking"}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
               >
-                My Bookings
-              </a>
-              <a
-                href="/my-hotel"
-                className="block text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50 px-4 py-3 rounded-lg transition-colors"
+                <BookCheck size={20} />
+                <span className="mt-1">My Bookings</span>
+              </Link>
+              <Link
+                to={"/my-hotel"}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
               >
-                My Hotels
-              </a>
+                <Hotel size={20} />
+                <span className="mt-1">My Hotels</span>
+              </Link>
             </nav>
 
             {/* User Section */}
             {user?.userId ? (
               <div className="space-y-3 pt-3 border-t border-gray-200">
-                <div className="flex items-center gap-3 pb-3 px-4">
-                  <div className="size-12 rounded-full border-4 border-orange-100 overflow-hidden bg-cover bg-center flex-shrink-0">
-                    <img
-                      src={
-                        user?.avatar
-                          ? `${CLOUDINARY_URL}${user.avatar}`
-                          : "public/images/avatar.png"
-                      }
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-gray-900 truncate">
-                      {user.fullName}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {user.email}
-                    </p>
-                  </div>
-                </div>
-
                 {user.role === UserRole.ADMIN && (
                   <a
                     onClick={() => {
-                      navigate("admin/dashboard");
+                      navigate("/admin/dashboard");
                       setIsMobileMenuOpen(false);
                     }}
                     className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"

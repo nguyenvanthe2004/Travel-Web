@@ -31,6 +31,7 @@ const DetailRoom: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [checkIn, setCheckIn] = useState<string>("");
   const [checkOut, setCheckOut] = useState<string>("");
+  const [guest, setGuest] = useState<number>(1);
   const navigate = useNavigate();
 
   const fetchRoomById = async () => {
@@ -52,14 +53,17 @@ const DetailRoom: React.FC = () => {
   const images = room?.images || [];
 
   const nights = useMemo(() => {
-    if (!room) return 0;
-    return getNights(checkIn, checkOut);
-  }, [checkIn, checkOut]);
+  if (!checkIn || !checkOut) return 0;
+
+  return getNights(new Date(checkIn), new Date(checkOut));
+}, [checkIn, checkOut]);
 
   const total = useMemo(() => {
     if (!room) return 0;
     return nights * room.price;
   }, [nights]);
+
+  const today = new Date().toISOString().split("T")[0];
 
   if (loading) return <LoadingPage />;
 
@@ -335,6 +339,7 @@ const DetailRoom: React.FC = () => {
                     <input
                       type="date"
                       value={checkIn}
+                      min={today}
                       onChange={(e) => setCheckIn(e.target.value)}
                       className="font-semibold text-sm text-slate-700 outline-none bg-transparent w-full cursor-pointer"
                     />
@@ -357,7 +362,11 @@ const DetailRoom: React.FC = () => {
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-orange-400 mb-1.5">
                     Guests
                   </label>
-                  <select className="w-full font-semibold text-sm text-slate-700 bg-transparent outline-none cursor-pointer">
+                  <select
+                    value={guest}
+                    onChange={(e) => setGuest(Number(e.target.value))}
+                    className="w-full font-semibold text-sm text-slate-700 bg-transparent outline-none cursor-pointer"
+                  >
                     {Array.from({ length: room.maxGuests || 0 }, (_, i) => (
                       <option key={i + 1} value={i + 1}>
                         {i + 1} Adult{i + 1 > 1 ? "s" : ""}
@@ -383,7 +392,24 @@ const DetailRoom: React.FC = () => {
             </div>
 
             <button
-              className={`w-full text-white font-extrabold py-4 rounded-2xl  transition-all shadow-lg shadow-orange-400/20 transform active:scale-[0.98] mb-4 ${
+              onClick={() => {
+                if (!total) return;
+
+                navigate(
+                  `/hotels/${room.hotelId._id}/room/${room._id}/booking`,
+                  {
+                    state: {
+                      room,
+                      checkIn,
+                      checkOut,
+                      guest,
+                      nights,
+                      total,
+                    },
+                  },
+                );
+              }}
+              className={`w-full text-white font-extrabold py-4 rounded-2xl transition-all shadow-lg shadow-orange-400/20 transform active:scale-[0.98] mb-4 ${
                 !total
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-orange-400 hover:bg-orange-400/90 cursor-pointer"

@@ -4,7 +4,7 @@ import { logout } from "../../redux/slices/currentUser";
 import { useDispatch } from "react-redux";
 import { callLogout } from "../../services/auth";
 import { useState } from "react";
-import { Hotel, LogOut, Menu, Settings, ShieldCheck, User, X } from "lucide-react";
+import { BookCheck, Hotel, LogOut, Menu, Settings, ShieldCheck, User, X } from "lucide-react";
 import { toastError } from "../../lib/toast";
 
 const menuItems = [
@@ -19,9 +19,9 @@ const menuItems = [
     path: "/my-hotel",
   },
   {
-    label: "Settings",
-    icon: <Settings />,
-    path: "/settings",
+    label: "Bookings",
+    icon: <BookCheck />,
+    path: "/booking-manager",
   },
 ];
 
@@ -48,7 +48,7 @@ const SideBar: React.FC = () => {
   };
 
   return (
-    <>
+    <div className="flex h-screen overflow-hidden">
       {/* Mobile Menu Button */}
       <button
         onClick={toggleSidebar}
@@ -143,7 +143,7 @@ const SideBar: React.FC = () => {
           </div>
         </div>
       </aside>
-    </>
+    </div>
   );
 };
 

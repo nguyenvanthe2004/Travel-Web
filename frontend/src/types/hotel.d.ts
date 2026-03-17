@@ -11,6 +11,9 @@ export interface Hotel {
   locationId: {
     name: string;
   };
+  userId: {
+    _id: string
+  },
   rooms: Room[];
   status: HotelStatus;
   rangePrice: string;

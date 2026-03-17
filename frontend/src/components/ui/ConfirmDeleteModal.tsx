@@ -1,6 +1,6 @@
 import type React from "react";
 import Modal from "./Modal";
-import { AlertTriangle } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -33,21 +33,21 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
       confirmText={confirmText}
       cancelText={cancelText}
       loading={loading}
+      variant="danger"
     >
-      <div className="flex gap-4">
+      <div className="flex items-start gap-4">
         {/* Icon */}
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
-          <AlertTriangle size={22} />
+        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50">
+          <Trash2 size={18} className="text-red-500" />
         </div>
 
         {/* Content */}
-        <div>
+        <div className="space-y-1 pt-0.5">
           <p className="text-sm text-gray-600 leading-relaxed">
             {description}
           </p>
-
-          <p className="mt-2 text-xs text-red-500">
-            This action is permanent.
+          <p className="text-xs text-red-500/80">
+            This action is permanent and cannot be reversed.
           </p>
         </div>
       </div>

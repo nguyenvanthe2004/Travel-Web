@@ -12,6 +12,7 @@ export interface Room {
   hotelId: {
     _id: string;
     name: string;
+    address: string;
     rooms: Room[];
     locationId: {
       name: string;

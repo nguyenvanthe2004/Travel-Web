@@ -1,4 +1,4 @@
-import { BookingStatus, IBooking } from "../models/Booking";
+import { BookingStatus, IBooking, PaymentStatus } from "../models/Booking";
 
 export interface CreateBookingInput {
   userId: string;
@@ -14,6 +14,7 @@ export interface CreateBookingInput {
 
 export interface UpdateBookingInput {
   status?: BookingStatus;
+  paymentStatus?: PaymentStatus;
   request?: string;
 }
 

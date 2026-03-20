@@ -32,6 +32,7 @@ import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage ";
 import DetailBookingPage from "./pages/admin/booking/DetailBookingPage";
 import BookingManagerPage from "./pages/booking/BookingManagerPage";
 import UpdateBookingPage from "./pages/booking/UpdateBookingPage";
+import ConfirmPaymentPage from "./pages/payment/ConfirmPaymentPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -62,7 +63,10 @@ function App() {
           <Route index element={<HotelDetailPage />} />
           <Route path="room/:roomId">
             <Route index element={<DetailRoomPage />} />
-            <Route path="booking" element={<CreateMyBookingPage />} />
+            <Route path="booking">
+              <Route index element={<CreateMyBookingPage />} />
+              <Route path=":bookingId/payment" element={<ConfirmPaymentPage />} />
+            </Route>
           </Route>
         </Route>
 
@@ -103,6 +107,7 @@ function App() {
           <Route index element={<BookingManagerPage />} />
           <Route path="update/:id" element={<UpdateBookingPage />} />
         </Route>
+
         <Route path="/admin/users" element={<UserPage />} />
       </Routes>
     </BrowserRouter>

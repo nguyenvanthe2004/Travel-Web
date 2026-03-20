@@ -9,6 +9,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "@types/multer": "^2.0.0",
     "@types/nodemailer": "^7.0.11",
     "bcrypt": "^6.0.0",
@@ -23,6 +24,7 @@
     "mongoose": "^9.1.1",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.12",
+    "pusher": "^5.3.3",
     "reflect-metadata": "^0.2.2",
     "routing-controllers": "^0.11.3",
     "typedi": "^0.10.0",

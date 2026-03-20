@@ -7,6 +7,7 @@ import {
   BookingWithPopulate,
 } from "../types/booking";
 import { IBooking, BookingModel, BookingStatus } from "../models/Booking";
+import { ClientSession } from "mongoose";
 
 @Service()
 export class BookingRepository {
@@ -176,8 +177,16 @@ export class BookingRepository {
     return booking.save();
   }
 
-  async update(id: string, data: UpdateBookingInput): Promise<IBooking | null> {
-    return BookingModel.findByIdAndUpdate(id, { $set: data }, { new: true });
+  async update(
+    id: string,
+    data: UpdateBookingInput,
+    session?: ClientSession,
+  ): Promise<IBooking | null> {
+    return BookingModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true, session },
+    );
   }
 
   async delete(id: string): Promise<boolean> {

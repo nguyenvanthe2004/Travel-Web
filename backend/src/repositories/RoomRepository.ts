@@ -5,6 +5,7 @@ import {
   UpdateRoomInput,
 } from "../types/room";
 import { IRoom, RoomModel, RoomStatus } from "../models/Room";
+import { ClientSession } from "mongoose";
 
 @Service()
 export class RoomRepository {
@@ -89,8 +90,16 @@ export class RoomRepository {
     return room.save();
   }
 
-  async update(id: string, data: UpdateRoomInput): Promise<IRoom | null> {
-    return RoomModel.findByIdAndUpdate(id, { $set: data }, { new: true });
+  async update(
+    id: string,
+    data: UpdateRoomInput,
+    session?: ClientSession,
+  ): Promise<IRoom | null> {
+    return RoomModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true, session },
+    );
   }
 
   async delete(id: string): Promise<boolean> {

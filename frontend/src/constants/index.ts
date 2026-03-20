@@ -1,5 +1,7 @@
 export const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export const CLOUDINARY_URL = import.meta.env.VITE_CLOUDINARY_URL;
+export const SEPAY_URL = import.meta.env.VITE_SEPAY_URL;
+export const PUSHER_KEY = import.meta.env.VITE_PUSHER_KEY;
 
 export enum UserRole {
   USER = "user",

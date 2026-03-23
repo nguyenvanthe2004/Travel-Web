@@ -54,6 +54,19 @@ export class BookingService {
     }
   }
 
+  async findBookedDates(roomId: string) {
+    try {
+      const bookings = await this.BookingRepo.findByRoomId(roomId);
+
+      return bookings.map((b) => ({
+        checkIn: b.checkIn,
+        checkOut: b.checkOut,
+      }));
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
+  }
+
   async findByUser(
     page = 1,
     limit = LIMIT,

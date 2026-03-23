@@ -23,6 +23,10 @@ export const callGetBookingById = async (id: string) => {
   return instance.get(`/bookings/${id}`);
 };
 
+export const callGetBookedDates = async (roomId: string) => {
+  return instance.get(`/bookings/room/${roomId}/dates`);
+};
+
 export const callGetMyBookings = async (
   page: number,
   limit: number,

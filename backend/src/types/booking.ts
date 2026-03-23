@@ -29,6 +29,11 @@ export type BookingQuery = {
   status?: string;
 };
 
+export type BookingQueryRoom = {
+  roomId: string;
+  status?: string;
+};
+
 export type BookingWithPopulate = Omit<IBooking, "roomId"> & {
   roomId: {
     _id: string;

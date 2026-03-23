@@ -5,13 +5,18 @@ import {
   ShieldCheck,
   CheckCircle2,
   Sparkles,
-  CalendarCheck,
 } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { PUSHER_KEY, SEPAY_URL } from "../../constants";
+import {
+  BookingStatus,
+  PaymentStatus,
+  PUSHER_KEY,
+  SEPAY_URL,
+} from "../../constants";
 import Pusher, { Channel } from "pusher-js";
 import { formatPrice } from "../../lib/utils";
+import { PaymentEvent } from "../../types/booking";
 
 const ConfirmPayment: React.FC = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -37,8 +42,8 @@ const ConfirmPayment: React.FC = () => {
     const channel = pusherRef.current.subscribe(`payment-${bookingId}`);
     channelRef.current = channel;
 
-    const handler = (data: any) => {
-      if (data?.bookingId === bookingId && data?.status === "PAID") {
+    const handler = (data: PaymentEvent) => {
+      if (data.bookingId === bookingId && data.status === PaymentStatus.PAID) {
         setPaid(true);
       }
     };
@@ -78,9 +83,7 @@ const ConfirmPayment: React.FC = () => {
             onClick={() =>
               navigate(
                 `/hotels/${room?.hotelId?._id}/room/${room?._id}/booking`,
-                {
-                  state: { room, total },
-                },
+                { state: { room, total } },
               )
             }
             className="flex items-center gap-2 group"
@@ -179,13 +182,7 @@ const ConfirmPayment: React.FC = () => {
                 </div>
               </>
             ) : (
-              <div
-                className="relative bg-emerald-50/40 rounded-2xl border border-emerald-100 flex flex-col items-center gap-6 px-8 py-12"
-                style={{
-                  animation:
-                    "fadeInUp 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards",
-                }}
-              >
+              <div className="relative bg-emerald-50/40 rounded-2xl border border-emerald-100 flex flex-col items-center gap-6 px-8 py-12 animate-[fadeInUp_0.5s_cubic-bezier(0.34,1.56,0.64,1)_forwards]">
                 <div className="relative">
                   <div className="w-24 h-24 rounded-full bg-emerald-50 border-4 border-emerald-100 flex items-center justify-center shadow-xl shadow-emerald-100">
                     <CheckCircle2
@@ -289,7 +286,9 @@ const ConfirmPayment: React.FC = () => {
                   }`}
                 >
                   <span
-                    className={`w-2 h-2 rounded-full ${paid ? "bg-emerald-400" : "bg-amber-400 animate-pulse"}`}
+                    className={`w-2 h-2 rounded-full ${
+                      paid ? "bg-emerald-400" : "bg-amber-400 animate-pulse"
+                    }`}
                   />
                   {paid ? "Payment received" : "Awaiting payment…"}
                 </div>
@@ -316,13 +315,6 @@ const ConfirmPayment: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px) scale(0.97); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-      `}</style>
     </div>
   );
 };

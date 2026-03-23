@@ -54,7 +54,6 @@ const CreateMyBooking: React.FC = () => {
         },
       );
     } catch (error: any) {
-      console.log("===error", error);
       toastError(error.message);
     } finally {
       setLoading(false);
@@ -315,7 +314,7 @@ const CreateMyBooking: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500">Taxes & Fees</span>
-                  <span className="font-semibold text-[#1c140d]">{formatPrice(0)}</span>
+                  <span className="text-green-400/100">Free</span>
                 </div>
               </div>
 

@@ -5,7 +5,6 @@ import { SepayDataWebhook } from "../types/sepay";
 import { CONTENT_REGEX } from "../constant";
 import { pusher } from "../types/pusher";
 import { RoomRepository } from "../repositories/RoomRepository";
-import { RoomStatus } from "../models/Room";
 import mongoose from "mongoose";
 import { BadRequestError } from "routing-controllers";
 
@@ -13,7 +12,6 @@ import { BadRequestError } from "routing-controllers";
 export class PaymentService {
   constructor(
     private readonly bookingRepo: BookingRepository,
-    private readonly roomRepo: RoomRepository,
   ) {}
 
   async processWebhook(data: SepayDataWebhook) {
@@ -25,9 +23,10 @@ export class PaymentService {
       if (!bookingId) return;
 
       const booking = await this.bookingRepo.findById(bookingId);
-      if (!booking) return;
+      if (!booking) {
+        throw new BadRequestError("Booking not found!");
+      }
 
-      console.log(booking);
       await this.bookingRepo.update(
         bookingId,
         {
@@ -37,21 +36,13 @@ export class PaymentService {
         session,
       );
 
-      await this.roomRepo.update(
-        String(booking.roomId._id),
-        {
-          status: RoomStatus.BOOKED,
-        },
-        session,
-      );
+      await pusher.trigger(`payment-${bookingId}`, "payment-success", {
+        bookingId,
+        status: PaymentStatus.PAID,
+      });
 
       await session.commitTransaction();
       session.endSession();
-
-      await pusher.trigger(`payment-${bookingId}`, "payment-success", {
-        bookingId,
-        status: "PAID",
-      });
 
       return { success: true };
     } catch (error: any) {

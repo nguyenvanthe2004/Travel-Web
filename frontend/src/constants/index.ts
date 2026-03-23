@@ -26,6 +26,12 @@ export enum BookingStatus {
   CANCELLED = "cancelled",
 }
 
+export enum PaymentStatus {
+  PENDING = "pending",
+  PAID = "paid",
+  FAILED = "failed",
+}
+
 export enum SortValue {
   RECOMMENDED = "recommended",
   PRICE_ASC = "price_asc",

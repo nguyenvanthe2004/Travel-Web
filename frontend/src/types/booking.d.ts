@@ -1,4 +1,4 @@
-import { BookingStatus } from "../constants";
+import { BookingStatus, PaymentStatus } from "../constants";
 
 export interface Booking {
   _id: string;
@@ -52,4 +52,14 @@ export interface UpdateBookingDto {
 export interface FindBookingStatus {
   status: BookingStatus
   total: number;
+}
+
+export type BookingDate = {
+  checkIn: Date;
+  checkOut: Date;
+};
+
+export type PaymentEvent = {
+  bookingId: string;
+  status: PaymentStatus;
 }

@@ -33,7 +33,17 @@ export class BookingController {
     @QueryParam("status") status?: string,
     @QueryParam("userId") userId?: string,
   ) {
-    return await this.bookingService.findAll(page, limit, status as BookingStatus, userId);
+    return await this.bookingService.findAll(
+      page,
+      limit,
+      status as BookingStatus,
+      userId,
+    );
+  }
+
+  @Get("/room/:roomId/dates")
+  async getBookedDates(@Param("roomId") roomId: string) {
+    return this.bookingService.findBookedDates(roomId);
   }
 
   @Get("/my-booking")
@@ -43,7 +53,12 @@ export class BookingController {
     @CurrentUser() user: UserProps,
     @QueryParam("status") status?: string,
   ) {
-    return await this.bookingService.findByUser(+page, +limit, user, status as BookingStatus);
+    return await this.bookingService.findByUser(
+      +page,
+      +limit,
+      user,
+      status as BookingStatus,
+    );
   }
   @Get("/booking-manager")
   async findBookingOwner(
@@ -52,7 +67,12 @@ export class BookingController {
     @CurrentUser() user: UserProps,
     @QueryParam("status") status?: string,
   ) {
-    return await this.bookingService.findByOwner(+page, +limit, user, status as BookingStatus);
+    return await this.bookingService.findByOwner(
+      +page,
+      +limit,
+      user,
+      status as BookingStatus,
+    );
   }
   @Get("/:id")
   async findBookingById(@Param("id") id: string) {

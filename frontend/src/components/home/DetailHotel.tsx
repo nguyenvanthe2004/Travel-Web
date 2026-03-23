@@ -236,7 +236,6 @@ const DetailHotel: React.FC = () => {
             <h3 className="text-xl font-bold mb-6">Available Rooms</h3>
             <div className="flex flex-col gap-6">
               {hotel.rooms.map((room) => {
-                if (room.status !== RoomStatus.AVAILABLE) return null;
                 return (
                   <div
                     key={room._id}

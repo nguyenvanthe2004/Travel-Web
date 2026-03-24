@@ -29,13 +29,13 @@ export class BookingController {
   @Get("/")
   async findAll(
     @QueryParam("page") page: number,
-    @QueryParam("limit") limit?: number,
+    @QueryParam("limit") limit: number,
     @QueryParam("status") status?: string,
     @QueryParam("userId") userId?: string,
   ) {
     return await this.bookingService.findAll(
-      page,
-      limit,
+      +page,
+      +limit,
       status as BookingStatus,
       userId,
     );

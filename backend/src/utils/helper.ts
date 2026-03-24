@@ -71,4 +71,3 @@ export const refreshToken = (res: Response, user: IUser) => {
   });
 };
 
-export const LIMIT = 10;

@@ -6,7 +6,7 @@ import { BookingStatus } from "../models/Booking";
 import { CreateBookingDto, UpdateBookingDto } from "../dtos/BookingDto";
 import { UserProps } from "../types/auth";
 import { UserRepository } from "../repositories/UserRepository";
-import { LIMIT } from "../utils/helper";
+import { LIMIT } from "../constant";
 
 @Service()
 export class BookingService {

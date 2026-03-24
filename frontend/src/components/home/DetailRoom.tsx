@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import NotFoundPage from "../ui/NotFound";
 import { formatPrice, getNights } from "../../lib/utils";
+import Calendar from "../ui/Calendar";
+import { callGetBookedDates } from "../../services/booking";
 
 const DetailRoom: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -32,6 +34,7 @@ const DetailRoom: React.FC = () => {
   const [checkIn, setCheckIn] = useState<string>("");
   const [checkOut, setCheckOut] = useState<string>("");
   const [guest, setGuest] = useState<number>(1);
+  const [bookingDates, setBookingDates] = useState<any[]>([]);
   const navigate = useNavigate();
 
   const fetchRoomById = async () => {
@@ -46,17 +49,40 @@ const DetailRoom: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const fetchDate = async () => {
+    if (!roomId) return;
+    try {
+      setLoading(true);
+      const res = await callGetBookedDates(roomId);
+      setBookingDates(res.data);
+
+    } catch (error: any) {
+      toastError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      await Promise.all([fetchRoomById(), fetchDate()]);
+    } catch (error: any) {
+      toastError(error.message);
+    }
+  };
+
   useEffect(() => {
-    fetchRoomById();
+    fetchData();
   }, [roomId]);
 
   const images = room?.images || [];
 
   const nights = useMemo(() => {
-  if (!checkIn || !checkOut) return 0;
+    if (!checkIn || !checkOut) return 0;
 
-  return getNights(new Date(checkIn), new Date(checkOut));
-}, [checkIn, checkOut]);
+    return getNights(new Date(checkIn), new Date(checkOut));
+  }, [checkIn, checkOut]);
 
   const total = useMemo(() => {
     if (!room) return 0;
@@ -169,7 +195,7 @@ const DetailRoom: React.FC = () => {
       </section>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-12">
-          <section>
+          <section className="py-8 border-y border-orange-400/10">
             <div className="flex items-center gap-2 mb-2">
               <span className="bg-orange-400/10 text-orange-400 text-xs font-extrabold uppercase tracking-widest px-2 py-1 rounded">
                 Executive Choice
@@ -193,6 +219,9 @@ const DetailRoom: React.FC = () => {
               {room.description}
             </p>
           </section>
+          <Calendar
+            bookings={bookingDates}
+          />
           <section className="grid grid-cols-2 md:grid-cols-4 gap-6 py-8 border-y border-orange-400/10">
             <div className="flex flex-col gap-1">
               <span className="material-symbols-outlined text-orange-400 mb-2">

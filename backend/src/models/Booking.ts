@@ -1,9 +1,15 @@
 import { Schema, model, Document, Types } from "mongoose";
 
 export enum BookingStatus {
-  PENDING = "pending",    
-  CONFIRMED = "confirmed",   
-  CANCELLED = "cancelled",   
+  PENDING = "pending",
+  CONFIRMED = "confirmed",
+  CANCELLED = "cancelled",
+}
+
+export enum PaymentStatus {
+  PENDING = "pending",
+  PAID = "paid",
+  FAILED = "failed",
 }
 
 export interface IBooking extends Document {
@@ -16,9 +22,10 @@ export interface IBooking extends Document {
   checkOut: Date;
   guest: number;
   request: string;
-  total: number
+  total: number;
   createdAt: Date;
   updatedAt: Date;
+  paymentStatus: PaymentStatus;
 }
 
 const BookingSchema = new Schema<IBooking>(
@@ -42,12 +49,12 @@ const BookingSchema = new Schema<IBooking>(
       required: true,
     },
     checkIn: {
-        type: Date,
-        required: true,
+      type: Date,
+      required: true,
     },
     checkOut: {
-        type: Date,
-        required: true,
+      type: Date,
+      required: true,
     },
     status: {
       type: String,
@@ -55,15 +62,20 @@ const BookingSchema = new Schema<IBooking>(
       default: BookingStatus.PENDING,
     },
     guest: {
-        type: Number,
-        required: true,
+      type: Number,
+      required: true,
     },
     request: {
-        type: String,
+      type: String,
     },
     total: {
-        type: Number,
-        required: true,
+      type: Number,
+      required: true,
+    },
+    paymentStatus: {
+      type: String,
+      enum: Object.values(PaymentStatus),
+      default: PaymentStatus.PENDING,
     },
   },
   {

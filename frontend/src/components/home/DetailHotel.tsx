@@ -21,6 +21,7 @@ import {
   Wifi,
 } from "lucide-react";
 import NotFoundPage from "../ui/NotFound";
+import { formatPrice } from "../../lib/utils";
 
 const DetailHotel: React.FC = () => {
   const { hotelId } = useParams<{ hotelId: string }>();
@@ -235,7 +236,6 @@ const DetailHotel: React.FC = () => {
             <h3 className="text-xl font-bold mb-6">Available Rooms</h3>
             <div className="flex flex-col gap-6">
               {hotel.rooms.map((room) => {
-                if (room.status !== RoomStatus.AVAILABLE) return null;
                 return (
                   <div
                     key={room._id}
@@ -293,7 +293,7 @@ const DetailHotel: React.FC = () => {
                       <div className="flex items-end justify-between border-border-light:border-border-dark pt-4 mt-2">
                         <div>
                           <p className="text-2xl font-bold text-orange-400 transition-colors">
-                            ${room.price.toLocaleString()}
+                            {formatPrice(room.price)}
                             <span className="text-sm font-medium text-text-main-light:text-text-main-dark">
                               / night
                             </span>

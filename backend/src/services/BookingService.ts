@@ -6,7 +6,7 @@ import { BookingStatus } from "../models/Booking";
 import { CreateBookingDto, UpdateBookingDto } from "../dtos/BookingDto";
 import { UserProps } from "../types/auth";
 import { UserRepository } from "../repositories/UserRepository";
-import { LIMIT } from "../utils/helper";
+import { LIMIT } from "../constant";
 
 @Service()
 export class BookingService {
@@ -16,7 +16,12 @@ export class BookingService {
     private readonly userRepo: UserRepository,
   ) {}
 
-  async findAll(page = 1, limit = LIMIT, status?: BookingStatus, userId?: string) {
+  async findAll(
+    page = 1,
+    limit = LIMIT,
+    status?: BookingStatus,
+    userId?: string,
+  ) {
     try {
       const skip = (page - 1) * limit;
 
@@ -49,7 +54,25 @@ export class BookingService {
     }
   }
 
-  async findByUser(page = 1, limit = LIMIT, user: UserProps, status?: BookingStatus) {
+  async findBookedDates(roomId: string) {
+    try {
+      const bookings = await this.BookingRepo.findByRoomId(roomId);
+
+      return bookings.map((b) => ({
+        checkIn: b.checkIn,
+        checkOut: b.checkOut,
+      }));
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
+  }
+
+  async findByUser(
+    page = 1,
+    limit = LIMIT,
+    user: UserProps,
+    status?: BookingStatus,
+  ) {
     try {
       const userId = user.userId;
 
@@ -70,7 +93,12 @@ export class BookingService {
     }
   }
 
-  async findByOwner(page = 1, limit = LIMIT, user: UserProps, status?: BookingStatus) {
+  async findByOwner(
+    page = 1,
+    limit = LIMIT,
+    user: UserProps,
+    status?: BookingStatus,
+  ) {
     try {
       const userId = user.userId;
 
@@ -102,9 +130,7 @@ export class BookingService {
         ...dto,
         userId: user.userId,
       });
-      return {
-        success: true,
-      };
+      return { _id: booking._id, total: booking.total };
     } catch (error: any) {
       throw new BadRequestError(error.message);
     }
@@ -136,12 +162,14 @@ export class BookingService {
       if (!booking) {
         throw new NotFoundError("Booking not found");
       }
-      if (String(booking.userId._id) !== userId && String(booking.roomId.hotelId.userId._id) !== userId) {
+      if (
+        String(booking.userId._id) !== userId &&
+        String(booking.roomId.hotelId.userId._id) !== userId
+      ) {
         throw new BadRequestError(
           "You are not authorized to cancel this booking",
         );
       }
-
 
       return this.BookingRepo.update(bookingId, {
         status: BookingStatus.CANCELLED,

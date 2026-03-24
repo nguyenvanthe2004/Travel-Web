@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import {
   callCancelBooking,
+  callDeleteBooking,
   callGetBookingsOwner,
 } from "../../services/booking";
 import { Booking } from "../../types/booking";
@@ -49,7 +50,7 @@ const BookingManager: React.FC = () => {
     if (!deleteId) return;
     try {
       setDeleting(true);
-      await callCancelBooking(deleteId);
+      await callDeleteBooking(deleteId);
       setDeleteId("");
       close();
       toastSuccess("Booking deleted successfully!");

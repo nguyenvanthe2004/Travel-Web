@@ -32,6 +32,7 @@ import { useModal } from "../../hooks/useModal";
 import ConfirmDeleteModal from "../ui/ConfirmDeleteModal";
 import { Hotel } from "../../types/hotel";
 import { callGetHotelById } from "../../services/hotel";
+import { formatPrice } from "../../lib/utils";
 
 type CountByStatus = {
   available: number;
@@ -326,7 +327,7 @@ const MyRoom: React.FC = () => {
                         <div className="mt-auto pt-4 border-t border-gray-200 :border-gray-700">
                           <div className="flex items-baseline gap-1 mb-4">
                             <span className="text-2xl font-bold text-[#1B8398]">
-                              ${room.price}
+                              {formatPrice(room.price)}
                             </span>
                             <span className="text-sm text-gray-500 :text-gray-400 font-medium">
                               / night

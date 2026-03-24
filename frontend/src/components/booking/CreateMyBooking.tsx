@@ -33,7 +33,7 @@ const CreateMyBooking: React.FC = () => {
   const handelBookingSubmit = async () => {
     try {
       setLoading(true);
-      const res = await callCreateBooking({
+      const { data } = await callCreateBooking({
         roomId: room._id,
         info: `${fullName} - ${phone}`,
         nights,
@@ -44,7 +44,15 @@ const CreateMyBooking: React.FC = () => {
         total,
       });
       toastSuccess("Create Booking Successfully!");
-      navigate("/my-booking");
+      navigate(
+        `/hotels/${room.hotelId._id}/room/${room._id}/booking/${data._id}/payment`,
+        {
+          state: {
+            room,
+            total
+          },
+        },
+      );
     } catch (error: any) {
       toastError(error.message);
     } finally {
@@ -176,30 +184,6 @@ const CreateMyBooking: React.FC = () => {
                 rows={3}
               ></textarea>
             </section>
-            <section className="bg-white:bg-[#2a2018] rounded-xl shadow-sm p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="material-symbols-outlined text-orange-400 text-2xl">
-                  <CreditCard />
-                </span>
-                <h3 className="text-xl font-bold">Payment Method</h3>
-              </div>
-              <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-                <button className="flex items-center gap-2 px-6 py-3 rounded-lg bg-orange-400/10 border-2 border-orange-400 text-orange-400 font-bold whitespace-nowrap transition-colors">
-                  <span className="material-symbols-outlined">
-                    <CreditCard />
-                  </span>
-                  QR CODE
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mt-2 p-3 bg-green-50:bg-green-900/20 rounded-lg text-green-700:text-green-300 text-sm">
-                  <span className="material-symbols-outlined icon-fill">
-                    <LockKeyhole />
-                  </span>
-                  Your payment information is encrypted and secure.
-                </div>
-              </div>
-            </section>
             <button
               onClick={handelBookingSubmit}
               className="w-full bg-orange-400 hover:bg-orange-600 text-white text-lg font-bold py-4 rounded-xl shadow-lg shadow-orange-200:shadow-none transition-all mt-4 flex justify-center items-center gap-2"
@@ -330,7 +314,7 @@ const CreateMyBooking: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500">Taxes & Fees</span>
-                  <span className="font-semibold text-[#1c140d]">$45.00</span>
+                  <span className="text-green-400/100">Free</span>
                 </div>
               </div>
 

@@ -1,5 +1,7 @@
 export const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export const CLOUDINARY_URL = import.meta.env.VITE_CLOUDINARY_URL;
+export const SEPAY_URL = import.meta.env.VITE_SEPAY_URL;
+export const PUSHER_KEY = import.meta.env.VITE_PUSHER_KEY;
 
 export enum UserRole {
   USER = "user",
@@ -22,6 +24,12 @@ export enum BookingStatus {
   PENDING = "pending",
   CONFIRMED = "confirmed",
   CANCELLED = "cancelled",
+}
+
+export enum PaymentStatus {
+  PENDING = "pending",
+  PAID = "paid",
+  FAILED = "failed",
 }
 
 export enum SortValue {

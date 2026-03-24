@@ -5,8 +5,10 @@ import {
   BookingFindFilter,
   BookingQuery,
   BookingWithPopulate,
+  BookingQueryRoom,
 } from "../types/booking";
 import { IBooking, BookingModel, BookingStatus } from "../models/Booking";
+import { ClientSession } from "mongoose";
 
 @Service()
 export class BookingRepository {
@@ -65,6 +67,37 @@ export class BookingRepository {
       })
       .populate("userId", "fullName email avatar")
       .lean<BookingWithPopulate>();
+  }
+
+  async findByRoomId(
+    roomId: string,
+    status?: BookingStatus,
+  ): Promise<IBooking[]> {
+    const query: BookingQueryRoom = { roomId };
+
+    if (status) {
+      query.status = status;
+    }
+
+    return BookingModel.find(query)
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "roomId",
+        select: "name price images hotelId",
+        populate: {
+          path: "hotelId",
+          select: "name address locationId",
+          populate: [
+            { path: "locationId", select: "name" },
+            {
+              path: "userId",
+              select: "_id fullName",
+            },
+          ],
+        },
+      })
+      .populate("userId", "fullName email avatar")
+      .lean();
   }
 
   async findByUser(
@@ -176,8 +209,16 @@ export class BookingRepository {
     return booking.save();
   }
 
-  async update(id: string, data: UpdateBookingInput): Promise<IBooking | null> {
-    return BookingModel.findByIdAndUpdate(id, { $set: data }, { new: true });
+  async update(
+    id: string,
+    data: UpdateBookingInput,
+    session?: ClientSession,
+  ): Promise<IBooking | null> {
+    return BookingModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true, session },
+    );
   }
 
   async delete(id: string): Promise<boolean> {

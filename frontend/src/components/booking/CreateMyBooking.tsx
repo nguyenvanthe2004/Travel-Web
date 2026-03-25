@@ -212,7 +212,7 @@ const CreateMyBooking: React.FC = () => {
                 <div
                   className="w-full h-full bg-center bg-no-repeat bg-cover scale-100 group-hover:scale-105 transition-transform duration-700"
                   style={{
-                    backgroundImage: `url(${CLOUDINARY_URL}${room.images})`,
+                    backgroundImage: `url(${CLOUDINARY_URL}${room.images[0]})`,
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />

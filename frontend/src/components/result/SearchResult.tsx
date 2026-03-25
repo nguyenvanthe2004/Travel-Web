@@ -21,7 +21,7 @@ import Pagination from "../ui/Pagination";
 
 const STEP = 50;
 const MIN = 0;
-const MAX = 1000;
+const MAX = 10000000;
 
 export const SortLabel: Record<SortValue, string> = {
   [SortValue.RECOMMENDED]: "Recommended",
@@ -38,7 +38,7 @@ const SearchResult: React.FC = () => {
   const guests = Number(params.get("guests"));
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(false);
-  const [priceRange, setPriceRange] = useState([100, 500]);
+  const [priceRange, setPriceRange] = useState([10000, 5000000]);
   const [debouncedPrice] = useDebounce(priceRange, 500);
   const [sort, setSort] = useState(SortValue.RECOMMENDED);
 

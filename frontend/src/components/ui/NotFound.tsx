@@ -1,3 +1,4 @@
+import { Search } from "lucide-react";
 import React from "react";
 
 const NotFoundPage: React.FC = () => {
@@ -6,7 +7,7 @@ const NotFoundPage: React.FC = () => {
       style={{ fontFamily: "sans-serif" }}
       className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-center px-4"
     >
-      <div className="text-6xl mb-4">🔍</div>
+      <div className="text-6xl mb-4"><Search /></div>
       <h2 className="text-xl font-semibold text-gray-700 mb-2">
         No Data Found
       </h2>

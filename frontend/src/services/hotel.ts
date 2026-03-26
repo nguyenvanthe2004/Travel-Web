@@ -12,7 +12,7 @@ export const callGetAllHotel = async (
   status?: HotelStatus,
   locationId?: string,
 ) => {
-  return instance.get("/hotels", {
+  return await instance.get("/hotels", {
     params: {
       page,
       limit,

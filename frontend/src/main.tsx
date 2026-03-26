@@ -7,10 +7,8 @@ import { store } from "./redux/store";
 import App from "./App";
 
 createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
     <Provider store={store}>
       <App />
       <ToastContainer />
     </Provider>
-  </React.StrictMode>
 );

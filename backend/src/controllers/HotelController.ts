@@ -15,19 +15,13 @@ import {
 import { Service } from "typedi";
 import { HotelService } from "../services/HotelService";
 import { CreateHotelDto, UpdateHotelDto } from "../dtos/HotelDto";
-import { Public } from "../decorators/public";
 import { UserProps } from "../types/auth";
-import { SortValue } from "../models/Hotel";
+import { Public } from "../decorators/public";
 
 @Service()
 @JsonController("/hotels")
 export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
-
-  @Get("/count/status")
-  async countBySingleStatus(@CurrentUser() user: UserProps) {
-    return this.hotelService.countHotelStatus(user);
-  }
 
   @Public()
   @Get("/")
@@ -40,6 +34,11 @@ export class HotelController {
     return await this.hotelService.findAll(page, limit, status, locationId);
   }
 
+  @Get("/count/status")
+  async countBySingleStatus(@CurrentUser() user: UserProps) {
+    return this.hotelService.countHotelStatus(user);
+  }
+
   @Get("/my-hotel")
   async getCurrentHotel(
     @QueryParam("page") page: number,
@@ -49,6 +48,8 @@ export class HotelController {
   ) {
     return await this.hotelService.findByUser(page, limit, user, status);
   }
+
+  @Public()
   @Get("/search")
   async findSearchHotel(
     @QueryParam("page") page: number,
@@ -66,7 +67,7 @@ export class HotelController {
       guests,
       minPrice,
       maxPrice,
-      sort
+      sort,
     );
   }
   @Public()

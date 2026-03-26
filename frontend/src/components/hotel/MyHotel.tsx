@@ -53,31 +53,29 @@ const MyHotel: React.FC = () => {
       setHotels(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error: any) {
-      toastError(error.message || "Failed to fetch hotels");
+      toastError("You need to log in to use the service!");
     } finally {
       setLoading(false);
     }
   };
   const fetchCountHotelByStatus = async () => {
-    try {
-      const data = await callCountHotelStatus();
-      const result: CountByStatus = {
-        open: 0,
-        closed: 0,
-        renovation: 0,
-      };
-      data.forEach((item: { status: HotelStatus; total: number }) => {
-        result[item.status] = item.total;
-      });
+    const data = await callCountHotelStatus();
+    const result: CountByStatus = {
+      open: 0,
+      closed: 0,
+      renovation: 0,
+    };
+    data.forEach((item: { status: HotelStatus; total: number }) => {
+      result[item.status] = item.total;
+    });
 
-      setCountByStatus(result);
-    } catch (error: any) {
-      toast.error(error.message);
-    }
+    setCountByStatus(result);
   };
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      navigate("/login");
+    }
 
     const fetchData = async () => {
       try {

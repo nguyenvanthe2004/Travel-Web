@@ -13,6 +13,7 @@ import { formatPrice, statusStyles } from "../../lib/utils";
 import LoadingPage from "../ui/LoadingPage";
 import dayjs from "dayjs";
 import NotFoundPage from "../ui/NotFound";
+import { useNavigate } from "react-router-dom";
 
 const MyBooking: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -25,6 +26,7 @@ const MyBooking: React.FC = () => {
   const [cancelId, setCancelId] = useState("");
   const [canceling, setCanceling] = useState(false);
   const { isOpen, open, close } = useModal();
+  const navigate = useNavigate()
 
   const user = useSelector((state: RootState) => state.auth.currentUser);
 
@@ -35,7 +37,8 @@ const MyBooking: React.FC = () => {
       setBookings(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error: any) {
-      toastError(error.message);
+      navigate("/login")
+      toastError("You need to log in to use the service!");
     } finally {
       setLoading(false);
     }

@@ -56,8 +56,9 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
       if (isPublic) return next();
 
       const token = req.cookies.token;
-      if (!token) throw new UnauthorizedError("Token missing");
-
+      if (!token) {
+        return next();
+      }
       const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
 
       // @ts-ignore

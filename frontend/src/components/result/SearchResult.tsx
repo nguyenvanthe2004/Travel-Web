@@ -18,6 +18,7 @@ import {
   Users,
 } from "lucide-react";
 import Pagination from "../ui/Pagination";
+import { formatPrice } from "../../lib/utils";
 
 const STEP = 50;
 const MIN = 0;
@@ -157,11 +158,11 @@ const SearchResult: React.FC = () => {
               </div>
               <div className="flex justify-between items-center text-xl font-medium text-[#1c140d] pt-2">
                 <span className="px-3 py-1 bg-gray-50 rounded-lg">
-                  ${priceRange[0]}
+                  {formatPrice(priceRange[0])}
                 </span>
                 <span className="text-gray-400">-</span>
                 <span className="px-3 py-1 bg-gray-50 rounded-lg">
-                  ${priceRange[1]}+
+                   +{formatPrice(priceRange[1])}
                 </span>
               </div>
             </div>

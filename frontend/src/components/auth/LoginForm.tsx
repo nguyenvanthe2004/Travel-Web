@@ -64,7 +64,7 @@ const LoginForm = () => {
       </div>
 
       {/* Social */}
-      <div className="grid gap-4 px-5">
+      <div className="w-full grid gap-4 px-5">
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
           onError={() => toastError("Google login failed")}

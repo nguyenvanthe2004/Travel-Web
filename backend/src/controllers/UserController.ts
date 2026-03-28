@@ -118,6 +118,7 @@ export class UserController {
   ) {
     return await this.userService.updatePassword(user, dto);
   }
+  @Public()
   @Post("/logout")
   async logout(@Res() res: Response) {
     return await this.userService.logout(res);

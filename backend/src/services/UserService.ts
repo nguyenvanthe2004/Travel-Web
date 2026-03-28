@@ -9,19 +9,22 @@ import {
   UpdateProfileDto,
 } from "../dtos/UserDto";
 import bcrypt from "bcrypt";
-import { UserRole } from "../models/User";
+import { IUser, UserRole } from "../models/User";
 import { generateVerifyCode, refreshToken } from "../utils/helper";
 import { MailService } from "./MailService";
 import jwt from "jsonwebtoken";
 import { generateForgotPass } from "../utils/helper";
 import mongoose from "mongoose";
 import { JwtPayload, UserProps } from "../types/auth";
+import { OAuth2Client } from "google-auth-library";
+export type IUserDocument = IUser & Document;
 
 @Service()
 export class UserService {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly mailService: MailService,
+    private googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID),
   ) {}
   async findAll(page = 1, limit = 10) {
     try {
@@ -94,6 +97,83 @@ export class UserService {
         },
         token,
         message: "Login successfully!",
+      };
+    } catch (error: any) {
+      throw new BadRequestError(error.message);
+    }
+  }
+
+  async loginGoogle(credential: string, res: Response) {
+    try {
+      if (!credential) {
+        throw new BadRequestError("Missing credential");
+      }
+
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+
+      if (!payload) {
+        throw new BadRequestError("Invalid Google token");
+      }
+
+      const email = payload.email!;
+      const name = payload.name || "Google User";
+      const avatar = payload.picture || "";
+
+      let user: any = await this.userRepo.findByEmail(email);
+
+      if (!user) {
+        user = await this.userRepo.create({
+          fullName: name,
+          email: email,
+          phone: "",
+          password: "GOOGLE_LOGIN",
+          role: UserRole.USER,
+          avatar: avatar,
+          verifyCode: "",
+          isActive: true,
+        });
+      }
+
+      const userId = user._id?.toString();
+
+      const token = jwt.sign(
+        {
+          userId: userId,
+          fullName: user.fullName,
+          phone: user.phone,
+          email: user.email,
+          role: user.role,
+          avatar: user.avatar,
+        },
+        process.env.JWT_SECRET!,
+        {
+          expiresIn: "7d",
+        },
+      );
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return {
+        user: {
+          userId: userId,
+          fullName: user.fullName,
+          phone: user.phone,
+          email: user.email,
+          role: user.role,
+          avatar: user.avatar,
+        },
+        token,
+        message: "Login with Google successfully!",
       };
     } catch (error: any) {
       throw new BadRequestError(error.message);

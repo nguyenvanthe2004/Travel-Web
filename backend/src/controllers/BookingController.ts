@@ -15,6 +15,7 @@ import { BookingService } from "../services/BookingService";
 import { CreateBookingDto, UpdateBookingDto } from "../dtos/BookingDto";
 import { UserProps } from "../types/auth";
 import { BookingStatus } from "../models/Booking";
+import { Public } from "../decorators/public";
 
 @Service()
 @JsonController("/bookings")
@@ -40,7 +41,7 @@ export class BookingController {
       userId,
     );
   }
-
+  @Public()
   @Get("/room/:roomId/dates")
   async getBookedDates(@Param("roomId") roomId: string) {
     return this.bookingService.findBookedDates(roomId);

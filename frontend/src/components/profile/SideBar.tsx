@@ -31,7 +31,7 @@ const SideBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
 
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => pathname.includes(path);
 
   const handleLogout = async () => {
     try {

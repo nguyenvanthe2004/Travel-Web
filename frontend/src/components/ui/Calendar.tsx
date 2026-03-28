@@ -1,6 +1,7 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { BookingDate } from "../../types/booking";
 
 dayjs.extend(isBetween);
@@ -10,11 +11,11 @@ type CalendarProps = {
 };
 
 const Calendar: React.FC<CalendarProps> = ({ bookings = [] }) => {
-  const now = dayjs();
+  const [currentMonth, setCurrentMonth] = useState(dayjs());
 
   const calendarDays = useMemo(() => {
-    const startOfMonth = now.startOf("month");
-    const daysInMonth = now.daysInMonth();
+    const startOfMonth = currentMonth.startOf("month");
+    const daysInMonth = currentMonth.daysInMonth();
     const firstDay = startOfMonth.day();
 
     const days: (Dayjs | null)[] = [];
@@ -28,7 +29,7 @@ const Calendar: React.FC<CalendarProps> = ({ bookings = [] }) => {
     }
 
     return days;
-  }, [now]);
+  }, [currentMonth]);
 
   const isBooked = (date: Dayjs) => {
     return bookings.some((b) =>
@@ -36,25 +37,50 @@ const Calendar: React.FC<CalendarProps> = ({ bookings = [] }) => {
         dayjs(b.checkIn),
         dayjs(b.checkOut),
         "day",
-        "[)", 
+        "[)",
       ),
     );
   };
 
+  const goPrevMonth = () => {
+    setCurrentMonth((prev) => prev.subtract(1, "month"));
+  };
+
+  const goNextMonth = () => {
+    setCurrentMonth((prev) => prev.add(1, "month"));
+  };
+
   return (
     <div className="w-full mx-auto">
-      <div className="text-center mb-4">
+      {/* Header + Arrow */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={goPrevMonth}
+          className="p-2 rounded-full hover:bg-gray-100 transition"
+        >
+          <ChevronLeft size={20} />
+        </button>
+
         <h2 className="text-lg md:text-xl font-semibold">
-          {now.format("MMM YYYY")}
+          {currentMonth.format("MMM YYYY")}
         </h2>
+
+        <button
+          onClick={goNextMonth}
+          className="p-2 rounded-full hover:bg-gray-100 transition"
+        >
+          <ChevronRight size={20} />
+        </button>
       </div>
 
+      {/* Days header */}
       <div className="grid grid-cols-7 text-center text-xs md:text-sm font-medium text-gray-500 mb-2">
         {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((d) => (
           <div key={d}>{d}</div>
         ))}
       </div>
 
+      {/* Calendar */}
       <div className="grid grid-cols-7 gap-2 md:gap-3">
         {calendarDays.map((day, index) => {
           if (!day) return <div key={index} />;

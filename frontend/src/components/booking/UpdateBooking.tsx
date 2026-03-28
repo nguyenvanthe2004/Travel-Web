@@ -14,8 +14,12 @@ const UpdateBooking: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [status, setStatus] = useState<BookingStatus>(BookingStatus.PENDING);
+  const [originalStatus, setOriginalStatus] = useState<BookingStatus>(
+    BookingStatus.PENDING,
+  );
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   const fetchBooking = async () => {
     if (!id) return;
@@ -25,6 +29,7 @@ const UpdateBooking: React.FC = () => {
       const { data } = await callGetBookingById(id);
       setBooking(data);
       setStatus(data.status);
+      setOriginalStatus(data.status);
     } catch (error: any) {
       toastError(error.message);
     } finally {
@@ -34,11 +39,14 @@ const UpdateBooking: React.FC = () => {
 
   const handleChangeStatus = async (id: string, data: UpdateBookingDto) => {
     try {
+      setUpdating(true);
       await callUpdateBooking(id, data);
       toastSuccess("Update status successfully!");
       navigate("/booking-manager");
     } catch (error: any) {
       toastError(error.message);
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -183,10 +191,20 @@ const UpdateBooking: React.FC = () => {
           </button>
 
           <button
-            onClick={() => handleChangeStatus(booking._id, { status })}
-            className="flex items-center gap-2 px-6 py-3 bg-[#0F8FA0] text-white rounded-xl hover:bg-[#0E7A88]"
+            disabled={status === originalStatus || updating}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl
+              ${
+                status === originalStatus || updating
+                ? "bg-gray-300 cursor-not-allowed text-gray-500"
+                : "bg-[#0F8FA0] text-white hover:bg-[#0E7A88]"
+              }
+            `}
           >
-            <Check size={18} />
+            {updating ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              <Check size={18} />
+            )}
             Update Status
           </button>
         </div>

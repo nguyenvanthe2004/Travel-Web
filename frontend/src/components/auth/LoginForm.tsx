@@ -4,10 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { callLogin } from "../../services/auth";
+import { callLogin, callLoginGoogle } from "../../services/auth";
 import { setCurrentUser } from "../../redux/slices/currentUser";
 import { loginSchema, type LoginFormData } from "../../validations/auth";
 import { toastError, toastSuccess } from "../../lib/toast";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -34,6 +35,24 @@ const LoginForm = () => {
     }
   };
 
+  const handleGoogleSuccess = async (
+    credentialResponse: CredentialResponse,
+  ) => {
+    try {
+      if (!credentialResponse.credential) {
+        throw new Error("No credential from Google");
+      }
+
+      const res = await callLoginGoogle(credentialResponse.credential);
+
+      dispatch(setCurrentUser(res.data.user));
+      toastSuccess("Login successfully");
+      navigate("/");
+    } catch (error: any) {
+      toastError(error.message);
+    }
+  };
+
   return (
     <div className="relative z-10 w-full max-w-[440px] bg-white rounded-xl shadow-2xl border border-[#e8dbce] overflow-hidden">
       {/* Header */}
@@ -45,16 +64,16 @@ const LoginForm = () => {
       </div>
 
       {/* Social */}
-      <div className="grid grid-cols-2 gap-4 px-5">
-        <button className="h-11 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50">
-          <img src="/icons/google.svg" />
-          <span className="font-bold text-sm">Google</span>
-        </button>
-
-        <button className="h-11 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50">
-          <img src="/icons/facebook.svg" />
-          <span className="font-bold text-sm">Facebook</span>
-        </button>
+      <div className="grid gap-4 px-5">
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => toastError("Google login failed")}
+          theme="outline"
+          size="large"
+          shape="rectangular"
+          text="signin_with"
+          width="100%"
+        />
       </div>
 
       {/* Divider */}

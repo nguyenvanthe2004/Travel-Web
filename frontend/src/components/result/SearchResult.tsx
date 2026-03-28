@@ -317,7 +317,7 @@ const SearchResult: React.FC = () => {
                               {hotel.rooms.length ? (
                                 <div className="flex items-baseline gap-1">
                                   <span className="text-xl md:text-2xl font-bold text-orange-500">
-                                    ${hotel.rangePrice}
+                                    {formatPrice(Number(hotel.rangePrice))}
                                   </span>
                                   <span className="text-xs text-gray-400">
                                     /night

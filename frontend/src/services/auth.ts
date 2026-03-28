@@ -7,6 +7,9 @@ export const callRegister = async (data: RegisterData) => {
 export const callLogin = async (data: LoginData) => {
   return await instance.post("/users/login", data);
 };
+export const callLoginGoogle = async (credential: string) => {
+  return await instance.post("/users/google", { credential });
+};
 export const callVerifyEmail = async (email: string, code: string) => {
   return await instance.post("/users/verify-email", { email, code });
 };

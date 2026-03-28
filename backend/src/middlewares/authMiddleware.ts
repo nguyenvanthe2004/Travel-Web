@@ -10,6 +10,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { IS_PUBLIC_KEY } from "../decorators/public";
 import { UserRole } from "../models/User";
+import { match } from "path-to-regexp";
 
 @Service()
 @Middleware({ type: "before" })
@@ -32,8 +33,12 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
           const normalizedReqPath = route.replace(/\/+$/, "");
           const normalizedFullRoute = fullRoute.replace(/\/+$/, "");
 
+          const matcher = match(normalizedFullRoute, {
+            decode: decodeURIComponent,
+          });
+
           if (
-            normalizedReqPath === normalizedFullRoute &&
+            matcher(normalizedReqPath) &&
             method === action.type.toLowerCase()
           ) {
             isPublic =
@@ -57,9 +62,9 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
 
       const token = req.cookies.token;
       if (!token) {
-        return next();
+        throw new UnauthorizedError("Missing token");
       }
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
 
       // @ts-ignore
       req.user = {
@@ -72,7 +77,7 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
       };
       next();
     } catch (error) {
-      console.error("AuthMiddleware error:", error);
+      console.log("AuthMiddleware error:", error);
       throw new UnauthorizedError("Invalid or expired token");
     }
   }

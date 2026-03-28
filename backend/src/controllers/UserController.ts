@@ -44,7 +44,7 @@ export class UserController {
   }
 
   @Get("/current")
-  async getCurrent(@Req() req: Request, @CurrentUser() user: JwtPayload,) {
+  async getCurrent(@Req() req: Request, @CurrentUser() user: JwtPayload) {
     return user;
   }
 
@@ -61,6 +61,15 @@ export class UserController {
     @Res() res: Response,
   ) {
     return this.userService.login(data, res);
+  }
+
+  @Public()
+  @Post("/google")
+  async loginGoogle(
+    @Body() body: { credential: string },
+    @Res() res: Response,
+  ) {
+    return this.userService.loginGoogle(body.credential, res);
   }
 
   @Public()

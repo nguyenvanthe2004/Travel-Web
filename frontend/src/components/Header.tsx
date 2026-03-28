@@ -185,22 +185,25 @@ const Header: React.FC = () => {
 
           {/* Desktop Nav & User */}
           <div className="hidden lg:flex items-center gap-3">
-            <nav className="flex gap-3">
-              <Link
-                to={"/my-booking"}
-                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
-              >
-                <BookCheck size={20} />
-                <span className="mt-1">My Bookings</span>
-              </Link>
-              <Link
-                to={"/my-hotel"}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
-              >
-                <Hotel size={20} />
-                <span className="mt-1">My Hotels</span>
-              </Link>
-            </nav>
+            {user.userId && (
+              <nav className="flex gap-3">
+                <Link
+                  to={"/my-booking"}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
+                >
+                  <BookCheck size={20} />
+                  <span className="mt-1">My Bookings</span>
+                </Link>
+
+                <Link
+                  to={"/my-hotel"}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
+                >
+                  <Hotel size={20} />
+                  <span className="mt-1">My Hotels</span>
+                </Link>
+              </nav>
+            )}
 
             <div className="h-6 w-px bg-gray-200"></div>
 
@@ -212,11 +215,15 @@ const Header: React.FC = () => {
                   aria-label="User menu"
                 >
                   <img
+                    className="w-full h-full object-cover"
                     src={
-                      user.avatar
-                        ? `${CLOUDINARY_URL}${user.avatar}`
-                        : "public/images/avatar.png"
+                      user?.avatar
+                        ? user.avatar.startsWith("http")
+                          ? user.avatar
+                          : `${CLOUDINARY_URL}${user.avatar}`
+                        : "/images/avatar.png"
                     }
+                    alt="avatar"
                   />
                 </button>
 
@@ -440,12 +447,15 @@ const Header: React.FC = () => {
           <div className="flex items-center gap-3 pb-3 px-4 mt-3">
             <div className="size-12 rounded-full border-4 border-orange-100 overflow-hidden bg-cover bg-center flex-shrink-0">
               <img
+                className="w-full h-full object-cover"
                 src={
                   user?.avatar
-                    ? `${CLOUDINARY_URL}${user.avatar}`
-                    : "public/images/avatar.png"
+                    ? user.avatar.startsWith("http")
+                      ? user.avatar
+                      : `${CLOUDINARY_URL}${user.avatar}`
+                    : "/images/avatar.png"
                 }
-                className="w-full h-full object-cover"
+                alt="avatar"
               />
             </div>
             <div className="flex-1 min-w-0">
@@ -458,22 +468,25 @@ const Header: React.FC = () => {
 
           <div className="px-6 py-6 space-y-6 border-t border-gray-200">
             {/* Navigation */}
-            <nav className="space-y-1">
-              <Link
-                to={"/my-booking"}
-                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
-              >
-                <BookCheck size={20} />
-                <span className="mt-1">My Bookings</span>
-              </Link>
-              <Link
-                to={"/my-hotel"}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
-              >
-                <Hotel size={20} />
-                <span className="mt-1">My Hotels</span>
-              </Link>
-            </nav>
+            {user.userId && (
+              <nav className="flex gap-3">
+                <Link
+                  to={"/my-booking"}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
+                >
+                  <BookCheck size={20} />
+                  <span className="mt-1">My Bookings</span>
+                </Link>
+
+                <Link
+                  to={"/my-hotel"}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer"
+                >
+                  <Hotel size={20} />
+                  <span className="mt-1">My Hotels</span>
+                </Link>
+              </nav>
+            )}
 
             {/* User Section */}
             {user?.userId ? (

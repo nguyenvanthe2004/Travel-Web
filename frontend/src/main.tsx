@@ -2,13 +2,17 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { Provider } from "react-redux";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer } from "react-toastify";
 import { store } from "./redux/store";
 import App from "./App";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { YOUR_GOOGLE_CLIENT_ID } from "./constants";
 
 createRoot(document.getElementById("root")!).render(
+  <GoogleOAuthProvider clientId={YOUR_GOOGLE_CLIENT_ID}>
     <Provider store={store}>
       <App />
       <ToastContainer />
     </Provider>
+  </GoogleOAuthProvider>,
 );

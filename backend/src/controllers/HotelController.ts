@@ -70,6 +70,7 @@ export class HotelController {
       sort,
     );
   }
+  
   @Public()
   @Get("/:id")
   async findHotelById(@Param("id") id: string) {

@@ -19,3 +19,4 @@ export interface User {
 export interface CurrentUserState {
   currentUser: User;
 }
+

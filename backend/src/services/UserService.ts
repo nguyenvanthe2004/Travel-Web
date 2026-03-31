@@ -204,6 +204,8 @@ export class UserService {
     const session = await mongoose.startSession();
     session.startTransaction();
 
+    let committed = false;
+
     try {
       const hashedPassword = await bcrypt.hash(dto.password, 10);
       const verifyCode = await generateVerifyCode(6, this.userRepo);
@@ -222,15 +224,17 @@ export class UserService {
         session,
       );
 
+      console.log("Send mail...");
+      await this.mailService.sendVerifyCode(dto.email, verifyCode);
+      console.log("Send mail done");
       await session.commitTransaction();
       session.endSession();
-
-      await this.mailService.sendVerifyCode(dto.email, verifyCode);
 
       return {
         message: "Verification code sent to email",
       };
     } catch (error) {
+      console.error("REGISTER ERROR:", error);
       await session.abortTransaction();
       session.endSession();
       throw new BadRequestError("Failed to sent email");

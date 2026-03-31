@@ -39,7 +39,7 @@ const LocationList: React.FC = () => {
 
   useEffect(() => {
     fetchLocations();
-  }, []);
+  }, [page]);
 
   const handleDeleteLocation = async () => {
     if (!deleteId) return;

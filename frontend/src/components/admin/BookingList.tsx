@@ -78,9 +78,6 @@ const BookingList: React.FC = () => {
     }
   };
 
-        console.log(bookings)
-
-
   const bookingColumns = [
     {
       key: "guest",

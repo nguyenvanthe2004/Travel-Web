@@ -17,12 +17,7 @@ const DestinationCard: React.FC = () => {
     setLoading(true);
     try {
       const response = await callGetAllLocation(1, 4);
-      const data =response.data.data || [];
-      const sorted = data.sort(
-      (a: Location, b: Location) =>
-        (b.hotels.length || 0) - (a.hotels.length || 0)
-    );
-      setLocations(sorted);
+      setLocations(response.data.data || []);
     } catch (error) {
       toast.error("Failed to load locations");
       console.error(error);

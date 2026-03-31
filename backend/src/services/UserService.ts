@@ -131,7 +131,7 @@ export class UserService {
           fullName: name,
           email: email,
           phone: "",
-          password: "GOOGLE_LOGIN",
+          password: null!,
           role: UserRole.USER,
           avatar: avatar,
           verifyCode: "",
@@ -222,10 +222,10 @@ export class UserService {
         session,
       );
 
-      await this.mailService.sendVerifyCode(dto.email, verifyCode);
-
       await session.commitTransaction();
       session.endSession();
+
+      await this.mailService.sendVerifyCode(dto.email, verifyCode);
 
       return {
         message: "Verification code sent to email",

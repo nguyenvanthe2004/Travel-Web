@@ -13,7 +13,7 @@ const AuthHeader: React.FC = () => {
           <img src="/icons/logo.svg" alt="" />
         </div>
         <h2 className="text-lg sm:text-xl font-bold tracking-wide">
-          Vista Stays
+          TravelStays
         </h2>
       </div>
 

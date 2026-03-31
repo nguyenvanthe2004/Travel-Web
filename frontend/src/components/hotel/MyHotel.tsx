@@ -53,7 +53,7 @@ const MyHotel: React.FC = () => {
       setHotels(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error: any) {
-      toastError("You need to log in to use the service!");
+      toastError(error.message);
     } finally {
       setLoading(false);
     }

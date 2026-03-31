@@ -54,8 +54,7 @@ const CreateMyBooking: React.FC = () => {
         },
       );
     } catch (error: any) {
-      navigate("/login");
-      toastError("You need to log in to use the service!");
+      toastError(error.message);
     } finally {
       setLoading(false);
     }

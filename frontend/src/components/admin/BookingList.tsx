@@ -78,6 +78,9 @@ const BookingList: React.FC = () => {
     }
   };
 
+        console.log(bookings)
+
+
   const bookingColumns = [
     {
       key: "guest",
@@ -115,7 +118,7 @@ const BookingList: React.FC = () => {
       render: (booking: Booking) => (
         <>
           <p className="text-sm font-medium text-gray-700 whitespace-nowrap">
-            {booking.roomId.hotelId.name}
+            {/* {booking.roomId.hotelId.name} */}
           </p>
           <p className="text-xs text-gray-400 whitespace-nowrap">
             {booking.roomId.name}
